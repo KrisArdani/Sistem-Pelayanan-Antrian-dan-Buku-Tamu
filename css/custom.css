@@ -1,0 +1,282 @@
+/* TOBASA BPS Kota Tegal - Custom Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap');
+
+:root {
+  --bps-blue-dark: #002B5B;
+  --bps-blue-primary: #003366;
+  --bps-blue-accent: #00A3E0;
+  --bps-orange: #FF6B35;
+  --bps-orange-hover: #E85A24;
+  --bps-bg: #F8FAFC;
+  --bps-card-bg: #FFFFFF;
+  --bps-sidebar: #0F172A;
+  --bps-text-main: #1E293B;
+  --bps-text-muted: #64748B;
+  --bps-border: #E2E8F0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bps-bg);
+  color: var(--bps-text-main);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .brand-font {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 51, 102, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  box-shadow: 0 20px 30px -10px rgba(0, 51, 102, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Sidebar Custom Styling */
+.bps-sidebar {
+  background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+  color: #F8FAFC;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.bps-nav-item {
+  color: #94A3B8;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+.bps-nav-item:hover, .bps-nav-item.active {
+  color: #FFFFFF;
+  background: rgba(0, 163, 224, 0.15);
+  border-left: 4px solid var(--bps-blue-accent);
+}
+
+.bps-nav-item .material-icons {
+  font-size: 1.35rem;
+  color: var(--bps-blue-accent);
+}
+
+/* Step Indicators (A, B) */
+.step-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--bps-blue-primary), var(--bps-blue-accent));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 163, 224, 0.3);
+}
+
+/* Webcam Preview Box */
+.camera-box {
+  width: 100%;
+  max-width: 420px;
+  height: 280px;
+  background-color: #0F172A;
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+  border: 2px dashed #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.camera-box video, .camera-box canvas, .camera-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ======================================================
+   Guaranteed 2-Page PDF Document Print Rules:
+   Page 1: Data Kunjungan Table Summary
+   Page 2: Tiket Antrian Digital & QR Code ONLY
+   ====================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide normal web page elements & modals completely */
+  body > *:not(#print-2page-container),
+  .modal-backdrop, .modal, aside, header, footer, nav, button, .btn {
+    display: none !important;
+  }
+
+  /* Show ONLY the dedicated 2-page print layout */
+  #print-2page-container {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #print-2page-container * {
+    visibility: visible !important;
+  }
+
+  /* QR Code inside Page 2 */
+  #p2_qrcode_box img[style*="display: none"],
+  #p2_qrcode_box canvas[style*="display: none"] {
+    display: none !important;
+  }
+
+  #p2_qrcode_box img:not([style*="display: none"]),
+  #p2_qrcode_box canvas:not([style*="display: none"]) {
+    display: block !important;
+    margin: 0 auto !important;
+    max-width: 120px !important;
+    height: auto !important;
+  }
+}
+
+/* TTS Clickable Highlight */
+.tts-highlight {
+  outline: 3px solid var(--bps-orange) !important;
+  background-color: rgba(255, 107, 53, 0.1) !important;
+  transition: all 0.15s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+/* ======================================================
+   Universal High-Visibility Input Styling (Clean & High Contrast)
+   ====================================================== */
+
+input.form-control,
+select.form-select,
+textarea.form-control,
+.form-control,
+.form-select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 2px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus,
+.form-control:focus,
+.form-select:focus {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Readable Placeholder */
+input::placeholder,
+textarea::placeholder,
+.form-control::placeholder {
+  color: #64748b !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+}
+
+/* Select Dropdown Options - White BG & Dark Text */
+select option,
+.form-select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+/* SKM Emoji Active Micro-Animations */
+@keyframes emojiHeartbeat {
+  0%, 100% { transform: scale(1.3); }
+  50% { transform: scale(1.48) rotate(-4deg); }
+}
+
+@keyframes emojiGentleNod {
+  0%, 100% { transform: scale(1.3) translateY(0); }
+  50% { transform: scale(1.38) translateY(-6px); }
+}
+
+@keyframes emojiSway {
+  0%, 100% { transform: scale(1.3) rotate(0deg); }
+  25% { transform: scale(1.35) rotate(-10deg); }
+  75% { transform: scale(1.35) rotate(10deg); }
+}
+
+@keyframes emojiShake {
+  0%, 100% { transform: scale(1.3) translateX(0); }
+  20% { transform: scale(1.3) translateX(-4px); }
+  40% { transform: scale(1.3) translateX(4px); }
+  60% { transform: scale(1.3) translateX(-3px); }
+  80% { transform: scale(1.3) translateX(3px); }
+}
+
+.skm-emoji.skm-anim-heartbeat {
+  animation: emojiHeartbeat 0.8s ease-in-out infinite !important;
+}
+
+.skm-emoji.skm-anim-nod {
+  animation: emojiGentleNod 0.9s ease-in-out infinite !important;
+}
+
+.skm-emoji.skm-anim-sway {
+  animation: emojiSway 1.1s ease-in-out infinite !important;
+}
+
+.skm-emoji.skm-anim-shake {
+  animation: emojiShake 0.8s ease-in-out infinite !important;
+}
+
+

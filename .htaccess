@@ -1,0 +1,29 @@
+# TOBASA BPS Kota Tegal - Server Access Control & Security Rules
+
+# Disable Directory Browsing
+Options -Indexes
+
+# Block direct public access to sensitive files
+<FilesMatch "\.(sql|env|log|md)$">
+    Require all denied
+</FilesMatch>
+
+<Files "config.php">
+    Require all denied
+</Files>
+
+<Files "security.php">
+    Require all denied
+</Files>
+
+<Files "auth_check.php">
+    Require all denied
+</Files>
+
+# Set Security Headers via Apache if mod_headers is enabled
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

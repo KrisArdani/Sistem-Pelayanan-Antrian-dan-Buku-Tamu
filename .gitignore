@@ -1,0 +1,13 @@
+# Scratch and temporary directories
+scratch/
+*.tmp
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp

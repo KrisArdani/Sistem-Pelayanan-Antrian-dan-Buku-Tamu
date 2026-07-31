@@ -1,0 +1,112 @@
+<?php
+// TOBASA BPS Kota Tegal - Database Connection & Auto-Setup
+require_once __DIR__ . '/config.php';
+
+$host = DB_HOST;
+$user = DB_USER;
+$pass = DB_PASS;
+$dbname = DB_NAME;
+
+// Connect to MySQL server
+$conn = new mysqli($host, $user, $pass);
+
+if ($conn->connect_error) {
+    error_log("DB Connection Error: " . $conn->connect_error);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Gagal terkoneksi ke database server. Silakan hubungi administrator.'
+    ]);
+    exit;
+}
+
+// Auto-create database & tables if db_tobasa does not exist
+try {
+    $db_check = @$conn->select_db($dbname);
+} catch (Throwable $e) {
+    $db_check = false;
+}
+
+if (!$db_check) {
+    $conn->query("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $conn->select_db($dbname);
+
+    // Load SQL schema file
+    $sql_file = __DIR__ . '/db_tobasa.sql';
+    if (file_exists($sql_file)) {
+        $sql = file_get_contents($sql_file);
+        $conn->multi_query($sql);
+        // Clear multi query buffer
+        while ($conn->next_result()) {
+            if ($result = $conn->store_result()) {
+                $result->free();
+            }
+        }
+    }
+}
+
+// Set charset
+$conn->set_charset("utf8mb4");
+
+// Auto-migrate database tables if missing new columns
+try {
+    $checkUserCol = $conn->query("SHOW COLUMNS FROM users LIKE 'nohp'");
+    if ($checkUserCol && $checkUserCol->num_rows === 0) {
+        $conn->query("ALTER TABLE users 
+            MODIFY COLUMN role ENUM('petugas', 'admin', 'kepala', 'pengunjung') NOT NULL,
+            ADD COLUMN jenis_kelamin ENUM('Laki Laki', 'Perempuan') DEFAULT 'Laki Laki' AFTER role,
+            ADD COLUMN umur VARCHAR(30) DEFAULT NULL AFTER jenis_kelamin,
+            ADD COLUMN nohp VARCHAR(20) DEFAULT NULL AFTER umur,
+            ADD COLUMN email VARCHAR(100) DEFAULT NULL AFTER nohp,
+            ADD COLUMN pendidikan VARCHAR(50) DEFAULT NULL AFTER email,
+            ADD COLUMN pekerjaan VARCHAR(100) DEFAULT NULL AFTER pendidikan,
+            ADD COLUMN instansi VARCHAR(150) DEFAULT NULL AFTER pekerjaan,
+            ADD COLUMN kategori_instansi VARCHAR(100) DEFAULT NULL AFTER instansi");
+    } else {
+        // Ensure role ENUM contains 'pengunjung'
+        $conn->query("ALTER TABLE users MODIFY COLUMN role ENUM('petugas', 'admin', 'kepala', 'pengunjung') NOT NULL");
+    }
+
+    $checkAntrianCol = $conn->query("SHOW COLUMNS FROM antrian LIKE 'fasilitas'");
+    if ($checkAntrianCol && $checkAntrianCol->num_rows === 0) {
+        $conn->query("ALTER TABLE antrian 
+            ADD COLUMN user_id INT DEFAULT NULL AFTER id,
+            ADD COLUMN jenis_kelamin ENUM('Laki Laki', 'Perempuan') DEFAULT 'Laki Laki' AFTER nama,
+            ADD COLUMN umur VARCHAR(30) DEFAULT NULL AFTER jenis_kelamin,
+            ADD COLUMN nohp VARCHAR(20) DEFAULT NULL AFTER umur,
+            ADD COLUMN email VARCHAR(100) DEFAULT NULL AFTER nohp,
+            ADD COLUMN pendidikan VARCHAR(50) DEFAULT NULL AFTER email,
+            ADD COLUMN pekerjaan VARCHAR(100) DEFAULT NULL AFTER pendidikan,
+            ADD COLUMN instansi VARCHAR(150) DEFAULT NULL AFTER pekerjaan,
+            ADD COLUMN kategori_instansi VARCHAR(100) DEFAULT NULL AFTER instansi,
+            ADD COLUMN fasilitas VARCHAR(150) DEFAULT 'Datang Langsung Ke PST BPS Kota Tegal' AFTER kategori_instansi,
+            ADD COLUMN pemanfaatan VARCHAR(150) DEFAULT NULL AFTER layanan,
+            ADD COLUMN data_diinginkan TEXT DEFAULT NULL AFTER pemanfaatan,
+            ADD COLUMN foto LONGTEXT DEFAULT NULL AFTER data_diinginkan,
+            ADD COLUMN monev ENUM('Ya', 'Tidak') DEFAULT 'Ya' AFTER foto,
+            ADD COLUMN pendapat ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT 'Sangat Puas' AFTER waktu,
+            ADD COLUMN catatan TEXT DEFAULT NULL AFTER pendapat,
+            ADD COLUMN tipe_pendaftaran ENUM('online', 'walkin') DEFAULT 'online' AFTER catatan");
+    } else {
+        // Ensure monev column exists if antrian table already migrated
+        $checkMonev = $conn->query("SHOW COLUMNS FROM antrian LIKE 'monev'");
+        if ($checkMonev && $checkMonev->num_rows === 0) {
+            $conn->query("ALTER TABLE antrian ADD COLUMN monev ENUM('Ya', 'Tidak') DEFAULT 'Ya' AFTER foto");
+        }
+    }
+} catch (Throwable $e) {
+    error_log("Auto Migration Note: " . $e->getMessage());
+}
+
+// Function JSON response helper
+function sendJsonResponse($status, $message, $data = null, $httpCode = 200) {
+    http_response_code($httpCode);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => $status,
+        'message' => $message,
+        'data' => $data
+    ]);
+    exit;
+}
+?>
