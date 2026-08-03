@@ -8,8 +8,8 @@ Aplikasi web portal **TOBASA** (Pelayanan Statistik Terpadu) yang digunakan oleh
 
 - **Antrean Online (Queue Management)**: Pengambilan dan pengelolaan antrean pengunjung pelayanan statistik.
 - **Buku Tamu (Guestbook System)**: Pencatatan identitas, maksud/tujuan kedatangan, dan riwayat kunjungan tamu.
-- **Admin Dashboard**: Panel kontrol untuk pengelola layanan dalam memantau dan mengelola antrean serta laporan buku tamu.
-- **Keamanan & Proteksi**: Dilengkapi proteksi CSRF, pembersihan input, dan manajemen sesi yang aman.
+- **Admin Dashboard**: Panel kontrol interaktif untuk pengelola layanan dalam memantau, memfilter, dan mengelola antrean serta laporan buku tamu.
+- **Keamanan & Proteksi**: Dilengkapi proteksi CSRF, pembersihan input, rate limiting login, dan manajemen sesi yang aman.
 - **Tampilan Modern & Responsif**: Menggunakan Tailwind CSS & Bootstrap 5 dengan desain yang user-friendly dan responsif.
 
 ---
@@ -35,46 +35,58 @@ Aplikasi web portal **TOBASA** (Pelayanan Statistik Terpadu) yang digunakan oleh
 
 1. **Clone / Download Repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/KrisArdani/Tobasa.git
    ```
-   Atau tempatkan folder proyek ini ke dalam direktori web server (misalnya `C:/xampp/htdocs/A/sepat`).
+   Atau ekstrak folder proyek ini ke dalam direktori web server Anda (misalnya `C:/xampp/htdocs/A/Tobasa` atau `C:/xampp/htdocs/Tobasa`).
 
-2. **Import Database**
-   - Buka **phpMyAdmin** (`http://localhost/phpmyadmin`).
-   - Buat database baru dengan nama `db_tobasa` (atau sesuaikan dengan konfigurasi).
-   - Import file `db_tobasa.sql` yang ada pada direktori akar proyek.
+2. **Database Auto-Setup / Import Manual**
+   - **Otomatis**: Sistem dilengkapi *Auto-Setup Database*. Cukup pastikan MySQL pada XAMPP sudah berjalan, lalu buka aplikasi di browser. Sistem akan otomatis membuat database `db_tobasa` dan mengimpor struktur/tabel awal jika belum ada.
+   - **Manual**: Jika ingin mengimpor manual, buka **phpMyAdmin** (`http://localhost/phpmyadmin`), buat database `db_tobasa`, lalu import file `db_tobasa.sql`.
 
 3. **Konfigurasi Koneksi**
-   - Buka file `config.php` atau `koneksi.php`.
-   - Sesuaikan kredensial database (host, username, password, dan nama database) jika diperlukan.
+   - Buka file `config.php` untuk mengkonfigurasi kredensial MySQL (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`) jika tidak menggunakan `root` tanpa password.
 
 4. **Jalankan Aplikasi**
-   - Pastikan service Apache dan MySQL pada XAMPP sudah berjalan.
+   - Pastikan Apache dan MySQL pada XAMPP sudah aktif.
    - Buka browser dan akses:
      ```text
-     http://localhost/A/sepat/
+     http://localhost/A/Tobasa/
      ```
+     *(atau sesuaikan dengan folder htdocs Anda)*
+
+---
+
+## 🔑 Akun Bawaan (Default Accounts)
+
+Gunakan kredensial berikut untuk menguji aplikasi:
+
+| Role | Username | Password | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin` | `admin123` | Akses penuh dashboard back-office |
+| **Petugas** | `petugas` | `petugas123` | Akses loket pelayanan antrean & buku tamu |
+| **Kepala BPS** | `kepala` | `kepala123` | Akses pemantauan & laporan |
+| **Pengunjung** | `ahmad_fauzi` | `user123` | Akun contoh pengunjung |
 
 ---
 
 ## 📁 Struktur Direktori
 
 ```text
-sepat/
-├── admin/            # Panel manajemen admin
+Tobasa/
+├── admin/            # Panel manajemen admin (dashboard, antrean, buku tamu)
 ├── css/              # Stylesheet & stylesheet kustom
-├── js/               # Script JavaScript
-├── img/              # Asset gambar & ikon
+├── js/               # Script JavaScript (dashboard, antrean, tts, dll)
+├── img/              # Asset gambar & logo BPS
 ├── antrian.php       # Modul manajemen & pengambilan antrean
 ├── bukutamu.php      # Modul pencatatan buku tamu
-├── config.php        # Konfigurasi aplikasi
+├── config.php        # Konfigurasi aplikasi & database
 ├── db_tobasa.sql     # Schema & data awal database MySQL
 ├── footer.php        # Header/Footer komponen UI
 ├── index.php         # Halaman utama (Landing Page TOBASA)
-├── koneksi.php       # Koneksi ke database MySQL
-├── login.php         # Halaman login petugas/admin
+├── koneksi.php       # Koneksi ke database MySQL & auto-migration
+├── login.php         # Halaman login petugas/admin/pengunjung
 ├── logout.php        # Proses logout
-├── register.php      # Halaman pendaftaran
+├── register.php      # Halaman pendaftaran akun pengunjung
 ├── security.php      # Fungsi keamanan (CSRF & Security Headers)
 └── sidebar.php       # Komponen navigasi sidebar
 ```

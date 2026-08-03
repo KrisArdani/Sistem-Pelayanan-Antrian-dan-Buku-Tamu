@@ -26,13 +26,14 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- petugas / petugas123
 -- admin / admin123
 -- kepala / kepala123
--- pengunjung / user123 (Sample Pengunjung)
-INSERT INTO `users` (`username`, `password`, `name`, `role`, `jenis_kelamin`, `umur`, `nohp`, `email`, `pendidikan`, `pekerjaan`, `instansi`, `kategori_instansi`) VALUES
-('petugas', '$2y$10$wyF1kIOQij5vyCM.3C4AW.KeurOmtfYFEfJCFHn.vfB4sxDOY086O', 'Petugas PST Loket', 'petugas', 'Laki Laki', '26-34 tahun', '081200000001', 'petugas@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-('admin', '$2y$10$kSx1EttrAobm378hbHq.Durj8KM8BOgmohDmOw198yYWcpIiaENvW', 'Admin Back Office', 'admin', 'Laki Laki', '26-34 tahun', '081200000002', 'admin@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-('kepala', '$2y$10$oDKByW3T.VAjhzLzRg3SUOfjVWbiZpVTRXVuEmkMNc4FUrqqu/xAW', 'Kepala BPS Kota Tegal', 'kepala', 'Laki Laki', '45+ tahun', '081200000003', 'kepala@bps.go.id', 'S2-S3', 'Kepala BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-('ahmad_fauzi', '$2y$10$wyF1kIOQij5vyCM.3C4AW.KeurOmtfYFEfJCFHn.vfB4sxDOY086O', 'Ahmad Fauzi', 'pengunjung', 'Laki Laki', '26-34 tahun', '081234567890', 'ahmad.fauzi@email.com', 'D4-S1', 'Peneliti/Dosen', 'Universitas Pancasakti Tegal', 'Sekolah/Universitas')
+-- ahmad_fauzi / user123 (Sample Pengunjung)
+INSERT INTO `users` (`id`, `username`, `password`, `name`, `role`, `jenis_kelamin`, `umur`, `nohp`, `email`, `pendidikan`, `pekerjaan`, `instansi`, `kategori_instansi`) VALUES
+(1, 'petugas', '$2y$10$wyF1kIOQij5vyCM.3C4AW.KeurOmtfYFEfJCFHn.vfB4sxDOY086O', 'Petugas PST Loket', 'petugas', 'Laki Laki', '26-34 tahun', '081200000001', 'petugas@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(2, 'admin', '$2y$10$kSx1EttrAobm378hbHq.Durj8KM8BOgmohDmOw198yYWcpIiaENvW', 'Admin Back Office', 'admin', 'Laki Laki', '26-34 tahun', '081200000002', 'admin@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(3, 'kepala', '$2y$10$oDKByW3T.VAjhzLzRg3SUOfjVWbiZpVTRXVuEmkMNc4FUrqqu/xAW', 'Kepala BPS Kota Tegal', 'kepala', 'Laki Laki', '45+ tahun', '081200000003', 'kepala@bps.go.id', 'S2-S3', 'Kepala BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(4, 'ahmad_fauzi', '$2y$10$wyF1kIOQij5vyCM.3C4AW.KeurOmtfYFEfJCFHn.vfB4sxDOY086O', 'Ahmad Fauzi', 'pengunjung', 'Laki Laki', '26-34 tahun', '081234567890', 'ahmad.fauzi@email.com', 'D4-S1', 'Peneliti/Dosen', 'Universitas Pancasakti Tegal', 'Sekolah/Universitas')
 ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `name` = VALUES(`name`);
+
 
 -- 1b. Table: login_attempts (Rate Limiting)
 CREATE TABLE IF NOT EXISTS `login_attempts` (
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `security_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
--- 2. Table: buku_tamu (18 Fields + Photo & Verification Status)
+-- 2. Table: buku_tamu (Guestbook Entries & Verification Status)
 CREATE TABLE IF NOT EXISTS `buku_tamu` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `kode_bt` VARCHAR(20) NOT NULL UNIQUE,
@@ -73,10 +74,10 @@ CREATE TABLE IF NOT EXISTS `buku_tamu` (
   `pemanfaatan` VARCHAR(150) NOT NULL,
   `data_diinginkan` TEXT DEFAULT NULL,
   `foto` LONGTEXT DEFAULT NULL,
-  `pendapat` ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') NOT NULL DEFAULT 'Sangat Puas',
+  `pendapat` ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT NULL,
   `monev` ENUM('Ya', 'Tidak') NOT NULL DEFAULT 'Ya',
   `catatan` TEXT DEFAULT NULL,
-  `status` ENUM('Pending', 'Terverifikasi') DEFAULT 'Pending',
+  `status` ENUM('Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan') DEFAULT 'Menunggu',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -86,9 +87,9 @@ INSERT INTO `buku_tamu` (
   `pekerjaan`, `instansi`, `kategori_instansi`, `fasilitas`, `layanan`, `pemanfaatan`,
   `data_diinginkan`, `pendapat`, `monev`, `catatan`, `status`
 ) VALUES
-('BT-001', '2026-07-27 08:30:00', 'Ahmad Fauzi', 'Laki Laki', '26-34 tahun', '081234567890', 'ahmad.fauzi@email.com', 'D4-S1', 'Peneliti/Dosen', 'Universitas Pancasakti Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Konsultasi Statistik', 'Penelitian', 'Data Inflasi Kota Tegal 2025-2026', 'Sangat Puas', 'Ya', 'Pelayanan ramah dan respon sangat cepat.', 'Terverifikasi'),
-('BT-002', '2026-07-27 09:15:00', 'Siti Rahmawati', 'Perempuan', '17-25 tahun', '085712345678', 'siti.rahma@email.com', 'SMA Ke Bawah', 'Mahasiswa', 'Poltek Harber Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Perpustakaan', 'Tugas Sekolah/Kuliah', 'Publikasi Tegal Kota Dalam Angka 2025', 'Puas', 'Ya', 'Buku publikasi sangat lengkap.', 'Pending'),
-('BT-003', '2026-07-27 10:00:00', 'Budi Santoso', 'Laki Laki', '35-44 tahun', '081987654321', 'budi.santoso@pemda.go.id', 'D4-S1', 'Pegawai Negeri / TNI POLRI', 'Bappeda Kota Tegal', 'Pemda', 'Datang Langsung Ke PST BPS Kota Tegal', 'Rekomendasi Kegiatan Statistik (ROMANTIK)', 'Pemerintah', 'Rekomendasi Survei Kepuasan Masyarakat Pemda', 'Sangat Puas', 'Ya', 'Penjelasan mengenai prosedur ROMANTIK sangat jelas.', 'Terverifikasi')
+('BT-001', '2026-07-27 08:30:00', 'Ahmad Fauzi', 'Laki Laki', '26-34 tahun', '081234567890', 'ahmad.fauzi@email.com', 'D4-S1', 'Peneliti/Dosen', 'Universitas Pancasakti Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Konsultasi Statistik', 'Penelitian', 'Data Inflasi Kota Tegal 2025-2026', 'Sangat Puas', 'Ya', 'Pelayanan ramah dan respon sangat cepat.', 'Selesai'),
+('BT-002', '2026-07-27 09:15:00', 'Siti Rahmawati', 'Perempuan', '17-25 tahun', '085712345678', 'siti.rahma@email.com', 'SMA Ke Bawah', 'Mahasiswa', 'Poltek Harber Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Perpustakaan', 'Tugas Sekolah/Kuliah', 'Publikasi Tegal Kota Dalam Angka 2025', 'Puas', 'Ya', 'Buku publikasi sangat lengkap.', 'Menunggu'),
+('BT-003', '2026-07-27 10:00:00', 'Budi Santoso', 'Laki Laki', '35-44 tahun', '081987654321', 'budi.santoso@pemda.go.id', 'D4-S1', 'Pegawai Negeri / TNI POLRI', 'Bappeda Kota Tegal', 'Pemda', 'Datang Langsung Ke PST BPS Kota Tegal', 'Rekomendasi Kegiatan Statistik (ROMANTIK)', 'Pemerintah', 'Rekomendasi Survei Kepuasan Masyarakat Pemda', 'Sangat Puas', 'Ya', 'Penjelasan mengenai prosedur ROMANTIK sangat jelas.', 'Selesai')
 ON DUPLICATE KEY UPDATE `nama` = VALUES(`nama`);
 
 
@@ -112,12 +113,13 @@ CREATE TABLE IF NOT EXISTS `antrian` (
   `pemanfaatan` VARCHAR(150) DEFAULT NULL,
   `data_diinginkan` TEXT DEFAULT NULL,
   `foto` LONGTEXT DEFAULT NULL,
+  `monev` ENUM('Ya', 'Tidak') DEFAULT 'Ya',
   `tanggal` DATE NOT NULL,
   `waktu` TIME NOT NULL,
   `pendapat` ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT NULL,
   `catatan` TEXT DEFAULT NULL,
   `tipe_pendaftaran` ENUM('online', 'walkin') DEFAULT 'online',
-  `status` ENUM('Menunggu', 'Dipanggil', 'Selesai', 'Terlewat') DEFAULT 'Menunggu',
+  `status` ENUM('Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan') DEFAULT 'Menunggu',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
