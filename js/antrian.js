@@ -304,12 +304,28 @@ document.addEventListener('DOMContentLoaded', () => {
           newTicket = json.data;
           renderDigitalTicket(newTicket);
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Gagal Mengambil Tiket',
-            text: json.message || 'Terjadi kesalahan sistem saat membuat tiket antrian.',
-            confirmButtonColor: '#003366'
-          });
+          if (json.data && json.data.active_queue) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Antrean Masih Aktif',
+              html: `<p class="text-xs text-slate-600 leading-relaxed mb-3">${escapeHtml(json.message)}</p>`,
+              showCancelButton: true,
+              confirmButtonText: 'Ke Riwayat Tiket Saya',
+              cancelButtonText: 'Tutup',
+              confirmButtonColor: '#003366'
+            }).then((res) => {
+              if (res.isConfirmed) {
+                window.location.href = 'bukutamu.php';
+              }
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal Mengambil Tiket',
+              text: json.message || 'Terjadi kesalahan sistem saat membuat tiket antrian.',
+              confirmButtonColor: '#003366'
+            });
+          }
         }
       } catch (err) {
         console.error('API save_antrian failed:', err);
@@ -338,7 +354,7 @@ function renderDigitalTicket(ticket) {
 
   if (!ticketContainer || !qrContainer) return;
 
-  const queueNo = ticket.nomor || 'KS-001';
+  const queueNo = ticket.nomor || 'KS-01';
   const serviceName = ticket.layanan || (document.getElementById('ant_layanan') ? document.getElementById('ant_layanan').value : 'Konsultasi Statistik');
   const ticketId = ticket.id || 'ANT-' + Date.now().toString().slice(-6);
   const personName = ticket.nama || (document.getElementById('ant_nama') ? document.getElementById('ant_nama').value : 'Pengunjung');

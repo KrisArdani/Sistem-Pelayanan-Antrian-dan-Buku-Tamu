@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const isAuth = await checkAuth(['petugas', 'admin', 'kepala']);
   if (!isAuth) return;
 
+  const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');
+  if (filterTanggalSelect) {
+    filterTanggalSelect.addEventListener('change', () => renderAntrianDashboard());
+  }
+
   await renderAntrianDashboard();
 
   // Real-Time Live Polling (Every 3 seconds background sync)
@@ -82,9 +87,12 @@ async function renderAntrianDashboard(isSilent = false) {
 
   if (!tableBody) return;
 
+  const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');
+  const dateVal = filterTanggalSelect ? filterTanggalSelect.value : 'today';
+
   let data = [];
   try {
-    const res = await fetch('../api.php?action=get_antrian');
+    const res = await fetch(`../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}`);
     const json = await res.json();
     if (json.status === 'success') {
       data = json.data || [];
@@ -152,8 +160,8 @@ async function renderAntrianDashboard(isSilent = false) {
           <button onclick="updateAntrianStatus(${rowId}, 'Dilayani')" class="btn btn-sm btn-info bg-cyan-600 text-white text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Tandai Sedang Dilayani">
             <span class="material-icons text-xs">support_agent</span> Dilayani
           </button>
-          <button onclick="updateAntrianStatus(${rowId}, 'Selesai')" class="btn btn-sm btn-success text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Set Status Selesai">
-            <span class="material-icons text-xs">check_circle</span> Selesai
+          <button onclick="updateAntrianStatus(${rowId}, 'Terlewat')" class="btn btn-sm btn-secondary text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Tandai Terlewat">
+            <span class="material-icons text-xs">skip_next</span> Lewati
           </button>
         ` : item.status === 'Dilayani' ? `
           <button onclick="updateAntrianStatus(${rowId}, 'Selesai')" class="btn btn-sm btn-success text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Set Status Selesai">
@@ -164,6 +172,13 @@ async function renderAntrianDashboard(isSilent = false) {
             <span class="material-icons text-xs">volume_up</span> Panggil
           </button>
           <button onclick="updateAntrianStatus(${rowId}, 'Terlewat')" class="btn btn-sm btn-secondary text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Tandai Terlewat">Lewati</button>
+        ` : item.status === 'Terlewat' ? `
+          <button onclick="panggilSpesifik(${rowId}, true)" class="btn btn-sm btn-sky bg-sky-600 text-white text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Panggil Kembali Antrean Terlewat Ini">
+            <span class="material-icons text-xs">replay</span> Panggil Lagi
+          </button>
+          <button onclick="updateAntrianStatus(${rowId}, 'Dibatalkan')" class="btn btn-sm btn-outline-danger text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Batalkan Antrean Ini">
+            <span class="material-icons text-xs">cancel</span> Batalkan
+          </button>
         ` : ''}
       </td>
     `;
@@ -265,7 +280,7 @@ function speakQueueAnnouncement(nomor, nama, layanan) {
     }
 
     // Format nomor antrean agar diucapkan per huruf & kata angka dengan jelas tanpa mengeja "nol" (N-O-L)
-    // Contoh: 'KS-001' => 'K S , nol nol satu'
+    // Contoh: 'KS-01' => 'K S , nol satu'
     const digitWords = {
       '0': 'nol', '1': 'satu', '2': 'dua', '3': 'tiga', '4': 'empat',
       '5': 'lima', '6': 'enam', '7': 'tujuh', '8': 'delapan', '9': 'sembilan'

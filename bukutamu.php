@@ -158,18 +158,52 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
         </div>
 
         <!-- Filter & Search Controls -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0" id="filter-tabs">
-            <button type="button" class="btn btn-sm btn-primary bg-sky-600 border-sky-600 text-xs font-bold rounded-lg px-3 py-1.5 filter-btn active" data-filter="all">Semua</button>
-            <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Menunggu">Menunggu</button>
-            <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Dilayani">Dilayani</button>
-            <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Selesai">Selesai</button>
-            <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Dibatalkan">Dibatalkan</button>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0" id="filter-tabs">
+              <button type="button" class="btn btn-sm btn-primary bg-sky-600 border-sky-600 text-xs font-bold rounded-lg px-3 py-1.5 filter-btn active" data-filter="all">Semua Status</button>
+              <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Menunggu">Menunggu</button>
+              <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Dilayani">Dilayani</button>
+              <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Selesai">Selesai</button>
+              <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Terlewat">Terlewat</button>
+              <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-3 py-1.5 filter-btn" data-filter="Dibatalkan">Dibatalkan</button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- Filter Waktu -->
+              <select id="user_filter_waktu" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-36">
+                <option value="all">🕒 Semua Waktu</option>
+                <option value="today">☀️ Hari Ini</option>
+                <option value="this_month">🗓️ Bulan Ini</option>
+                <option value="custom">📆 Tanggal...</option>
+              </select>
+
+              <!-- Search Bar -->
+              <div class="relative w-full sm:w-48">
+                <span class="material-icons absolute left-3 top-2 text-slate-400 text-sm">search</span>
+                <input type="text" id="search_ticket" class="form-control form-control-sm pl-9 text-xs rounded-xl" placeholder="Cari tiket...">
+              </div>
+            </div>
           </div>
 
-          <div class="relative w-full sm:w-64">
-            <span class="material-icons absolute left-3 top-2.5 text-slate-400 text-sm">search</span>
-            <input type="text" id="search_ticket" class="form-control form-control-sm pl-9 text-xs rounded-xl" placeholder="Cari kode tiket / layanan...">
+          <!-- Custom Date Input Box -->
+          <div id="user_custom_date_box" class="hidden flex-wrap items-center gap-3 bg-sky-50/80 p-3 rounded-xl border border-sky-200">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-sky-900">
+              <span class="material-icons text-sm text-sky-600">event</span>
+              <span>Rentang Tanggal:</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="user_date_mulai" class="text-[11px] font-bold text-slate-600">Dari:</label>
+              <input type="date" id="user_date_mulai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="user_date_selesai" class="text-[11px] font-bold text-slate-600">Sampai:</label>
+              <input type="date" id="user_date_selesai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+            </div>
+            <div class="flex items-center gap-2 ml-auto">
+              <button type="button" id="btn_apply_user_date" class="btn btn-primary btn-sm text-xs font-bold px-3 py-1 rounded-lg bg-sky-600 border-sky-600 shadow-sm">Terapkan</button>
+              <button type="button" id="btn_reset_user_date" class="btn btn-light btn-sm text-xs font-bold px-3 py-1 rounded-lg border">Reset</button>
+            </div>
           </div>
         </div>
 
@@ -200,8 +234,13 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-6 text-center space-y-4" id="printable-ticket">
-          <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">BPS KOTA TEGAL</div>
-          <h2 class="text-4xl font-extrabold text-[#003366] brand-font" id="ticket_number">KS-001</h2>
+          <!-- Premium Ticket Number Header -->
+          <div class="bg-gradient-to-r from-[#002B5B] via-[#003366] to-[#0284c7] rounded-2xl p-5 text-white shadow-xl text-center space-y-1 relative overflow-hidden border border-sky-400/20">
+            <div class="absolute -right-8 -top-8 w-24 h-24 bg-sky-400/20 rounded-full blur-xl pointer-events-none"></div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-sky-200 opacity-90">BPS KOTA TEGAL • ANTREAN DIGITAL</div>
+            <h2 class="text-4xl md:text-5xl font-black tracking-wider brand-font text-white drop-shadow-md py-1" id="ticket_number">KS-001</h2>
+            <div class="text-[11px] font-medium text-sky-100/80">Pelayanan Statistik Terpadu</div>
+          </div>
           
           <div class="py-2">
             <div id="qrcode_box" class="flex justify-center mx-auto"></div>
@@ -326,6 +365,34 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
         filtered = filtered.filter(t => t.status === currentFilter);
       }
 
+      // Filter Berdasarkan Waktu / Tanggal
+      const userWaktuSelect = document.getElementById('user_filter_waktu');
+      const waktuVal = userWaktuSelect ? userWaktuSelect.value : 'all';
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+      const thisMonthStr = `${year}-${month}`;
+
+      if (waktuVal === 'today') {
+        filtered = filtered.filter(t => t.tanggal && t.tanggal === todayStr);
+      } else if (waktuVal === 'this_month') {
+        filtered = filtered.filter(t => t.tanggal && t.tanggal.startsWith(thisMonthStr));
+      } else if (waktuVal === 'custom') {
+        const userDateMulai = document.getElementById('user_date_mulai');
+        const userDateSelesai = document.getElementById('user_date_selesai');
+        const startDate = userDateMulai ? userDateMulai.value : '';
+        const endDate = userDateSelesai ? userDateSelesai.value : '';
+
+        if (startDate) {
+          filtered = filtered.filter(t => t.tanggal && t.tanggal >= startDate);
+        }
+        if (endDate) {
+          filtered = filtered.filter(t => t.tanggal && t.tanggal <= endDate);
+        }
+      }
+
       // Search Query
       const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
       if (q) {
@@ -357,6 +424,8 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
           statusBadge = '<span class="badge bg-sky-100 text-sky-800 border border-sky-300 px-3 py-1 text-[11px] font-bold rounded-full">🗣️ Sedang Dilayani</span>';
         } else if (t.status === 'Selesai') {
           statusBadge = '<span class="badge bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 text-[11px] font-bold rounded-full">✅ Selesai</span>';
+        } else if (t.status === 'Terlewat') {
+          statusBadge = '<span class="badge bg-rose-100 text-rose-800 border border-rose-300 px-3 py-1 text-[11px] font-bold rounded-full">⏭️ Terlewat</span>';
         } else {
           statusBadge = '<span class="badge bg-slate-100 text-slate-600 border border-slate-300 px-3 py-1 text-[11px] font-bold rounded-full">❌ Dibatalkan</span>';
         }
@@ -366,13 +435,17 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
         return `
           <div class="p-5 md:p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 border-slate-100">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-sky-900 text-white font-extrabold text-lg flex items-center justify-center shrink-0 brand-font shadow">
-                  ${escapeHtml(t.nomor)}
+              <div class="flex items-center gap-3.5">
+                <div class="px-4 py-2.5 bg-gradient-to-br from-[#002B5B] via-[#003366] to-[#0284c7] text-white rounded-2xl border border-sky-400/30 shadow-md flex flex-col items-center justify-center shrink-0 min-w-[95px] relative overflow-hidden">
+                  <span class="text-[9px] font-black tracking-widest uppercase text-sky-200 leading-none mb-1 opacity-90">NO. ANTREAN</span>
+                  <span class="text-xl md:text-2xl font-black brand-font text-white tracking-wider leading-none drop-shadow">${escapeHtml(t.nomor)}</span>
                 </div>
                 <div>
-                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kode Tiket: ${escapeHtml(t.kode_antrian)}</div>
-                  <h3 class="text-base font-bold text-slate-800">${escapeHtml(t.layanan)}</h3>
+                  <div class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-icons text-xs text-sky-600">confirmation_number</span>
+                    <span>Kode Tiket: ${escapeHtml(t.kode_antrian)}</span>
+                  </div>
+                  <h3 class="text-base font-bold text-slate-900 mt-0.5">${escapeHtml(t.layanan)}</h3>
                 </div>
               </div>
               <div class="shrink-0 flex items-center gap-2">
@@ -389,10 +462,10 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
               ${t.pendapat ? `<div><b>Ulasan SKM Anda:</b> <span class="font-bold text-sky-700">${escapeHtml(t.pendapat)}</span> ${t.catatan ? `("${escapeHtml(t.catatan)}")` : ''}</div>` : ''}
             </div>
 
-            ${!t.pendapat && (t.status === 'Selesai' || t.status === 'Dilayani' || t.status === 'Menunggu') ? `
+            ${!t.pendapat && t.status === 'Selesai' ? `
               <div class="p-2.5 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-amber-500/10 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-center gap-1.5 font-semibold">
                 <span class="material-icons text-amber-600 text-sm shrink-0">stars</span>
-                <span>Belum ada ulasan kepuasan. Mohon tekan tombol <b>⭐ Beri Ulasan SKM</b> di bawah untuk memberi penilaian.</span>
+                <span>Pelayanan Anda telah selesai. Mohon luangkan waktu sejenak untuk menekan tombol <b>⭐ Beri Ulasan SKM</b> di bawah.</span>
               </div>
             ` : ''}
 
@@ -402,7 +475,7 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
                 <span>Lihat & Cetak Tiket</span>
               </button>
 
-              ${(t.status === 'Selesai' || t.status === 'Dilayani' || t.status === 'Menunggu') ? `
+              ${t.status === 'Selesai' ? `
                 <button type="button" onclick="openSKMModal(${t.id}, '${t.pendapat || ''}', '${escapeHtml(t.catatan || '')}')" class="btn btn-sm ${t.pendapat ? 'btn-outline-sky border-sky-300 text-sky-700 font-semibold' : 'btn-warning bg-amber-500 text-slate-900 border-amber-400 font-extrabold shadow-sm'} text-xs rounded-xl flex items-center gap-1">
                   <span class="material-icons text-sm">${t.pendapat ? 'edit_note' : 'star'}</span>
                   <span>${t.pendapat ? 'Edit Ulasan SKM' : '⭐ Beri Ulasan SKM'}</span>
@@ -435,6 +508,39 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
         renderTickets();
       });
     });
+
+    // Filter Waktu Listener
+    const userWaktuSelect = document.getElementById('user_filter_waktu');
+    const userCustomBox = document.getElementById('user_custom_date_box');
+    const btnApplyUserDate = document.getElementById('btn_apply_user_date');
+    const btnResetUserDate = document.getElementById('btn_reset_user_date');
+    const userDateMulai = document.getElementById('user_date_mulai');
+    const userDateSelesai = document.getElementById('user_date_selesai');
+
+    if (userWaktuSelect) {
+      userWaktuSelect.addEventListener('change', () => {
+        if (userWaktuSelect.value === 'custom') {
+          if (userCustomBox) userCustomBox.classList.remove('hidden'), userCustomBox.classList.add('flex');
+        } else {
+          if (userCustomBox) userCustomBox.classList.add('hidden'), userCustomBox.classList.remove('flex');
+          renderTickets();
+        }
+      });
+    }
+
+    if (btnApplyUserDate) {
+      btnApplyUserDate.addEventListener('click', () => renderTickets());
+    }
+
+    if (btnResetUserDate) {
+      btnResetUserDate.addEventListener('click', () => {
+        if (userWaktuSelect) userWaktuSelect.value = 'all';
+        if (userDateMulai) userDateMulai.value = '';
+        if (userDateSelesai) userDateSelesai.value = '';
+        if (userCustomBox) userCustomBox.classList.add('hidden'), userCustomBox.classList.remove('flex');
+        renderTickets();
+      });
+    }
 
     if (searchInput) searchInput.addEventListener('input', renderTickets);
 

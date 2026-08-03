@@ -97,9 +97,9 @@ $csrf_token = generateCsrfToken();
             </div>
 
             <!-- Filter Kategori Instansi -->
-            <div class="w-full md:w-56 shrink-0">
+            <div class="w-full md:w-48 shrink-0">
               <select id="filter_kategori_instansi" class="form-select text-xs font-semibold rounded-xl">
-                <option value="">Semua Kategori Instansi</option>
+                <option value="">Semua Instansi</option>
                 <option value="Sekolah/Universitas">Sekolah / Universitas</option>
                 <option value="Instansi Pemerintah">Instansi Pemerintah</option>
                 <option value="BUMN/BUMD">BUMN / BUMD</option>
@@ -109,7 +109,7 @@ $csrf_token = generateCsrfToken();
             </div>
 
             <!-- Filter Kategori Layanan -->
-            <div class="w-full md:w-56 shrink-0">
+            <div class="w-full md:w-48 shrink-0">
               <select id="filter_kategori_layanan" class="form-select text-xs font-semibold rounded-xl">
                 <option value="">Semua Layanan PST</option>
                 <option value="Konsultasi Statistik">Konsultasi Statistik</option>
@@ -117,6 +117,40 @@ $csrf_token = generateCsrfToken();
                 <option value="Rekomendasi">Rekomendasi Kegiatan Statistik</option>
                 <option value="Pengaduan">Layanan Pengaduan</option>
               </select>
+            </div>
+
+            <!-- Filter Berdasarkan Waktu / Tanggal (Baru) -->
+            <div class="w-full md:w-44 shrink-0">
+              <select id="filter_waktu" class="form-select text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50">
+                <option value="all">🕒 Semua Waktu</option>
+                <option value="today">☀️ Hari Ini</option>
+                <option value="this_month">🗓️ Bulan Ini</option>
+                <option value="custom">📆 Rentang Tanggal...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Custom Date Range Inputs (Tampil jika Rentang Tanggal dipilih) -->
+          <div id="custom_date_range_box" class="hidden flex-wrap items-center gap-3 bg-sky-50/80 p-3 rounded-xl border border-sky-200">
+            <div class="flex items-center gap-1.5 text-xs font-extrabold text-sky-900">
+              <span class="material-icons text-sm text-sky-600">date_range</span>
+              <span>Filter Rentang Tanggal:</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="filter_tanggal_mulai" class="text-[11px] font-bold text-slate-600">Dari:</label>
+              <input type="date" id="filter_tanggal_mulai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="filter_tanggal_selesai" class="text-[11px] font-bold text-slate-600">Sampai:</label>
+              <input type="date" id="filter_tanggal_selesai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+            </div>
+            <div class="flex items-center gap-2 ml-auto">
+              <button type="button" id="btn_apply_date_filter" class="btn btn-primary btn-sm text-xs font-bold px-3 py-1 rounded-lg bg-sky-600 border-sky-600 shadow-sm flex items-center gap-1">
+                <span class="material-icons text-xs">filter_alt</span> Terapkan
+              </button>
+              <button type="button" id="btn_reset_date_filter" class="btn btn-light btn-sm text-xs font-bold px-3 py-1 rounded-lg border flex items-center gap-1">
+                <span class="material-icons text-xs">restart_alt</span> Reset
+              </button>
             </div>
           </div>
 
@@ -135,6 +169,7 @@ $csrf_token = generateCsrfToken();
               <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-2.5 py-1 filter-status-btn" data-status="Menunggu">Menunggu</button>
               <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-2.5 py-1 filter-status-btn" data-status="Dilayani">Dilayani</button>
               <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-2.5 py-1 filter-status-btn" data-status="Selesai">Selesai</button>
+              <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-2.5 py-1 filter-status-btn" data-status="Terlewat">Terlewat</button>
               <button type="button" class="btn btn-sm btn-light border text-xs font-bold rounded-lg px-2.5 py-1 filter-status-btn" data-status="Dibatalkan">Dibatalkan</button>
             </div>
           </div>
@@ -190,6 +225,35 @@ $csrf_token = generateCsrfToken();
         <div class="modal-footer bg-slate-100 p-3">
           <button type="button" class="btn btn-secondary text-xs rounded-xl" data-bs-dismiss="modal">Tutup</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Offcanvas Sidebar Admin -->
+  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header border-b border-slate-700/60 p-4">
+      <div class="flex items-center gap-3">
+        <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-10 h-10 object-contain filter drop-shadow">
+        <div>
+          <h5 class="offcanvas-title text-white font-extrabold brand-font text-base leading-tight">PANEL TOBASA</h5>
+          <p class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-5 flex flex-col justify-between">
+      <nav class="space-y-1">
+        <a href="dashboard.php" class="bps-nav-item"><span class="material-icons">dashboard</span> Executive Dashboard</a>
+        <a href="bukutamu.php" class="bps-nav-item active"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
+        <a href="antrian.php" class="bps-nav-item"><span class="material-icons">summarize</span> Kelola Loket Antrian</a>
+        <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
+        <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
+      </nav>
+
+      <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700/50 text-xs text-slate-300 space-y-2 mt-6">
+        <button onclick="logoutUser()" class="btn btn-outline-danger btn-sm w-full flex items-center justify-center gap-1">
+          <span class="material-icons text-sm">logout</span> Logout
+        </button>
       </div>
     </div>
   </div>

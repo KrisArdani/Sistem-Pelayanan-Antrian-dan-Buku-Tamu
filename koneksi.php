@@ -84,15 +84,12 @@ try {
             ADD COLUMN data_diinginkan TEXT DEFAULT NULL AFTER pemanfaatan,
             ADD COLUMN foto LONGTEXT DEFAULT NULL AFTER data_diinginkan,
             ADD COLUMN monev ENUM('Ya', 'Tidak') DEFAULT 'Ya' AFTER foto,
-            ADD COLUMN pendapat ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT 'Sangat Puas' AFTER waktu,
+            ADD COLUMN pendapat ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT NULL AFTER waktu,
             ADD COLUMN catatan TEXT DEFAULT NULL AFTER pendapat,
             ADD COLUMN tipe_pendaftaran ENUM('online', 'walkin') DEFAULT 'online' AFTER catatan");
     } else {
-        // Ensure monev column exists if antrian table already migrated
-        $checkMonev = $conn->query("SHOW COLUMNS FROM antrian LIKE 'monev'");
-        if ($checkMonev && $checkMonev->num_rows === 0) {
-            $conn->query("ALTER TABLE antrian ADD COLUMN monev ENUM('Ya', 'Tidak') DEFAULT 'Ya' AFTER foto");
-        }
+        // Ensure status column ENUM contains 'Dilayani' and 'Dibatalkan'
+        $conn->query("ALTER TABLE antrian MODIFY COLUMN status ENUM('Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan') DEFAULT 'Menunggu'");
     }
 } catch (Throwable $e) {
     error_log("Auto Migration Note: " . $e->getMessage());

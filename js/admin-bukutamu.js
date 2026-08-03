@@ -32,6 +32,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectLayanan.addEventListener('change', () => renderBukuTamuTable());
   }
 
+  // Filter Waktu / Tanggal Listener
+  const filterWaktu = document.getElementById('filter_waktu');
+  const customDateBox = document.getElementById('custom_date_range_box');
+  const btnApplyDate = document.getElementById('btn_apply_date_filter');
+  const btnResetDate = document.getElementById('btn_reset_date_filter');
+  const inputDateMulai = document.getElementById('filter_tanggal_mulai');
+  const inputDateSelesai = document.getElementById('filter_tanggal_selesai');
+
+  if (filterWaktu) {
+    filterWaktu.addEventListener('change', () => {
+      if (filterWaktu.value === 'custom') {
+        if (customDateBox) customDateBox.classList.remove('hidden'), customDateBox.classList.add('flex');
+      } else {
+        if (customDateBox) customDateBox.classList.add('hidden'), customDateBox.classList.remove('flex');
+        renderBukuTamuTable();
+      }
+    });
+  }
+
+  if (btnApplyDate) {
+    btnApplyDate.addEventListener('click', () => renderBukuTamuTable());
+  }
+
+  if (btnResetDate) {
+    btnResetDate.addEventListener('click', () => {
+      if (filterWaktu) filterWaktu.value = 'all';
+      if (inputDateMulai) inputDateMulai.value = '';
+      if (inputDateSelesai) inputDateSelesai.value = '';
+      if (customDateBox) customDateBox.classList.add('hidden'), customDateBox.classList.remove('flex');
+      renderBukuTamuTable();
+    });
+  }
+
   // Type Tabs Listener
   document.querySelectorAll('.filter-type-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -122,6 +155,46 @@ async function renderBukuTamuTable(isSilent = false) {
     data = data.filter(item => item.status === activeStatusFilter);
   }
 
+  // Filter Berdasarkan Waktu / Tanggal
+  const filterWaktuSelect = document.getElementById('filter_waktu');
+  const waktuVal = filterWaktuSelect ? filterWaktuSelect.value : 'all';
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+  const thisMonthStr = `${year}-${month}`;
+
+  if (waktuVal === 'today') {
+    data = data.filter(item => {
+      const itemDate = item.tanggal || (item.timestamp ? item.timestamp.substring(0, 10) : '') || (item.created_at ? item.created_at.substring(0, 10) : '');
+      return itemDate === todayStr;
+    });
+  } else if (waktuVal === 'this_month') {
+    data = data.filter(item => {
+      const itemDate = item.tanggal || (item.timestamp ? item.timestamp.substring(0, 10) : '') || (item.created_at ? item.created_at.substring(0, 10) : '');
+      return itemDate.startsWith(thisMonthStr);
+    });
+  } else if (waktuVal === 'custom') {
+    const inputDateMulai = document.getElementById('filter_tanggal_mulai');
+    const inputDateSelesai = document.getElementById('filter_tanggal_selesai');
+    const startDate = inputDateMulai ? inputDateMulai.value : '';
+    const endDate = inputDateSelesai ? inputDateSelesai.value : '';
+
+    if (startDate) {
+      data = data.filter(item => {
+        const itemDate = item.tanggal || (item.timestamp ? item.timestamp.substring(0, 10) : '') || (item.created_at ? item.created_at.substring(0, 10) : '');
+        return itemDate >= startDate;
+      });
+    }
+    if (endDate) {
+      data = data.filter(item => {
+        const itemDate = item.tanggal || (item.timestamp ? item.timestamp.substring(0, 10) : '') || (item.created_at ? item.created_at.substring(0, 10) : '');
+        return itemDate <= endDate;
+      });
+    }
+  }
+
   // Compare Json Hash to avoid flickering if nothing changed
   const currentJson = JSON.stringify(data);
   if (isSilent && currentJson === lastBukuTamuJson) {
@@ -148,6 +221,8 @@ async function renderBukuTamuTable(isSilent = false) {
       statusBadge = `<span class="badge bg-sky-100 text-sky-800 font-bold px-2.5 py-1 rounded-full text-[11px]">🗣️ Dilayani</span>`;
     } else if (item.status === 'Menunggu') {
       statusBadge = `<span class="badge bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full text-[11px]">⏳ Menunggu</span>`;
+    } else if (item.status === 'Terlewat') {
+      statusBadge = `<span class="badge bg-rose-100 text-rose-800 font-bold px-2.5 py-1 rounded-full text-[11px]">⏭️ Terlewat</span>`;
     } else {
       statusBadge = `<span class="badge bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full text-[11px]">❌ Dibatalkan</span>`;
     }
@@ -204,9 +279,23 @@ async function renderBukuTamuTable(isSilent = false) {
           <button onclick="showVisitorDetail(${rowId})" class="btn btn-sm btn-outline-primary text-xs py-1 px-2.5 font-semibold flex items-center gap-1 rounded-lg" title="Lihat Detail">
             <span class="material-icons text-xs">visibility</span> Detail
           </button>
-          ${item.status !== 'Selesai' && item.status !== 'Terverifikasi' ? `
-            <button onclick="verifyVisitor(${rowId}, 'Selesai')" class="btn btn-sm btn-success text-xs py-1 px-2.5 font-bold flex items-center gap-1 rounded-lg" title="Set Status Selesai">
+          ${(item.status === 'Menunggu' || item.status === 'Dilayani' || item.status === 'Dipanggil') ? `
+            <button onclick="verifyVisitor(${rowId}, 'Selesai')" class="btn btn-sm btn-success text-xs py-1 px-2.5 font-bold flex items-center gap-1 rounded-lg" title="Tandai Selesai">
               <span class="material-icons text-xs">check_circle</span> Selesai
+            </button>
+            <button onclick="verifyVisitor(${rowId}, 'Dibatalkan')" class="btn btn-sm btn-outline-danger text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Batalkan">
+              <span class="material-icons text-xs">cancel</span> Batal
+            </button>
+          ` : item.status === 'Terlewat' ? `
+            <button onclick="verifyVisitor(${rowId}, 'Dilayani')" class="btn btn-sm btn-sky bg-sky-600 text-white text-xs py-1 px-2.5 font-bold flex items-center gap-1 rounded-lg" title="Layani Ulang">
+              <span class="material-icons text-xs">replay</span> Layani Ulang
+            </button>
+            <button onclick="verifyVisitor(${rowId}, 'Dibatalkan')" class="btn btn-sm btn-outline-danger text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Batalkan">
+              <span class="material-icons text-xs">cancel</span> Batal
+            </button>
+          ` : item.status === 'Dibatalkan' ? `
+            <button onclick="verifyVisitor(${rowId}, 'Menunggu')" class="btn btn-sm btn-outline-secondary text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Pulihkan Antrean ke Status Menunggu">
+              <span class="material-icons text-xs">restore</span> Pulihkan
             </button>
           ` : ''}
         </div>

@@ -78,16 +78,49 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
       <!-- Form Container -->
       <div class="p-6 md:p-10 max-w-4xl mx-auto w-full space-y-8">
         
-        <!-- Header Banner -->
-        <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center space-y-3">
-          <div class="w-16 h-16 bg-sky-100 text-sky-800 rounded-2xl flex items-center justify-center mx-auto font-bold">
-            <span class="material-icons text-4xl">confirmation_number</span>
+        <!-- Premium Header Banner -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-[#002B5B] via-[#003366] to-[#0284c7] rounded-3xl p-8 md:p-10 text-white shadow-2xl border border-sky-400/20 text-center space-y-5">
+          <!-- Decorative Background Ambient Glow -->
+          <div class="absolute -right-16 -top-16 w-72 h-72 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-16 -bottom-16 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- Header BPS Logo Only -->
+          <div class="relative z-10 flex items-center justify-center">
+            <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-3 flex items-center justify-center shadow-xl ring-4 ring-white/10">
+              <img src="img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-full h-full object-contain filter drop-shadow">
+            </div>
           </div>
-          <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 brand-font">RESERVASI ANTRIAN & LAYANAN PST</h1>
-          <p class="text-xs font-bold text-sky-600 uppercase tracking-widest">BADAN PUSAT STATISTIK KOTA TEGAL</p>
-          <p class="text-slate-600 text-sm max-w-xl mx-auto leading-relaxed">
-            Isi keperluan layanan dan pilih jadwal kunjungan secara online agar proses konsultasi statistik di BPS Kota Tegal menjadi tertib, cepat, dan nyaman.
-          </p>
+
+          <!-- Tag Subtitle -->
+          <div class="relative z-10">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-sky-200 text-xs font-extrabold tracking-wider border border-white/15 uppercase backdrop-blur-md shadow-inner">
+              <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+              BADAN PUSAT STATISTIK KOTA TEGAL
+            </span>
+          </div>
+
+          <!-- Main Title & Description -->
+          <div class="relative z-10 space-y-2">
+            <h1 class="text-2xl md:text-4xl font-black text-white brand-font tracking-tight leading-tight drop-shadow-md">
+              RESERVASI ANTREAN & LAYANAN PST
+            </h1>
+            <p class="text-slate-200 text-xs md:text-sm max-w-2xl mx-auto leading-relaxed">
+              Isi keperluan layanan dan pilih jadwal kunjungan secara online agar proses konsultasi statistik di BPS Kota Tegal menjadi tertib, cepat, dan nyaman.
+            </p>
+          </div>
+
+          <!-- Feature Highlights Badges -->
+          <div class="relative z-10 pt-2 flex flex-wrap items-center justify-center gap-2.5">
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-xs text-sky-100 font-semibold border border-white/10 shadow-sm">
+              <span class="material-icons text-sm text-amber-300">bolt</span> Respon Cepat
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-xs text-sky-100 font-semibold border border-white/10 shadow-sm">
+              <span class="material-icons text-sm text-emerald-300">event_available</span> Jadwal Fleksibel
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-xs text-sky-100 font-semibold border border-white/10 shadow-sm">
+              <span class="material-icons text-sm text-sky-300">verified</span> Layanan Gratis
+            </span>
+          </div>
         </div>
 
         <?php if (!$isLoggedIn): ?>
@@ -341,7 +374,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
           
           <!-- Big Queue Number Box -->
           <div class="py-3 px-4 bg-sky-50 rounded-2xl border-2 border-sky-200 inline-block w-full">
-            <h2 class="text-5xl font-black text-[#003366] brand-font tracking-tight" id="ticket_number">KS-001</h2>
+            <h2 class="text-5xl font-black text-[#003366] brand-font tracking-tight" id="ticket_number">KS-01</h2>
             <div class="text-xs font-bold text-sky-700 mt-1" id="ticket_service_badge">Konsultasi Statistik</div>
           </div>
 
@@ -516,7 +549,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
         <div style="font-size: 9.5px; font-weight: 700; color: #64748b; letter-spacing: 1px; margin-bottom: 4px;">NOMOR ANTRIAN LOKET</div>
 
         <div style="background-color: #f0f9ff; border: 2px solid #bae6fd; border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-          <h1 style="font-size: 40px; font-weight: 900; color: #003366; margin: 0; line-height: 1;" id="p2_ticket_number">KS-001</h1>
+          <h1 style="font-size: 40px; font-weight: 900; color: #003366; margin: 0; line-height: 1;" id="p2_ticket_number">KS-01</h1>
           <div style="font-size: 10.5px; font-weight: 700; color: #0369a1; margin-top: 3px;" id="p2_ticket_service">Konsultasi Statistik</div>
         </div>
 

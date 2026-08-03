@@ -140,10 +140,23 @@ $csrf_token = generateCsrfToken();
               <h3 class="text-lg font-bold text-slate-900 brand-font">Daftar Seluruh Antrian</h3>
               <p class="text-xs text-slate-500">Antrian terintegrasi online dan pengunjung walk-in offline.</p>
             </div>
-            <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md" data-bs-toggle="modal" data-bs-target="#modalWalkin">
-              <span class="material-icons text-sm">person_add_alt_1</span>
-              <span>Input Pengunjung Walk-In (Offline)</span>
-            </button>
+            
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Filter Tanggal Loket Antrian -->
+              <div class="flex items-center gap-2">
+                <label for="filter_tanggal_antrian" class="text-xs font-bold text-slate-600 shrink-0">Filter Tanggal:</label>
+                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-44">
+                  <option value="today" selected>☀️ Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
+                  <option value="tomorrow">🗓️ Besok (<?php echo date('d/m/Y', strtotime('+1 day')); ?>)</option>
+                  <option value="all">🌐 Semua Tanggal</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md" data-bs-toggle="modal" data-bs-target="#modalWalkin">
+                <span class="material-icons text-sm">person_add_alt_1</span>
+                <span>Input Pengunjung Walk-In (Offline)</span>
+              </button>
+            </div>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 text-sm">
@@ -312,6 +325,35 @@ $csrf_token = generateCsrfToken();
       </footer>
 
     </main>
+  </div>
+
+  <!-- Mobile Offcanvas Sidebar Admin -->
+  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header border-b border-slate-700/60 p-4">
+      <div class="flex items-center gap-3">
+        <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-10 h-10 object-contain filter drop-shadow">
+        <div>
+          <h5 class="offcanvas-title text-white font-extrabold brand-font text-base leading-tight">PANEL TOBASA</h5>
+          <p class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-5 flex flex-col justify-between">
+      <nav class="space-y-1">
+        <a href="dashboard.php" class="bps-nav-item"><span class="material-icons">dashboard</span> Executive Dashboard</a>
+        <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
+        <a href="antrian.php" class="bps-nav-item active"><span class="material-icons">summarize</span> Kelola Loket Antrian</a>
+        <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
+        <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
+      </nav>
+
+      <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700/50 text-xs text-slate-300 space-y-2 mt-6">
+        <button onclick="logoutUser()" class="btn btn-outline-danger btn-sm w-full flex items-center justify-center gap-1">
+          <span class="material-icons text-sm">logout</span> Logout
+        </button>
+      </div>
+    </div>
   </div>
 
   <script src="../js/app.js?v=<?php echo time(); ?>"></script>

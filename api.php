@@ -248,7 +248,7 @@ switch ($action) {
         $pemanfaatan = sanitizeInput($_POST['pemanfaatan'] ?? '');
         $data_diinginkan = sanitizeInput($_POST['data_diinginkan'] ?? '');
         $foto = $_POST['foto'] ?? ''; // Base64 data string
-        $pendapat = sanitizeInput($_POST['pendapat'] ?? 'Sangat Puas');
+        $pendapat = !empty($_POST['pendapat']) ? sanitizeInput($_POST['pendapat']) : NULL;
         $monev = sanitizeInput($_POST['monev'] ?? 'Ya');
         $catatan = sanitizeInput($_POST['catatan'] ?? '');
 
@@ -337,6 +337,22 @@ switch ($action) {
         $status = sanitizeInput($_POST['status'] ?? 'Selesai');
         if ($id <= 0) sendJsonResponse('error', 'ID tidak valid.');
 
+        $allowedStatuses = ['Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan'];
+        if (!in_array($status, $allowedStatuses)) {
+            sendJsonResponse('error', 'Status tidak valid.');
+        }
+
+        // Check current status
+        $checkStmt = $conn->prepare("SELECT status FROM antrian WHERE id = ?");
+        $checkStmt->bind_param("i", $id);
+        $checkStmt->execute();
+        $curRow = $checkStmt->get_result()->fetch_assoc();
+        if (!$curRow) sendJsonResponse('error', 'Data kunjungan tidak ditemukan.');
+
+        if ($curRow['status'] === 'Dibatalkan' && $status === 'Selesai') {
+            sendJsonResponse('error', 'Kunjungan yang sudah Dibatalkan tidak dapat langsung diubah menjadi Selesai.');
+        }
+
         $stmt = $conn->prepare("UPDATE antrian SET status = ? WHERE id = ?");
         $stmt->bind_param("si", $status, $id);
         if ($stmt->execute()) {
@@ -397,6 +413,32 @@ switch ($action) {
         // Server-side Working Hours Check (08:00 - 15:30)
         if (($waktu < '08:00' || $waktu > '15:30') && !$isWalkin) {
             sendJsonResponse('error', 'Waktu kunjungan hanya tersedia pada jam kerja (08:00 s.d. 15:30 WIB).');
+        }
+
+        // Active Queue Safeguard: Prevent creating a new online queue if visitor already has an active queue for today or future dates (tanggal >= CURDATE())
+        if (!$isWalkin) {
+            $activeStmt = null;
+            if ($userId > 0) {
+                $activeStmt = $conn->prepare("SELECT id, nomor, kode_antrian, status, layanan FROM antrian WHERE user_id = ? AND status IN ('Menunggu', 'Dipanggil', 'Dilayani') AND tanggal >= CURDATE() ORDER BY id DESC LIMIT 1");
+                $activeStmt->bind_param("i", $userId);
+            } else if (!empty($nohp)) {
+                $activeStmt = $conn->prepare("SELECT id, nomor, kode_antrian, status, layanan FROM antrian WHERE nohp = ? AND status IN ('Menunggu', 'Dipanggil', 'Dilayani') AND tanggal >= CURDATE() ORDER BY id DESC LIMIT 1");
+                $activeStmt->bind_param("s", $nohp);
+            }
+
+            if ($activeStmt) {
+                $activeStmt->execute();
+                $activeRow = $activeStmt->get_result()->fetch_assoc();
+                if ($activeRow) {
+                    $activeNo = $activeRow['nomor'] ?: $activeRow['kode_antrian'];
+                    $activeStatus = $activeRow['status'];
+                    sendJsonResponse(
+                        'error',
+                        "Anda masih memiliki antrean aktif (Nomor: $activeNo) dengan status '$activeStatus'. Mohon tunggu hingga antrean selesai diproses di loket atau batalkan antrean sebelumnya di halaman 'Riwayat Tiket Saya' sebelum membuat reservasi baru.",
+                        ['active_queue' => $activeRow]
+                    );
+                }
+            }
         }
 
         // Determine prefix
@@ -535,9 +577,23 @@ switch ($action) {
     case 'get_antrian':
         requireAuth(['petugas', 'admin', 'kepala']);
 
-        $tanggal = sanitizeInput($_GET['tanggal'] ?? date('Y-m-d'));
-        $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
-        $stmt->bind_param("s", $tanggal);
+        $filterTanggal = sanitizeInput($_GET['tanggal'] ?? 'today');
+        $todayStr = date('Y-m-d');
+        $tomorrowStr = date('Y-m-d', strtotime('+1 day'));
+
+        if ($filterTanggal === 'all' || empty($filterTanggal)) {
+            $stmt = $conn->prepare("SELECT * FROM antrian ORDER BY id DESC");
+        } else if ($filterTanggal === 'today') {
+            $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
+            $stmt->bind_param("s", $todayStr);
+        } else if ($filterTanggal === 'tomorrow') {
+            $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
+            $stmt->bind_param("s", $tomorrowStr);
+        } else {
+            $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
+            $stmt->bind_param("s", $filterTanggal);
+        }
+
         $stmt->execute();
         $result = $stmt->get_result();
 

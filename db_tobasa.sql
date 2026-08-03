@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `antrian` (
   `foto` LONGTEXT DEFAULT NULL,
   `tanggal` DATE NOT NULL,
   `waktu` TIME NOT NULL,
-  `pendapat` ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT 'Sangat Puas',
+  `pendapat` ENUM('Sangat Puas', 'Puas', 'Cukup Puas', 'Tidak Puas') DEFAULT NULL,
   `catatan` TEXT DEFAULT NULL,
   `tipe_pendaftaran` ENUM('online', 'walkin') DEFAULT 'online',
   `status` ENUM('Menunggu', 'Dipanggil', 'Selesai', 'Terlewat') DEFAULT 'Menunggu',
@@ -128,9 +128,9 @@ INSERT INTO `antrian` (
   `pekerjaan`, `instansi`, `kategori_instansi`, `fasilitas`, `layanan`, `pemanfaatan`, `data_diinginkan`,
   `tanggal`, `waktu`, `tipe_pendaftaran`, `status`
 ) VALUES
-(4, 'ANT-001', 'KS-001', 'Ahmad Fauzi', 'Laki Laki', '26-34 tahun', '081234567890', 'ahmad.fauzi@email.com', 'D4-S1', 'Peneliti/Dosen', 'Universitas Pancasakti Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Konsultasi Statistik', 'Penelitian', 'Data Inflasi Kota Tegal 2025-2026', CURRENT_DATE(), '08:30:00', 'online', 'Selesai'),
-(NULL, 'ANT-002', 'PD-001', 'Siti Rahmawati', 'Perempuan', '17-25 tahun', '085712345678', 'siti.rahma@email.com', 'SMA Ke Bawah', 'Mahasiswa', 'Poltek Harber Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Perpustakaan & Diseminasi Data', 'Tugas Sekolah/Kuliah', 'Publikasi Tegal Kota Dalam Angka 2025', CURRENT_DATE(), '09:15:00', 'walkin', 'Dipanggil'),
-(NULL, 'ANT-003', 'RS-001', 'Budi Santoso', 'Laki Laki', '35-44 tahun', '081987654321', 'budi.santoso@pemda.go.id', 'D4-S1', 'Pegawai Negeri / TNI POLRI', 'Bappeda Kota Tegal', 'Pemda', 'Datang Langsung Ke PST BPS Kota Tegal', 'Rekomendasi Kegiatan Statistik (ROMANTIK)', 'Pemerintah', 'Rekomendasi Survei Kepuasan Masyarakat Pemda', CURRENT_DATE(), '10:00:00', 'online', 'Menunggu')
+(4, 'ANT-001', 'KS-01', 'Ahmad Fauzi', 'Laki Laki', '26-34 tahun', '081234567890', 'ahmad.fauzi@email.com', 'D4-S1', 'Peneliti/Dosen', 'Universitas Pancasakti Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Konsultasi Statistik', 'Penelitian', 'Data Inflasi Kota Tegal 2025-2026', CURRENT_DATE(), '08:30:00', 'online', 'Selesai'),
+(NULL, 'ANT-002', 'PD-01', 'Siti Rahmawati', 'Perempuan', '17-25 tahun', '085712345678', 'siti.rahma@email.com', 'SMA Ke Bawah', 'Mahasiswa', 'Poltek Harber Tegal', 'Sekolah/Universitas', 'Datang Langsung Ke PST BPS Kota Tegal', 'Perpustakaan & Diseminasi Data', 'Tugas Sekolah/Kuliah', 'Publikasi Tegal Kota Dalam Angka 2025', CURRENT_DATE(), '09:15:00', 'walkin', 'Dipanggil'),
+(NULL, 'ANT-003', 'RS-01', 'Budi Santoso', 'Laki Laki', '35-44 tahun', '081987654321', 'budi.santoso@pemda.go.id', 'D4-S1', 'Pegawai Negeri / TNI POLRI', 'Bappeda Kota Tegal', 'Pemda', 'Datang Langsung Ke PST BPS Kota Tegal', 'Rekomendasi Kegiatan Statistik (ROMANTIK)', 'Pemerintah', 'Rekomendasi Survei Kepuasan Masyarakat Pemda', CURRENT_DATE(), '10:00:00', 'online', 'Menunggu')
 ON DUPLICATE KEY UPDATE `nama` = VALUES(`nama`);
 
 
