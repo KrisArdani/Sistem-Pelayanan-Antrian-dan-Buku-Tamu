@@ -1,9 +1,9 @@
 /**
- * TOBASA BPS Kota Tegal - Antrian Digital & QRCode Generator Handler
+ * TOBASA BPS Kota Tegal - Penangan Antrean Digital & Generator Kode QR
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Set min date input to today
+  // Setel tanggal minimal ke hari ini
   const dateInput = document.getElementById('ant_tanggal');
   if (dateInput) {
     const today = new Date().toISOString().split('T')[0];
@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dateInput.value = today;
   }
 
-  // Webcam & Photo Handling
-  // Smart Camera Handler: Standalone Live Webcam Modal
+  // Penanganan Webcam & Foto
+  // Penangan Kamera Pintar: Modal Stream Kamera Langsung Mandiri
   const btnTriggerCam = document.getElementById('btn_trigger_camera');
   const inputCamera = document.getElementById('input_camera_snap');
   const inputGallery = document.getElementById('input_gallery_file');
@@ -69,18 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnTriggerCam) {
     btnTriggerCam.addEventListener('click', async () => {
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      
-      // On mobile devices, use native device camera directly
-      if (isMobile && inputCamera) {
-        inputCamera.click();
+      // Pada perangkat HP/Mobile, gunakan kamera perangkat langsung
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        if (inputCamera) inputCamera.click();
         return;
       }
 
-      // On Laptop/PC, try opening live webcam modal stream with generic video constraint
+      // Pada Laptop/PC, buka stream modal webcam langsung dengan batasan video standar
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
-          // Plain { video: true } is maximum compatibility across all laptop webcams
+          // Konfigurasi { video: true } memiliki kompatibilitas maksimal untuk webcam laptop
           modalStream = await navigator.mediaDevices.getUserMedia({ video: true });
           if (modalVideo) {
             modalVideo.srcObject = modalStream;
@@ -112,12 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // Fallback
-      if (inputGallery) inputGallery.click();
+      // Alternatif Cadangan (Fallback)
+      if (inputCamera) inputCamera.click();
     });
   }
 
-  // Client-Side Image Auto-Compressor (Max 500px, JPEG Quality 0.75, ~30KB)
+  // Kompresor Gambar Otomatis Sisi Klien (Maks 500px, Kualitas JPEG 0.75, ~30KB)
   function compressImage(source, maxWidth = 500, maxHeight = 500, quality = 0.75) {
     return new Promise((resolve) => {
       const img = new Image();
@@ -182,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
       reader.onload = async (evt) => {
         const rawBase64 = evt.target.result;
-        // Compress large photo files from camera/gallery
+        // Kompres file foto berukuran besar dari kamera/galeri
         const compressedBase64 = await compressImage(rawBase64, 500, 500, 0.75);
 
         if (hiddenFoto) hiddenFoto.value = compressedBase64;
@@ -199,23 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (inputCamera) inputCamera.addEventListener('change', handlePhotoSelect);
   if (inputGallery) inputGallery.addEventListener('change', handlePhotoSelect);
 
-  // Dynamic Weekend & Date Safeguard
-  const antTanggalEl = document.getElementById('ant_tanggal');
-  if (antTanggalEl) {
-    const today = new Date().toISOString().split('T')[0];
-    antTanggalEl.min = today;
+  // Perlindungan Validasi Tanggal & Akhir Pekan Dinamis
+  if (dateInput) {
+    dateInput.addEventListener('change', () => {
+      const selectedDate = new Date(dateInput.value);
+      const day = selectedDate.getUTCDay(); // 0: Minggu, 6: Sabtu
 
-    antTanggalEl.addEventListener('change', (e) => {
-      const selected = new Date(e.target.value);
-      const day = selected.getDay(); // 0 = Sun, 6 = Sat
+      // Periksa Hari Libur Akhir Pekan (Sabtu / Minggu)
       if (day === 0 || day === 6) {
         Swal.fire({
           icon: 'warning',
-          title: 'Hari Libur (Weekend)',
-          text: 'Pelayanan PST BPS Kota Tegal hanya tersedia pada hari kerja (Senin s.d. Jumat). Silakan pilih hari kerja.',
+          title: 'Hari Libur Pelayanan',
+          text: 'PST BPS Kota Tegal hanya melayani konsultasi pada hari kerja (Senin s.d. Jumat). Silakan pilih tanggal lain.',
           confirmButtonColor: '#003366'
         });
-        e.target.value = '';
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
       }
     });
   }
@@ -349,54 +346,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function renderDigitalTicket(ticket) {
   const modalTicketElem = document.getElementById('modalTicket');
-  const ticketContainer = document.getElementById('printable-ticket');
   const qrContainer = document.getElementById('qrcode_box');
-
-  if (!ticketContainer || !qrContainer) return;
-
-  const queueNo = ticket.nomor || 'KS-01';
-  const serviceName = ticket.layanan || (document.getElementById('ant_layanan') ? document.getElementById('ant_layanan').value : 'Konsultasi Statistik');
   const ticketId = ticket.id || 'ANT-' + Date.now().toString().slice(-6);
-  const personName = ticket.nama || (document.getElementById('ant_nama') ? document.getElementById('ant_nama').value : 'Pengunjung');
-  const dateVal = ticket.tanggal || (document.getElementById('ant_tanggal') ? document.getElementById('ant_tanggal').value : '-');
-  const timeVal = (ticket.waktu || (document.getElementById('ant_waktu') ? document.getElementById('ant_waktu').value : '-')) + ' WIB';
-  const facilityVal = ticket.fasilitas || (document.getElementById('ant_fasilitas') ? document.getElementById('ant_fasilitas').value : 'Datang Langsung Ke PST BPS Kota Tegal');
-  let rawPemanfaatan = ticket.pemanfaatan || '';
-  const selPemanfaatan = document.getElementById('ant_pemanfaatan');
-  if (!rawPemanfaatan && selPemanfaatan && selPemanfaatan.selectedIndex >= 0) {
-    rawPemanfaatan = selPemanfaatan.options[selPemanfaatan.selectedIndex].text;
-  }
-  let pemanfaatanVal = rawPemanfaatan;
-  if (pemanfaatanVal === 'Penelitian' || pemanfaatanVal === 'Penelitian/Skripsi/Tesis') pemanfaatanVal = 'Penelitian / Skripsi / Tesis';
-  if (pemanfaatanVal === 'Pemerintah' || pemanfaatanVal === 'Perencanaan/Kebijakan Pemerintah') pemanfaatanVal = 'Perencanaan / Kebijakan Pemerintah';
-  if (pemanfaatanVal === 'Komersial' || pemanfaatanVal === 'Komersial/Wirausaha' || pemanfaatanVal === 'Komersial/Usaha Bisnis') pemanfaatanVal = 'Komersial / Usaha Bisnis';
-  if (pemanfaatanVal === 'Tugas Sekolah/Kuliah') pemanfaatanVal = 'Tugas Sekolah / Kuliah';
-  if (!pemanfaatanVal || pemanfaatanVal === '-') pemanfaatanVal = 'Tugas Sekolah / Kuliah';
-  const monevVal = ticket.monev || (document.getElementById('ant_monev') ? document.getElementById('ant_monev').value : 'Ya');
-  const rincianVal = ticket.data_diinginkan || (document.getElementById('ant_data_diinginkan') ? document.getElementById('ant_data_diinginkan').value.trim() : '-') || '-';
-  const phoneVal = ticket.nohp || (document.getElementById('p1_nohp') ? document.getElementById('p1_nohp').textContent : '-') || '-';
-  const instansiVal = ticket.instansi || (document.getElementById('p1_instansi') ? document.getElementById('p1_instansi').textContent : '-') || '-';
 
-  // 1. Fill Modal Ticket Fields
-  const elNumber = document.getElementById('ticket_number');
-  const elBadge = document.getElementById('ticket_service_badge');
-  const elCodeId = document.getElementById('ticket_code_id');
-  const elName = document.getElementById('ticket_name');
-  const elService = document.getElementById('ticket_service');
-  const elDate = document.getElementById('ticket_date');
-  const elTime = document.getElementById('ticket_time');
-  const elFacility = document.getElementById('ticket_facility');
+  if (!qrContainer) return;
 
-  if (elNumber) elNumber.textContent = queueNo;
-  if (elBadge) elBadge.textContent = serviceName;
-  if (elCodeId) elCodeId.textContent = ticketId;
-  if (elName) elName.textContent = personName;
-  if (elService) elService.textContent = serviceName;
-  if (elDate) elDate.textContent = dateVal;
-  if (elTime) elTime.textContent = timeVal;
-  if (elFacility) elFacility.textContent = facilityVal;
+  // 1. Isi Bidang Tiket Modal
+  const numElem = document.getElementById('ticket_number');
+  const nameElem = document.getElementById('ticket_name');
+  const serviceElem = document.getElementById('ticket_service');
+  const dateElem = document.getElementById('ticket_date');
+  const timeElem = document.getElementById('ticket_time');
 
-  // 2. Fill Dedicated 2-Page Print Layout Fields (PAGE 1 & PAGE 2)
+  if (numElem) numElem.textContent = ticket.nomor || ticketId;
+  if (nameElem) nameElem.textContent = ticket.nama || '-';
+  if (serviceElem) serviceElem.textContent = ticket.layanan || '-';
+  if (dateElem) dateElem.textContent = ticket.tanggal || '-';
+  if (timeElem) timeElem.textContent = ticket.waktu ? `${ticket.waktu} WIB` : '-';
+
+  // 2. Isi Bidang Tata Letak Cetak 2 Halaman Khusus (HALAMAN 1 & HALAMAN 2)
   const p1Nama = document.getElementById('p1_nama');
   const p1NoHp = document.getElementById('p1_nohp');
   const p1Instansi = document.getElementById('p1_instansi');
@@ -406,36 +374,36 @@ function renderDigitalTicket(ticket) {
   const p1Fasilitas = document.getElementById('p1_fasilitas');
   const p1Pemanfaatan = document.getElementById('p1_pemanfaatan');
   const p1Monev = document.getElementById('p1_monev');
-  const p1Rincian = document.getElementById('p1_rincian_data');
+  const p1RincianData = document.getElementById('p1_rincian_data');
 
-  if (p1Nama) p1Nama.textContent = personName;
-  if (p1NoHp && phoneVal) p1NoHp.textContent = phoneVal;
-  if (p1Instansi && instansiVal) p1Instansi.textContent = instansiVal;
-  if (p1Layanan) p1Layanan.textContent = serviceName;
-  if (p1Tanggal) p1Tanggal.textContent = dateVal;
-  if (p1Waktu) p1Waktu.textContent = timeVal;
-  if (p1Fasilitas) p1Fasilitas.textContent = facilityVal;
-  if (p1Pemanfaatan) p1Pemanfaatan.textContent = pemanfaatanVal;
-  if (p1Monev) p1Monev.textContent = monevVal;
-  if (p1Rincian) p1Rincian.textContent = rincianVal;
+  if (p1Nama) p1Nama.textContent = ticket.nama || '-';
+  if (p1NoHp) p1NoHp.textContent = ticket.nohp || '-';
+  if (p1Instansi) p1Instansi.textContent = ticket.instansi || '-';
+  if (p1Layanan) p1Layanan.textContent = ticket.layanan || '-';
+  if (p1Tanggal) p1Tanggal.textContent = ticket.tanggal || '-';
+  if (p1Waktu) p1Waktu.textContent = ticket.waktu ? `${ticket.waktu} WIB` : '-';
+  if (p1Fasilitas) p1Fasilitas.textContent = ticket.fasilitas || 'Datang Langsung Ke PST BPS Kota Tegal';
+  if (p1Pemanfaatan) p1Pemanfaatan.textContent = ticket.pemanfaatan || '-';
+  if (p1Monev) p1Monev.textContent = ticket.monev || 'Ya';
+  if (p1RincianData) p1RincianData.textContent = ticket.data_diinginkan || '-';
 
-  const p2Number = document.getElementById('p2_ticket_number');
-  const p2Service = document.getElementById('p2_ticket_service');
-  const p2CodeId = document.getElementById('p2_ticket_code_id');
-  const p2Name = document.getElementById('p2_ticket_name');
-  const p2Date = document.getElementById('p2_ticket_date');
-  const p2Time = document.getElementById('p2_ticket_time');
-  const p2Facility = document.getElementById('p2_ticket_facility');
+  // Halaman 2 Bidang Tiket
+  const p2Nomor = document.getElementById('p2_ticket_number');
+  const p2Nama = document.getElementById('p2_nama');
+  const p2Layanan = document.getElementById('p2_layanan');
+  const p2Tanggal = document.getElementById('p2_tanggal');
+  const p2Waktu = document.getElementById('p2_waktu');
+  const p2Facility = document.getElementById('p2_fasilitas');
 
-  if (p2Number) p2Number.textContent = queueNo;
-  if (p2Service) p2Service.textContent = serviceName;
-  if (p2CodeId) p2CodeId.textContent = ticketId;
-  if (p2Name) p2Name.textContent = personName;
-  if (p2Date) p2Date.textContent = dateVal;
-  if (p2Time) p2Time.textContent = timeVal;
+  const facilityVal = ticket.fasilitas || 'Datang Langsung Ke PST BPS Kota Tegal';
+  if (p2Nomor) p2Nomor.textContent = ticket.nomor || ticketId;
+  if (p2Nama) p2Nama.textContent = ticket.nama || '-';
+  if (p2Layanan) p2Layanan.textContent = ticket.layanan || '-';
+  if (p2Tanggal) p2Tanggal.textContent = ticket.tanggal || '-';
+  if (p2Waktu) p2Waktu.textContent = ticket.waktu ? `${ticket.waktu} WIB` : '-';
   if (p2Facility) p2Facility.textContent = facilityVal;
 
-  // Clear & Generate QR Code for Modal and Page 2 Print Container
+  // Bersihkan & Buat Kode QR untuk Modal dan Wadah Cetak Halaman 2
   qrContainer.innerHTML = '';
   const p2QrContainer = document.getElementById('p2_qrcode_box');
   if (p2QrContainer) p2QrContainer.innerHTML = '';
@@ -449,17 +417,17 @@ function renderDigitalTicket(ticket) {
       height: 135,
       colorDark: '#003366',
       colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
+      correctLevel: QRCode.CorrectLevel.H
     });
 
     if (p2QrContainer) {
       new QRCode(p2QrContainer, {
         text: qrDataText,
-        width: 125,
-        height: 125,
+        width: 140,
+        height: 140,
         colorDark: '#003366',
         colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.H
       });
     }
   } else {
@@ -467,7 +435,6 @@ function renderDigitalTicket(ticket) {
     if (p2QrContainer) p2QrContainer.innerHTML = `<div class="p-2 border text-slate-700 text-xs font-mono">QR: ${qrDataText}</div>`;
   }
 
-  // Show Modal Bootstrap
   if (typeof bootstrap !== 'undefined' && modalTicketElem) {
     let bsModal = bootstrap.Modal.getInstance(modalTicketElem);
     if (!bsModal) {

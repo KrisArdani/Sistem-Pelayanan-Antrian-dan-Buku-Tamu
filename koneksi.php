@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Database Connection & Auto-Setup
+// TOBASA BPS Kota Tegal - Koneksi Database & Pengaturan Otomatis
 require_once __DIR__ . '/config.php';
 
 $host = DB_HOST;
@@ -7,7 +7,7 @@ $user = DB_USER;
 $pass = DB_PASS;
 $dbname = DB_NAME;
 
-// Connect to MySQL server
+// Hubungkan ke server MySQL
 $conn = new mysqli($host, $user, $pass);
 
 if ($conn->connect_error) {
@@ -20,7 +20,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Auto-create database & tables if db_tobasa does not exist
+// Buat database & tabel secara otomatis jika db_tobasa belum ada
 try {
     $db_check = @$conn->select_db($dbname);
 } catch (Throwable $e) {
@@ -31,12 +31,12 @@ if (!$db_check) {
     $conn->query("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $conn->select_db($dbname);
 
-    // Load SQL schema file
+    // Muat file skema SQL
     $sql_file = __DIR__ . '/db_tobasa.sql';
     if (file_exists($sql_file)) {
         $sql = file_get_contents($sql_file);
         $conn->multi_query($sql);
-        // Clear multi query buffer
+        // Bersihkan memori multi query
         while ($conn->next_result()) {
             if ($result = $conn->store_result()) {
                 $result->free();
@@ -45,10 +45,10 @@ if (!$db_check) {
     }
 }
 
-// Set charset
+// Atur set karakter (charset)
 $conn->set_charset("utf8mb4");
 
-// Auto-migrate database tables if missing new columns
+// Migrasi otomatis tabel database jika ada kolom baru yang belum tersedia
 try {
     $checkUserCol = $conn->query("SHOW COLUMNS FROM users LIKE 'nohp'");
     if ($checkUserCol && $checkUserCol->num_rows === 0) {
@@ -63,7 +63,7 @@ try {
             ADD COLUMN instansi VARCHAR(150) DEFAULT NULL AFTER pekerjaan,
             ADD COLUMN kategori_instansi VARCHAR(100) DEFAULT NULL AFTER instansi");
     } else {
-        // Ensure role ENUM contains 'pengunjung'
+        // Pastikan ENUM role memuat opsi 'pengunjung'
         $conn->query("ALTER TABLE users MODIFY COLUMN role ENUM('petugas', 'admin', 'kepala', 'pengunjung') NOT NULL");
     }
 
@@ -88,14 +88,14 @@ try {
             ADD COLUMN catatan TEXT DEFAULT NULL AFTER pendapat,
             ADD COLUMN tipe_pendaftaran ENUM('online', 'walkin') DEFAULT 'online' AFTER catatan");
     } else {
-        // Ensure status column ENUM contains 'Dilayani' and 'Dibatalkan'
+        // Pastikan ENUM kolom status memuat opsi 'Dilayani' dan 'Dibatalkan'
         $conn->query("ALTER TABLE antrian MODIFY COLUMN status ENUM('Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan') DEFAULT 'Menunggu'");
     }
 } catch (Throwable $e) {
     error_log("Auto Migration Note: " . $e->getMessage());
 }
 
-// Function JSON response helper
+// Fungsi pembantu respons JSON
 function sendJsonResponse($status, $message, $data = null, $httpCode = 200) {
     http_response_code($httpCode);
     header('Content-Type: application/json');

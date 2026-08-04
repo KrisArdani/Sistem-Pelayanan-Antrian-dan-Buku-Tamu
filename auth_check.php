@@ -1,16 +1,16 @@
 <?php
-// TOBASA BPS Kota Tegal - Server-Side Authentication Guard
+// TOBASA BPS Kota Tegal - Pelindung Autentikasi Sisi Server
 require_once __DIR__ . '/security.php';
 
 setSecurityHeaders();
 
-// Check if user is logged in
+// Periksa apakah pengguna sudah login
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role'])) {
     header('Location: ../login.php');
     exit;
 }
 
-// Check session expiration
+// Periksa batas waktu (kedaluwarsa) sesi
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > SESSION_TIMEOUT)) {
     session_unset();
     session_destroy();
@@ -19,7 +19,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 }
 $_SESSION['last_activity'] = time();
 
-// Check Role Permissions
+// Periksa Hak Akses Peran (Role Permissions)
 $allowed_roles = $allowed_roles ?? ['petugas', 'admin', 'kepala'];
 if (!in_array($_SESSION['user_role'], $allowed_roles)) {
     header('Location: ../index.php');

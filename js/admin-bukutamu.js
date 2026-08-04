@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Admin Buku Tamu Table & Export Handler (Real-Time Auto Sync & Categorization)
+ * TOBASA BPS Kota Tegal - Penangan Tabel & Ekspor Buku Tamu Admin (Sinkronisasi Otomatis Real-Time)
  */
 
 let fetchedBukuTamuData = [];
@@ -9,19 +9,19 @@ let activeTypeFilter = 'all';
 let activeStatusFilter = 'all';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Check auth
+  // Periksa autentikasi
   const isAuth = await checkAuth(['petugas', 'admin', 'kepala']);
   if (!isAuth) return;
 
   await renderBukuTamuTable();
 
-  // Search input
+  // Input pencarian
   const searchInput = document.getElementById('search_bukutamu');
   if (searchInput) {
     searchInput.addEventListener('input', () => renderBukuTamuTable());
   }
 
-  // Filter Dropdowns
+  // Dropdown filter
   const selectInstansi = document.getElementById('filter_kategori_instansi');
   if (selectInstansi) {
     selectInstansi.addEventListener('change', () => renderBukuTamuTable());
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectLayanan.addEventListener('change', () => renderBukuTamuTable());
   }
 
-  // Filter Waktu / Tanggal Listener
+  // Listener Filter Waktu / Tanggal
   const filterWaktu = document.getElementById('filter_waktu');
   const customDateBox = document.getElementById('custom_date_range_box');
   const btnApplyDate = document.getElementById('btn_apply_date_filter');
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Type Tabs Listener
+  // Listener Tab Tipe
   document.querySelectorAll('.filter-type-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-type-btn').forEach(b => {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Status Tabs Listener
+  // Listener Tab Status
   document.querySelectorAll('.filter-status-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-status-btn').forEach(b => {
@@ -95,14 +95,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Real-Time Live Polling (Every 3 seconds background sync)
+  // Pemanggilan Berkelanjutan Real-Time (Sinkronisasi latar belakang setiap 3 detik)
   setInterval(async () => {
-    // If a modal is open, don't interrupt active typing or modal view
+    // Jika modal terbuka, jangan ganggu pengetikan aktif atau aksi pengguna
     if (document.querySelector('.modal.show')) return;
     await renderBukuTamuTable(true);
   }, 3000);
 
-  // Export CSV
+  // Ekspor CSV
   const btnExport = document.getElementById('btn_export_csv');
   if (btnExport) {
     btnExport.addEventListener('click', exportToCSV);
@@ -195,10 +195,10 @@ async function renderBukuTamuTable(isSilent = false) {
     }
   }
 
-  // Compare Json Hash to avoid flickering if nothing changed
+  // Bandingkan Hash JSON untuk menghindari kedipan tampilan jika tidak ada perubahan data
   const currentJson = JSON.stringify(data);
   if (isSilent && currentJson === lastBukuTamuJson) {
-    return; // Data has not changed, zero DOM flicker!
+    return; // Data tidak berubah, tidak ada kedipan DOM!
   }
   lastBukuTamuJson = currentJson;
   fetchedBukuTamuData = data;
@@ -231,7 +231,7 @@ async function renderBukuTamuTable(isSilent = false) {
       ? `<span class="badge bg-purple-100 text-purple-800 border border-purple-200 font-semibold px-2 py-0.5 rounded text-[10px]">Walk-In</span>`
       : `<span class="badge bg-blue-100 text-blue-800 border border-blue-200 font-semibold px-2 py-0.5 rounded text-[10px]">Online</span>`;
 
-    // Photo avatar thumbnail if available
+    // Gambar avatar foto jika tersedia
     let avatarHtml = `<div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center shrink-0 font-bold text-xs border"><span class="material-icons text-sm">person</span></div>`;
     if (item.foto && item.foto.length > 50) {
       avatarHtml = `<img src="${item.foto}" class="w-7 h-7 rounded-full object-cover shrink-0 border border-sky-300 shadow-sm" alt="Foto">`;

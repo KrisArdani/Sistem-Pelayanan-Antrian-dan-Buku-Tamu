@@ -1,19 +1,19 @@
 /**
- * TOBASA BPS Kota Tegal - Main App Utility & Storage Handler
+ * TOBASA BPS Kota Tegal - Penangan Utilitas & Penyimpanan Aplikasi Utama
  */
 
-// Key Storage Constant
+// Konstanta Kunci Penyimpanan
 const STORAGE_KEYS = {
   CURRENT_USER: 'tobasa_current_user'
 };
 
-// Helper: Fetch CSRF Token from DOM meta tag
+// Pembantu: Ambil Token CSRF dari meta tag DOM
 function getCsrfToken() {
   const meta = document.querySelector('meta[name="csrf-token"]');
   return meta ? meta.getAttribute('content') : '';
 }
 
-// Helper: Format Tanggal Indonesia
+// Pembantu: Format Tanggal Indonesia
 function formatTanggalIndo(dateStr) {
   if (!dateStr) return '-';
   const d = new Date(dateStr);
@@ -32,7 +32,7 @@ function formatTanggalIndo(dateStr) {
   return `${tgl} ${bln} ${thn} Pukul ${jam}:${menit} WIB`;
 }
 
-// Helper: HTML Sanitize for safe JS rendering (XSS Protection)
+// Pembantu: Sanitasi HTML untuk perataan aman JS (Perlindungan XSS)
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str)
@@ -43,7 +43,7 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// Auth Session Handler
+// Penangan Sesi Autentikasi
 function getCurrentUser() {
   const user = sessionStorage.getItem(STORAGE_KEYS.CURRENT_USER);
   return user ? JSON.parse(user) : null;
@@ -107,6 +107,6 @@ async function checkAuth(requiredRoles = []) {
     return true;
   } catch (e) {
     console.error('Session check failed:', e);
-    return true; // Let PHP server-side auth_check handle redirect
+    return true; // Biarkan autentikasi server-side auth_check PHP menangani pengalihan
   }
 }

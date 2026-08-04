@@ -1,9 +1,9 @@
 <?php
-// TOBASA BPS Kota Tegal - Secured API Endpoint Handler
+// TOBASA BPS Kota Tegal - Penangan Endpoint API Teramankan
 require_once __DIR__ . '/koneksi.php';
 require_once __DIR__ . '/security.php';
 
-// Parse JSON Request Body if Content-Type is application/json
+// Urai Body Permintaan JSON jika Content-Type adalah application/json
 $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
 if (str_contains($contentType, 'application/json')) {
     $rawInput = file_get_contents('php://input');
@@ -15,16 +15,16 @@ if (str_contains($contentType, 'application/json')) {
     }
 }
 
-// Determine Action
+// Tentukan Tindakan (Action)
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-// Helper: Require Authentication & Authorization
+// Pembantu: Wajibkan Autentikasi & Otorisasi
 function requireAuth($roles = []) {
     if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role'])) {
         sendJsonResponse('error', 'Akses ditolak. Silakan login terlebih dahulu.', null, 401);
     }
     
-    // Check timeout
+    // Periksa batas waktu (timeout)
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > SESSION_TIMEOUT)) {
         session_unset();
         session_destroy();
@@ -37,11 +37,11 @@ function requireAuth($roles = []) {
     }
 }
 
-// CSRF Validation for state-modifying requests (POST)
+// Validasi CSRF untuk permintaan yang mengubah data (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'login') {
     $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     
-    // Ensure CSRF token exists in session for new visitors
+    // Pastikan token CSRF ada di sesi untuk pengunjung baru
     generateCsrfToken();
 
     if (!validateCsrfToken($csrfToken)) {
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'login') {
 
 switch ($action) {
     // ----------------------------------------------------
-    // 1. AUTHENTICATION & SESSION
+    // 1. AUTENTIKASI & SESI
     // ----------------------------------------------------
     case 'register_pengunjung':
         $username = trim($_POST['username'] ?? '');
@@ -79,7 +79,7 @@ switch ($action) {
         }
 
         try {
-            // Check if username already exists
+            // Periksa apakah username sudah terdaftar
             $stmtCheck = $conn->prepare("SELECT id FROM users WHERE username = ?");
             if ($stmtCheck) {
                 $stmtCheck->bind_param("s", $username);
@@ -114,7 +114,7 @@ switch ($action) {
         break;
 
     case 'login':
-        // Rate limiting check
+        // Pemeriksaan pembatasan laju login (Rate Limiting)
         if (!checkRateLimit($conn, 'login', MAX_LOGIN_ATTEMPTS, LOGIN_LOCKOUT_TIME)) {
             sendJsonResponse('error', 'Terlalu banyak percobaan login gagal. Akun/IP diblokir sementara selama 15 menit.', null, 429);
         }
@@ -132,15 +132,15 @@ switch ($action) {
         $result = $stmt->get_result();
 
         if ($user = $result->fetch_assoc()) {
-            // Secure Password Verification (Bcrypt Only)
+            // Verifikasi Kata Sandi Aman (Khusus Bcrypt)
             if (password_verify($password, $user['password'])) {
-                // Clear failed attempts
+                // Bersihkan percobaan gagal
                 clearFailedAttempts($conn);
                 
-                // Regenerate session id to prevent session fixation
+                // Buat ulang ID sesi untuk mencegah serangan session fixation
                 session_regenerate_id(true);
 
-                // Set session variables
+                // Tetapkan variabel sesi
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_role'] = $user['role'];
@@ -155,7 +155,7 @@ switch ($action) {
                 $_SESSION['user_kategori_instansi'] = $user['kategori_instansi'];
                 $_SESSION['last_activity'] = time();
 
-                // Define redirect route
+                // Tentukan rute pengalihan (redirect)
                 if ($user['role'] === 'pengunjung') {
                     $user['redirect'] = 'antrian.php';
                 } else if ($user['role'] === 'petugas') {
@@ -178,7 +178,7 @@ switch ($action) {
             }
         }
 
-        // Record failed attempt
+        // Catat percobaan login gagal
         recordFailedAttempt($conn, $username);
         logSecurityEvent($conn, 'login_failed', "Attempted username: $username");
         sendJsonResponse('error', 'Username atau password salah.');
@@ -230,7 +230,7 @@ switch ($action) {
 
 
     // ----------------------------------------------------
-    // 2. BUKU TAMU ENDPOINTS
+    // 2. ENDPOINT BUKU TAMU
     // ----------------------------------------------------
     case 'save_bukutamu':
         $timestamp = sanitizeInput($_POST['timestamp'] ?? date('Y-m-d H:i:s'));
@@ -256,24 +256,24 @@ switch ($action) {
             sendJsonResponse('error', 'Harap isi kolom data yang wajib diisi.');
         }
 
-        // Validate Email format if provided
+        // Validasi format Email jika diisi
         if (!empty($email) && !validateEmail($email)) {
             sendJsonResponse('error', 'Format email yang dimasukkan tidak valid.');
         }
 
-        // Validate Phone format
+        // Validasi format Telepon/HP
         if (!validatePhone($nohp)) {
             sendJsonResponse('error', 'Format nomor HP/WhatsApp tidak valid.');
         }
 
-        // Validate Base64 Photo Size (Max 2MB)
+        // Validasi Ukuran Foto Base64 (Maksimal 2MB)
         if (!empty($foto)) {
-            if (strlen($foto) > 2.8 * 1024 * 1024) { // base64 overhead multiplier ~1.37
+            if (strlen($foto) > 2.8 * 1024 * 1024) { // pengali beban overhead base64 ~1.37
                 sendJsonResponse('error', 'Ukuran file foto terlalu besar (Maksimal 2 MB).');
             }
         }
 
-        // Safe Kode BT Generation with Transaction Lock
+        // Pembuatan Kode BT Aman dengan Kunci Transaksi
         $conn->begin_transaction();
         try {
             $countResult = $conn->query("SELECT COUNT(*) as total FROM buku_tamu FOR UPDATE");
@@ -342,7 +342,7 @@ switch ($action) {
             sendJsonResponse('error', 'Status tidak valid.');
         }
 
-        // Check current status
+        // Periksa status saat ini
         $checkStmt = $conn->prepare("SELECT status FROM antrian WHERE id = ?");
         $checkStmt->bind_param("i", $id);
         $checkStmt->execute();
@@ -365,19 +365,19 @@ switch ($action) {
 
 
     // ----------------------------------------------------
-    // 3. ANTRIAN ENDPOINTS
+    // 3. ENDPOINT ANTREAN
     // ----------------------------------------------------
     case 'save_antrian':
-        // Safe retrieve parameters
+        // Ambil parameter dengan aman
         $userId = $_SESSION['user_id'] ?? null;
         $isWalkin = isset($_POST['is_walkin']) && ($_POST['is_walkin'] == '1' || $_POST['is_walkin'] == 'true');
         $tipePendaftaran = $isWalkin ? 'walkin' : 'online';
 
-        // If walkin, require staff auth
+        // Jika pendaftaran langsung (walkin), wajibkan autentikasi petugas
         if ($isWalkin) {
             requireAuth(['petugas', 'admin', 'kepala']);
         } else {
-            // For online booking, require visitor or staff login
+            // Untuk pendaftaran online, wajibkan login pengunjung atau petugas
             requireAuth(['pengunjung', 'petugas', 'admin', 'kepala']);
         }
 
@@ -404,18 +404,18 @@ switch ($action) {
             sendJsonResponse('error', 'Harap lengkapi semua kolom antrean & keperluan layanan.');
         }
 
-        // Server-side Weekend Check (Senin - Jumat)
-        $dayOfWeek = date('N', strtotime($tanggal)); // 1 (Mon) to 7 (Sun)
+        // Pemeriksaan Akhir Pekan Sisi Server (Senin - Jumat)
+        $dayOfWeek = date('N', strtotime($tanggal)); // 1 (Senin) hingga 7 (Minggu)
         if ($dayOfWeek > 5 && !$isWalkin) {
             sendJsonResponse('error', 'Reservasi antrean hanya tersedia pada hari kerja (Senin s.d. Jumat).');
         }
 
-        // Server-side Working Hours Check (08:00 - 15:30)
+        // Pemeriksaan Jam Kerja Sisi Server (08:00 - 15:30)
         if (($waktu < '08:00' || $waktu > '15:30') && !$isWalkin) {
             sendJsonResponse('error', 'Waktu kunjungan hanya tersedia pada jam kerja (08:00 s.d. 15:30 WIB).');
         }
 
-        // Active Queue Safeguard: Prevent creating a new online queue if visitor already has an active queue for today or future dates (tanggal >= CURDATE())
+        // Perlindungan Antrean Aktif: Cegah pembuatan antrean online baru jika pengunjung masih memiliki antrean aktif untuk hari ini atau tanggal mendatang
         if (!$isWalkin) {
             $activeStmt = null;
             if ($userId > 0) {
@@ -441,7 +441,7 @@ switch ($action) {
             }
         }
 
-        // Determine prefix
+        // Tentukan awalan (prefix)
         $prefix = 'KS';
         if (str_contains($layanan, 'Perpustakaan')) $prefix = 'PD';
         if (str_contains($layanan, 'Rekomendasi') || str_contains($layanan, 'ROMANTIK')) $prefix = 'RS';
@@ -449,7 +449,7 @@ switch ($action) {
 
         $conn->begin_transaction();
         try {
-            // Count queue for same date & prefix with row lock
+            // Hitung jumlah antrean pada tanggal & awalan yang sama dengan penguncian baris (row lock)
             $stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM antrian WHERE tanggal = ? AND nomor LIKE ? FOR UPDATE");
             $likePrefix = $prefix . '-%';
             $stmtCount->bind_param("ss", $tanggal, $likePrefix);
@@ -534,7 +534,7 @@ switch ($action) {
 
         if ($id <= 0) sendJsonResponse('error', 'ID antrean tidak valid.');
 
-        // Only allow cancellation of 'Menunggu' status queues
+        // Hanya izinkan pembatalan antrean berstatus 'Menunggu'
         if (in_array($role, ['petugas', 'admin', 'kepala'])) {
             $stmt = $conn->prepare("UPDATE antrian SET status = 'Dibatalkan' WHERE id = ? AND status = 'Menunggu'");
             $stmt->bind_param("i", $id);
@@ -613,28 +613,28 @@ switch ($action) {
 
         if ($id > 0) {
             if ($isRepeat) {
-                // Re-call: just re-set status to Dipanggil (no side effects on others)
+                // Pemanggilan ulang: cukup atur ulang status ke 'Dipanggil'
                 $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil' WHERE id = ? AND status = 'Dipanggil'");
                 $stmt->bind_param("i", $id);
                 $stmt->execute();
             } else {
-                // Finish OTHER currently 'Dipanggil' queues (NOT 'Dilayani') except the requested ID
+                // Selesaikan antrean LAIN yang sedang berstatus 'Dipanggil' (BUKAN 'Dilayani') kecuali ID yang diminta
                 $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ?");
                 $stmtFinish->bind_param("si", $tanggal, $id);
                 $stmtFinish->execute();
 
-                // Only set to Dipanggil if currently Menunggu or already Dipanggil
+                // Hanya ubah ke Dipanggil jika saat ini berstatus Menunggu atau sudah Dipanggil
                 $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil' WHERE id = ? AND status IN ('Menunggu', 'Dipanggil')");
                 $stmt->bind_param("i", $id);
                 $stmt->execute();
             }
         } else {
-            // Finish any currently 'Dipanggil' queue safely before getting next (NOT 'Dilayani')
+            // Selesaikan antrean yang sedang berstatus 'Dipanggil' secara aman sebelum mengambil antrean berikutnya
             $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ?");
             $stmtFinish->bind_param("s", $tanggal);
             $stmtFinish->execute();
 
-            // Find next 'Menunggu' queue only
+            // Cari antrean berikutnya yang berstatus 'Menunggu' saja
             $stmtNext = $conn->prepare("SELECT id FROM antrian WHERE status = 'Menunggu' AND tanggal = ? ORDER BY id ASC LIMIT 1");
             $stmtNext->bind_param("s", $tanggal);
             $stmtNext->execute();
@@ -675,7 +675,7 @@ switch ($action) {
 
 
     // ----------------------------------------------------
-    // 4. EXECUTIVE DASHBOARD & KPI ENDPOINTS
+    // 4. ENDPOINT DASHBOARD EKSEKUTIF & KPI
     // ----------------------------------------------------
     case 'get_dashboard_kpi':
         requireAuth(['admin', 'kepala', 'petugas']);
@@ -771,14 +771,14 @@ switch ($action) {
             $chartTipe[] = $r;
         }
 
-        // Recent 10 Registrations
+        // 10 Pendaftaran Terbaru
         $resRecent = $conn->query("SELECT id, nomor, kode_antrian, nama, layanan, status, tipe_pendaftaran, DATE_FORMAT(created_at, '%H:%i') as jam FROM antrian ORDER BY id DESC LIMIT 8");
         $recentAntrian = [];
         while ($r = $resRecent->fetch_assoc()) {
             $recentAntrian[] = $r;
         }
 
-        // Recent SKM Feedback Reviews
+        // Ulasan SKM Terbaru
         $resSKMFeed = $conn->query("SELECT id, nomor, nama, layanan, pendapat, catatan, created_at FROM antrian WHERE pendapat IS NOT NULL AND pendapat != '' ORDER BY id DESC LIMIT 5");
         $recentFeedback = [];
         while ($r = $resSKMFeed->fetch_assoc()) {
@@ -838,7 +838,7 @@ switch ($action) {
             $chartFasilitas[] = $r;
         }
 
-        // Recent 5 Feedback & Pengaduan dari skm_pengaduan
+        // 5 Feedback & Pengaduan Terbaru dari skm_pengaduan
         $resRecentPengaduan = $conn->query("SELECT id, tipe, nama, kontak, rating_atau_kategori, pesan, DATE_FORMAT(created_at, '%d/%m/%Y %H:%i') as created_at FROM skm_pengaduan ORDER BY id DESC LIMIT 5");
         $recentPengaduan = [];
         while ($r = $resRecentPengaduan->fetch_assoc()) {
@@ -878,10 +878,10 @@ switch ($action) {
 
 
     // ----------------------------------------------------
-    // 5. FLOATING WIDGET FEEDBACK / PENGADUAN
+    // 5. WIDGET MELAYANG FEEDBACK / PENGADUAN
     // ----------------------------------------------------
     case 'save_widget_feedback':
-        // Rate limit 3 feedback per hour per IP
+        // Batasi laju 3 masukan feedback per jam per IP
         if (!checkRateLimit($conn, 'widget_feedback', 3, 3600)) {
             sendJsonResponse('error', 'Batas masukan feedback tercapai. Silakan coba lagi beberapa saat lagi.', null, 429);
         }

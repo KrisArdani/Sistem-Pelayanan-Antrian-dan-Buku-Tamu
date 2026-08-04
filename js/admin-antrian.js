@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Admin Loket Antrian Handler (Real-Time Auto Sync)
+ * TOBASA BPS Kota Tegal - Penangan Loket Antrean Admin (Sinkronisasi Otomatis Real-Time)
  */
 
 let fetchedAntrianData = [];
@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await renderAntrianDashboard();
 
-  // Real-Time Live Polling (Every 3 seconds background sync)
+  // Pemanggilan Berkelanjutan Real-Time (Sinkronisasi latar belakang setiap 3 detik)
   setInterval(async () => {
-    // If a modal is open, don't interrupt active typing or modal interaction
+    // Jika modal terbuka, jangan ganggu pengetikan aktif atau aksi pengguna
     if (document.querySelector('.modal.show')) return;
     await renderAntrianDashboard(true);
   }, 3000);
@@ -102,10 +102,10 @@ async function renderAntrianDashboard(isSilent = false) {
     return;
   }
 
-  // Compare Json Hash to avoid flickering if nothing changed
+  // Bandingkan Hash JSON untuk menghindari kedipan tampilan (flickering) jika tidak ada perubahan data
   const currentJson = JSON.stringify(data);
   if (isSilent && currentJson === lastAntrianJson) {
-    return; // Data has not changed, zero DOM flicker!
+    return; 
   }
   lastAntrianJson = currentJson;
   fetchedAntrianData = data;

@@ -1,10 +1,10 @@
--- TOBASA BPS Kota Tegal - Database Schema
--- Database Name: db_tobasa
+-- TOBASA BPS Kota Tegal - Skema Database
+-- Nama Database: db_tobasa
 
 CREATE DATABASE IF NOT EXISTS `db_tobasa` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `db_tobasa`;
 
--- 1. Table: users (Auth, RBAC & Profil Pengunjung)
+-- 1. Tabel: users (Autentikasi, RBAC & Profil Pengunjung)
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `username` VARCHAR(50) NOT NULL UNIQUE,
@@ -22,11 +22,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Accounts (Valid Bcrypt Hashes):
+-- Akun Awal (Hash Bcrypt Valid):
 -- petugas / petugas123
 -- admin / admin123
 -- kepala / kepala123
--- ahmad_fauzi / user123 (Sample Pengunjung)
+-- ahmad_fauzi / user123 (Sampel Pengunjung)
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `role`, `jenis_kelamin`, `umur`, `nohp`, `email`, `pendidikan`, `pekerjaan`, `instansi`, `kategori_instansi`) VALUES
 (1, 'petugas', '$2y$10$wyF1kIOQij5vyCM.3C4AW.KeurOmtfYFEfJCFHn.vfB4sxDOY086O', 'Petugas PST Loket', 'petugas', 'Laki Laki', '26-34 tahun', '081200000001', 'petugas@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
 (2, 'admin', '$2y$10$kSx1EttrAobm378hbHq.Durj8KM8BOgmohDmOw198yYWcpIiaENvW', 'Admin Back Office', 'admin', 'Laki Laki', '26-34 tahun', '081200000002', 'admin@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
@@ -35,7 +35,7 @@ INSERT INTO `users` (`id`, `username`, `password`, `name`, `role`, `jenis_kelami
 ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `name` = VALUES(`name`);
 
 
--- 1b. Table: login_attempts (Rate Limiting)
+-- 1b. Tabel: login_attempts (Pembatasan Laju Akses Login)
 CREATE TABLE IF NOT EXISTS `login_attempts` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `ip_address` VARCHAR(45) NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
   INDEX `idx_ip_time` (`ip_address`, `attempted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 1c. Table: security_log (Audit Trail)
+-- 1c. Tabel: security_log (Jejak Audit Keamanan)
 CREATE TABLE IF NOT EXISTS `security_log` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `event_type` VARCHAR(50) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `security_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
--- 2. Table: buku_tamu (Guestbook Entries & Verification Status)
+-- 2. Tabel: buku_tamu (Data Kunjungan Buku Tamu & Status Verifikasi)
 CREATE TABLE IF NOT EXISTS `buku_tamu` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `kode_bt` VARCHAR(20) NOT NULL UNIQUE,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `buku_tamu` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Initial Visitor Data
+-- Data Awal Sampel Pengunjung Buku Tamu
 INSERT INTO `buku_tamu` (
   `kode_bt`, `timestamp`, `nama`, `jenis_kelamin`, `umur`, `nohp`, `email`, `pendidikan`,
   `pekerjaan`, `instansi`, `kategori_instansi`, `fasilitas`, `layanan`, `pemanfaatan`,
@@ -93,7 +93,7 @@ INSERT INTO `buku_tamu` (
 ON DUPLICATE KEY UPDATE `nama` = VALUES(`nama`);
 
 
--- 3. Table: antrian (Online Queue & Integrated Service Requests)
+-- 3. Tabel: antrian (Antrean Online & Permohonan Layanan Terintegrasi)
 CREATE TABLE IF NOT EXISTS `antrian` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT DEFAULT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `antrian` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Initial Queue Data
+-- Data Awal Sampel Antrean
 INSERT INTO `antrian` (
   `user_id`, `kode_antrian`, `nomor`, `nama`, `jenis_kelamin`, `umur`, `nohp`, `email`, `pendidikan`,
   `pekerjaan`, `instansi`, `kategori_instansi`, `fasilitas`, `layanan`, `pemanfaatan`, `data_diinginkan`,
@@ -136,7 +136,7 @@ INSERT INTO `antrian` (
 ON DUPLICATE KEY UPDATE `nama` = VALUES(`nama`);
 
 
--- 4. Table: skm_pengaduan (Feedback & Complaints)
+-- 4. Tabel: skm_pengaduan (Ulasan SKM & Pengaduan Layanan)
 CREATE TABLE IF NOT EXISTS `skm_pengaduan` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `tipe` ENUM('penilaian', 'pengaduan') NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `skm_pengaduan` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Initial Feedback
+-- Data Awal Sampel Feedback & Ulasan
 INSERT INTO `skm_pengaduan` (`tipe`, `nama`, `kontak`, `rating_atau_kategori`, `pesan`) VALUES
 ('penilaian', 'Ahmad Fauzi', '081234567890', 'Sangat Puas', 'Layanan PST BPS Kota Tegal sangat nyaman dan informatif.'),
 ('pengaduan', 'Pengunjung', '-', 'Saran Fasilitas', 'Mohon ditambah tempat duduk di area ruang tunggu PST.')

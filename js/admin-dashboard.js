@@ -1,12 +1,12 @@
 /**
- * TOBASA BPS Kota Tegal - Executive Dashboard Chart.js & KPI Controller
+ * TOBASA BPS Kota Tegal - Pengontrol Grafik & KPI Dashboard Eksekutif Chart.js
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
   const isAuth = await checkAuth(['admin', 'kepala', 'petugas']);
   if (!isAuth) return;
 
-  // Display user role & name
+  // Tampilkan peran & nama pengguna
   const curUser = getCurrentUser();
   if (curUser) {
     const nameElem = document.getElementById('user_display_name');
@@ -153,7 +153,7 @@ function renderRecentPengaduan(data) {
 function initCharts(chartData) {
   if (typeof Chart === 'undefined') return;
 
-  // Helper chart renderer
+  // Pembantu perataan grafik
   const createChart = (canvasId, type, labels, data, colors, options = {}) => {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
@@ -249,6 +249,7 @@ function initCharts(chartData) {
   createChart('chartUmur', 'doughnut', labelsUmur, valuesUmur, ['#FF6B35', '#00A3E0', '#10B981', '#8B5CF6', '#F59E0B']);
 
   // 8. Chart Jenis Kelamin (Pie)
+  // 8. Grafik Jenis Kelamin (Pie)
   const labelsJK = (chartData?.chart_jk?.length > 0)
     ? chartData.chart_jk.map(i => i.jenis_kelamin)
     : ['Laki Laki', 'Perempuan'];
@@ -257,7 +258,7 @@ function initCharts(chartData) {
     : [2, 1];
   createChart('chartJK', 'pie', labelsJK, valuesJK, ['#0284C7', '#EC4899']);
 
-  // 9. Chart Tujuan Pemanfaatan (Bar)
+  // 9. Grafik Tujuan Pemanfaatan (Bar)
   const labelsPemanfaatan = (chartData?.chart_pemanfaatan?.length > 0)
     ? chartData.chart_pemanfaatan.map(i => i.pemanfaatan)
     : ['Tugas Sekolah/Kuliah', 'Penelitian', 'Pemerintah'];

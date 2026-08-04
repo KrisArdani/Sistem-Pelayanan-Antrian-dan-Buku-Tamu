@@ -2,6 +2,7 @@
 scratch/
 *.tmp
 *.log
+fake_work.ps1
 
 # OS generated files
 .DS_Store
@@ -11,3 +12,4 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
