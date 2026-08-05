@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
             title = 'Koneksi HTTP Dibatasi';
-            msg = 'Browser membatasi akses webcam pada jaringan HTTP IP. Silakan buka web via http://localhost/A/tobasa/antrian.php atau upload foto dari file.';
+            msg = 'Browser membatasi akses webcam pada jaringan HTTP IP. Silakan buka web via http://localhost/A/spst/antrian.php atau upload foto dari file.';
           }
 
           Swal.fire({
