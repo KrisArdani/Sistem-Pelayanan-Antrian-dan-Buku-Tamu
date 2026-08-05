@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Fungsi Pembantu Keamanan & Header HTTP
+// SPST BPS Kota Tegal - Fungsi Pembantu Keamanan & Header HTTP
 require_once __DIR__ . '/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {

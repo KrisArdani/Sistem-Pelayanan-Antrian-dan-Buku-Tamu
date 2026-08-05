@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Buku Tamu Form Handler & WebRTC Camera Engine
+ * SPST BPS Kota Tegal - Form Buku Tamu & Penangan Kamera WebRTC
  */
 
 let mediaStream = null;

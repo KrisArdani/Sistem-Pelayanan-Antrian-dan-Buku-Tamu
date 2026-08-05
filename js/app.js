@@ -1,10 +1,10 @@
 /**
- * TOBASA BPS Kota Tegal - Penangan Utilitas & Penyimpanan Aplikasi Utama
+ * SPST BPS Kota Tegal - Penangan Utilitas & Penyimpanan Aplikasi Utama
  */
 
 // Konstanta Kunci Penyimpanan
 const STORAGE_KEYS = {
-  CURRENT_USER: 'tobasa_current_user'
+  CURRENT_USER: 'spst_current_user'
 };
 
 // Pembantu: Ambil Token CSRF dari meta tag DOM

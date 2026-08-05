@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Koneksi Database & Pengaturan Otomatis
+// SPST BPS Kota Tegal - Sistem Pelayanan Statistik Terpadu
 require_once __DIR__ . '/config.php';
 
 $host = DB_HOST;
@@ -20,7 +20,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Buat database & tabel secara otomatis jika db_tobasa belum ada
+// Buat database & tabel secara otomatis jika db_spst belum ada
 try {
     $db_check = @$conn->select_db($dbname);
 } catch (Throwable $e) {
@@ -32,7 +32,7 @@ if (!$db_check) {
     $conn->select_db($dbname);
 
     // Muat file skema SQL
-    $sql_file = __DIR__ . '/db_tobasa.sql';
+    $sql_file = __DIR__ . '/db_spst.sql';
     if (file_exists($sql_file)) {
         $sql = file_get_contents($sql_file);
         $conn->multi_query($sql);

@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Penangan Antrean Digital & Generator Kode QR
+ * SPST BPS Kota Tegal - Penangan Antrean Digital & Generator Kode QR
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -410,7 +410,7 @@ function renderDigitalTicket(ticket) {
   const p2QrContainer = document.getElementById('p2_qrcode_box');
   if (p2QrContainer) p2QrContainer.innerHTML = '';
 
-  const qrDataText = ticket.nomor ? `TOBASA-${ticket.nomor}` : ticketId;
+  const qrDataText = ticket.nomor ? `SPST-${ticket.nomor}` : ticketId;
 
   if (typeof QRCode !== 'undefined') {
     new QRCode(qrContainer, {

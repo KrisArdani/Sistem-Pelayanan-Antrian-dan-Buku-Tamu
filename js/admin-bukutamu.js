@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Penangan Tabel & Ekspor Buku Tamu Admin (Sinkronisasi Otomatis Real-Time)
+ * SPST BPS Kota Tegal - Penangan Tabel & Ekspor Buku Tamu Admin (Sinkronisasi Otomatis Real-Time)
  */
 
 let fetchedBukuTamuData = [];

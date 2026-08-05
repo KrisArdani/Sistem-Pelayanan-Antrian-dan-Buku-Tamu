@@ -1,6 +1,6 @@
-# TOBASA - Pelayanan Statistik Terpadu BPS Kota Tegal
+# SPST - Sistem Pelayanan Statistik Terpadu BPS Kota Tegal
 
-Aplikasi web portal **TOBASA** (Pelayanan Statistik Terpadu) yang digunakan oleh **BPS Kota Tegal** untuk mengelola antrean layanan dan buku tamu pengunjung secara efisien, modern, dan terintegrasi.
+Aplikasi web portal **SPST** (Sistem Pelayanan Statistik Terpadu) yang digunakan oleh **BPS Kota Tegal** untuk mengelola antrean layanan dan buku tamu pengunjung secara efisien, modern, dan terintegrasi.
 
 ---
 
@@ -35,13 +35,13 @@ Aplikasi web portal **TOBASA** (Pelayanan Statistik Terpadu) yang digunakan oleh
 
 1. **Clone / Download Repository**
    ```bash
-   git clone https://github.com/KrisArdani/Tobasa.git
+   git clone https://github.com/KrisArdani/spst.git
    ```
-   Atau ekstrak folder proyek ini ke dalam direktori web server Anda (misalnya `C:/xampp/htdocs/A/Tobasa` atau `C:/xampp/htdocs/Tobasa`).
+   Atau ekstrak folder proyek ini ke dalam direktori web server Anda (misalnya `C:/xampp/htdocs/A/spst` atau `C:/xampp/htdocs/spst`).
 
 2. **Database Auto-Setup / Import Manual**
-   - **Otomatis**: Sistem dilengkapi *Auto-Setup Database*. Cukup pastikan MySQL pada XAMPP sudah berjalan, lalu buka aplikasi di browser. Sistem akan otomatis membuat database `db_tobasa` dan mengimpor struktur/tabel awal jika belum ada.
-   - **Manual**: Jika ingin mengimpor manual, buka **phpMyAdmin** (`http://localhost/phpmyadmin`), buat database `db_tobasa`, lalu import file `db_tobasa.sql`.
+   - **Otomatis**: Sistem dilengkapi *Auto-Setup Database*. Cukup pastikan MySQL pada XAMPP sudah berjalan, lalu buka aplikasi di browser. Sistem akan otomatis membuat database `db_spst` dan mengimpor struktur/tabel awal jika belum ada.
+   - **Manual**: Jika ingin mengimpor manual, buka **phpMyAdmin** (`http://localhost/phpmyadmin`), buat database `db_spst`, lalu import file `db_spst.sql`.
 
 3. **Konfigurasi Koneksi**
    - Buka file `config.php` untuk mengkonfigurasi kredensial MySQL (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`) jika tidak menggunakan `root` tanpa password.
@@ -50,7 +50,7 @@ Aplikasi web portal **TOBASA** (Pelayanan Statistik Terpadu) yang digunakan oleh
    - Pastikan Apache dan MySQL pada XAMPP sudah aktif.
    - Buka browser dan akses:
      ```text
-     http://localhost/A/Tobasa/
+     http://localhost/A/spst/
      ```
      *(atau sesuaikan dengan folder htdocs Anda)*
 
@@ -72,7 +72,7 @@ Gunakan kredensial berikut untuk menguji aplikasi:
 ## 📁 Struktur Direktori
 
 ```text
-Tobasa/
+spst/
 ├── admin/            # Panel manajemen admin (dashboard, antrean, buku tamu)
 ├── css/              # Stylesheet & stylesheet kustom
 ├── js/               # Script JavaScript (dashboard, antrean, tts, dll)
@@ -80,9 +80,9 @@ Tobasa/
 ├── antrian.php       # Modul manajemen & pengambilan antrean
 ├── bukutamu.php      # Modul pencatatan buku tamu
 ├── config.php        # Konfigurasi aplikasi & database
-├── db_tobasa.sql     # Schema & data awal database MySQL
+├── db_spst.sql       # Schema & data awal database MySQL
 ├── footer.php        # Header/Footer komponen UI
-├── index.php         # Halaman utama (Landing Page TOBASA)
+├── index.php         # Halaman utama (Landing Page SPST)
 ├── koneksi.php       # Koneksi ke database MySQL & auto-migration
 ├── login.php         # Halaman login petugas/admin/pengunjung
 ├── logout.php        # Proses logout

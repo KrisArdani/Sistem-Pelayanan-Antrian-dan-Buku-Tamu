@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Penangan Loket Antrean Admin (Sinkronisasi Otomatis Real-Time)
+ * SPST BPS Kota Tegal - Penangan Loket Antrean Admin (Sinkronisasi Otomatis Real-Time)
  */
 
 let fetchedAntrianData = [];

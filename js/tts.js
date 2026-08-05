@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Text To Speech Accessibility Module
+ * SPST BPS Kota Tegal - Modul Aksesibilitas Text To Speech
  */
 
 let ttsActive = false;

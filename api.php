@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Penangan Endpoint API Teramankan
+// SPST BPS Kota Tegal - Penangan Endpoint API Teramankan
 require_once __DIR__ . '/koneksi.php';
 require_once __DIR__ . '/security.php';
 

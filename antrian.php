@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Form Antrian & Keperluan Layanan Terintegrasi
+// SPST BPS Kota Tegal - Form Antrian & Keperluan Layanan Terintegrasi
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
 
@@ -33,7 +33,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-  <title>Layanan & Antrian Online - TOBASA BPS Kota Tegal</title>
+  <title>Layanan & Antrian Online - SPST BPS Kota Tegal</title>
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -436,7 +436,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
   <!-- Mobile Offcanvas Sidebar -->
   <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
     <div class="offcanvas-header border-b border-slate-700">
-      <h5 class="offcanvas-title text-white font-bold brand-font">TOBASA BPS KOTA TEGAL</h5>
+      <h5 class="offcanvas-title text-white font-bold brand-font">SPST BPS KOTA TEGAL</h5>
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-6 space-y-3">
@@ -466,7 +466,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
 
       <div style="text-align: center; margin-bottom: 16px;">
         <h2 style="font-size: 13px; font-weight: 800; color: #003366; text-transform: uppercase; margin: 0;">FORMULIR REGISTRASI & DATA KUNJUNGAN</h2>
-        <div style="font-size: 9.5px; color: #64748b;">Sistem Pelayanan Statistik Terpadu (TOBASA) BPS Kota Tegal</div>
+        <div style="font-size: 9.5px; color: #64748b;">Sistem Pelayanan Statistik Terpadu (SPST) BPS Kota Tegal</div>
       </div>
 
       <!-- Ringkasan Data Tables -->
@@ -545,7 +545,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
       </table>
 
       <div style="font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 6px; text-align: right;">
-        Dokumen Resmi Terverifikasi TOBASA BPS Kota Tegal | Tanggal Cetak: <?php echo date('d-m-Y H:i'); ?> WIB
+        Dokumen Resmi Terverifikasi SPST BPS Kota Tegal | Tanggal Cetak: <?php echo date('d-m-Y H:i'); ?> WIB
       </div>
     </div>
 

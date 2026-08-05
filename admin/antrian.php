@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Admin Panel Loket Antrian
+// SPST BPS Kota Tegal - Admin Panel Loket Antrian
 $allowed_roles = ['petugas', 'admin', 'kepala'];
 require_once __DIR__ . '/../auth_check.php';
 $csrf_token = generateCsrfToken();
@@ -10,7 +10,7 @@ $csrf_token = generateCsrfToken();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-  <title>Kelola Loket Antrian - TOBASA Admin BPS Kota Tegal</title>
+  <title>Kelola Loket Antrian - SPST Admin BPS Kota Tegal</title>
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@ $csrf_token = generateCsrfToken();
         <div class="flex items-center gap-3 mb-8 pb-6 border-b border-slate-700/60">
           <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-12 h-12 object-contain filter drop-shadow">
           <div>
-            <h1 class="text-white font-extrabold text-lg tracking-wide leading-tight brand-font">PANEL TOBASA</h1>
+            <h1 class="text-white font-extrabold text-lg tracking-wide leading-tight brand-font">PANEL SPST</h1>
             <p class="text-xs text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
           </div>
         </div>
@@ -321,7 +321,7 @@ $csrf_token = generateCsrfToken();
 
       <!-- Footer -->
       <footer class="bg-slate-900 text-slate-400 py-4 px-6 text-center text-xs border-t border-slate-800">
-        Panel Admin TOBASA BPS Kota Tegal © 2026
+        Panel Admin SPST BPS Kota Tegal © 2026
       </footer>
 
     </main>
@@ -333,7 +333,7 @@ $csrf_token = generateCsrfToken();
       <div class="flex items-center gap-3">
         <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-10 h-10 object-contain filter drop-shadow">
         <div>
-          <h5 class="offcanvas-title text-white font-extrabold brand-font text-base leading-tight">PANEL TOBASA</h5>
+          <h5 class="offcanvas-title text-white font-extrabold brand-font text-base leading-tight">PANEL SPST</h5>
           <p class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
         </div>
       </div>

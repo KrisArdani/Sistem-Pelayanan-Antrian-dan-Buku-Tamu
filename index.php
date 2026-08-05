@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Main Portal Landing Page
+// SPST BPS Kota Tegal - Sistem Pelayanan Statistik Terpadu
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
 
@@ -22,7 +22,7 @@ $activeMenu = 'home';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-  <title>TOBASA - Pelayanan Statistik Terpadu BPS Kota Tegal</title>
+  <title>SPST - Sistem Pelayanan Statistik Terpadu BPS Kota Tegal</title>
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -270,7 +270,7 @@ $activeMenu = 'home';
   <!-- Mobile Offcanvas Sidebar -->
   <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
     <div class="offcanvas-header border-b border-slate-700">
-      <h5 class="offcanvas-title text-white font-bold brand-font">TOBASA BPS KOTA TEGAL</h5>
+      <h5 class="offcanvas-title text-white font-bold brand-font">SPST BPS KOTA TEGAL</h5>
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-6 space-y-4">

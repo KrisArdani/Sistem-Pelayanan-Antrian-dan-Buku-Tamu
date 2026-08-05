@@ -1,5 +1,5 @@
 /**
- * TOBASA BPS Kota Tegal - Pengontrol Grafik & KPI Dashboard Eksekutif Chart.js
+ * SPST BPS Kota Tegal - Pengontrol Grafik & KPI Dashboard Eksekutif Chart.js
  */
 
 document.addEventListener('DOMContentLoaded', async () => {

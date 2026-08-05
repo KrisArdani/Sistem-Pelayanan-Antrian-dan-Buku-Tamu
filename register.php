@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Form Registrasi Akun Pengunjung
+// SPST BPS Kota Tegal - Form Registrasi Akun Pengunjung
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
 $csrf_token = generateCsrfToken();
@@ -10,7 +10,7 @@ $csrf_token = generateCsrfToken();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-  <title>Registrasi Akun Pengunjung - TOBASA BPS Kota Tegal</title>
+  <title>Registrasi Akun Pengunjung - SPST BPS Kota Tegal</title>
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@ $csrf_token = generateCsrfToken();
         <span class="material-icons text-sm">arrow_back</span>
         <span>Kembali ke Beranda</span>
       </a>
-      <span class="text-xs font-bold text-sky-400 uppercase tracking-widest">Portal Pengunjung TOBASA</span>
+      <span class="text-xs font-bold text-sky-400 uppercase tracking-widest">Portal Pengunjung SPST</span>
     </div>
 
     <!-- Main Registration Box -->

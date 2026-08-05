@@ -1,6 +1,6 @@
 <?php
-// TOBASA BPS Kota Tegal - Pelindung Autentikasi Sisi Server
-require_once __DIR__ . '/security.php';
+// SPST BPS Kota Tegal - Pelindung Autentikasi Sisi Server
+require_once __DIR__ . '/config.php';
 
 setSecurityHeaders();
 

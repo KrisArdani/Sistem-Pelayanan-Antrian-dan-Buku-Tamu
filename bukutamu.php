@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Halaman Riwayat & Tiket Kunjungan Pengunjung
+// SPST BPS Kota Tegal - Halaman Riwayat & Tiket Kunjungan Pengunjung
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
 
@@ -28,7 +28,7 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-  <title>Riwayat & Tiket Kunjungan - TOBASA BPS Kota Tegal</title>
+  <title>Riwayat & Tiket Kunjungan - SPST BPS Kota Tegal</title>
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>

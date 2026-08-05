@@ -85,7 +85,7 @@
   </div>
 </div>
 
-<!-- Main Footer Component (Identik dengan Web Asli tobasa.web.bps.go.id) -->
+<!-- Main Footer Component (Identik dengan Web Asli spst.web.bps.go.id) -->
 <footer class="bg-slate-900 text-slate-300 pt-12 pb-8 border-t border-slate-800 mt-16">
   <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 text-sm pb-10 border-b border-slate-800">
     

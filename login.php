@@ -1,5 +1,5 @@
 <?php
-// TOBASA BPS Kota Tegal - Login Panel
+// SPST BPS Kota Tegal - Sistem Pelayanan Statistik Terpadu
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
 
@@ -28,7 +28,7 @@ $csrf_token = generateCsrfToken();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-  <title>Login Internal - TOBASA BPS Kota Tegal</title>
+  <title>Login - SPST BPS Kota Tegal</title>
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -61,7 +61,7 @@ $csrf_token = generateCsrfToken();
       
       <div class="text-center space-y-2">
         <img src="img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-16 h-16 object-contain mx-auto mb-3 filter drop-shadow">
-        <h1 class="text-2xl font-extrabold text-white brand-font">Masuk ke Portal TOBASA</h1>
+        <h1 class="text-2xl font-extrabold text-white brand-font">Masuk ke Portal SPST</h1>
         <p class="text-xs text-slate-400">Gunakan akun pengunjung atau akun internal BPS Kota Tegal.</p>
       </div>
 

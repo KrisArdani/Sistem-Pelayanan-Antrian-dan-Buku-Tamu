@@ -5,7 +5,7 @@
     <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-700/60">
       <img src="img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-12 h-12 object-contain filter drop-shadow">
       <div>
-        <h1 class="text-white font-extrabold text-lg tracking-wide leading-tight brand-font">TOBASA</h1>
+        <h1 class="text-white font-extrabold text-lg tracking-wide leading-tight brand-font">SPST</h1>
         <p class="text-[11px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
       </div>
     </div>
