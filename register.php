@@ -64,24 +64,29 @@ $csrf_token = generateCsrfToken();
           </div>
         </div>
 
-        <!-- Nama Lengkap & No HP -->
+        <!-- NIK & Nama Lengkap -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label text-xs font-bold text-slate-300 uppercase">NIK (Nomor Induk Kependudukan) <span class="text-red-400">*</span></label>
+            <input type="text" id="reg_nik" class="form-control rounded-xl text-sm" placeholder="16 Digit NIK Sesuai KTP" maxlength="16" minlength="16" pattern="[0-9]{16}" inputmode="numeric" required>
+          </div>
           <div>
             <label class="form-label text-xs font-bold text-slate-300 uppercase">Nama Lengkap <span class="text-red-400">*</span></label>
             <input type="text" id="reg_name" class="form-control rounded-xl text-sm" placeholder="Nama lengkap Anda..." required>
           </div>
+        </div>
+
+        <!-- Nomor HP & Email -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="form-label text-xs font-bold text-slate-300 uppercase">Nomor HP / WhatsApp <span class="text-red-400">*</span></label>
             <input type="tel" id="reg_nohp" class="form-control rounded-xl text-sm" placeholder="081234567890" required>
           </div>
-        </div>
-
-        <!-- Email & Jenis Kelamin -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="form-label text-xs font-bold text-slate-300 uppercase">Alamat Email</label>
             <input type="email" id="reg_email" class="form-control rounded-xl text-sm" placeholder="email@domain.com">
           </div>
+        </div>
           <div>
             <label class="form-label text-xs font-bold text-slate-300 uppercase">Jenis Kelamin <span class="text-red-400">*</span></label>
             <select id="reg_jk" class="form-select rounded-xl text-sm" required>
@@ -171,6 +176,13 @@ $csrf_token = generateCsrfToken();
   <script>
   document.getElementById('formRegister').addEventListener('submit', async function(e) {
     e.preventDefault();
+
+    const nik = document.getElementById('reg_nik').value.trim();
+    if (!/^[0-9]{16}$/.test(nik)) {
+      Swal.fire('Format NIK Salah', 'NIK harus terdiri dari tepat 16 digit angka sesuai KTP.', 'warning');
+      return;
+    }
+
     const btn = document.getElementById('btnRegister');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
@@ -181,6 +193,7 @@ $csrf_token = generateCsrfToken();
       username: document.getElementById('reg_username').value.trim(),
       password: document.getElementById('reg_password').value,
       name: document.getElementById('reg_name').value.trim(),
+      nik: nik,
       nohp: document.getElementById('reg_nohp').value.trim(),
       email: document.getElementById('reg_email').value.trim(),
       jenis_kelamin: document.getElementById('reg_jk').value,

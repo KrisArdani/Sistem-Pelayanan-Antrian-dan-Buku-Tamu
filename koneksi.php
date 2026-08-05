@@ -50,6 +50,11 @@ $conn->set_charset("utf8mb4");
 
 // Migrasi otomatis tabel database jika ada kolom baru yang belum tersedia
 try {
+    $checkUserNik = $conn->query("SHOW COLUMNS FROM users LIKE 'nik'");
+    if ($checkUserNik && $checkUserNik->num_rows === 0) {
+        $conn->query("ALTER TABLE users ADD COLUMN nik VARCHAR(16) DEFAULT NULL AFTER name");
+    }
+
     $checkUserCol = $conn->query("SHOW COLUMNS FROM users LIKE 'nohp'");
     if ($checkUserCol && $checkUserCol->num_rows === 0) {
         $conn->query("ALTER TABLE users 
@@ -65,6 +70,16 @@ try {
     } else {
         // Pastikan ENUM role memuat opsi 'pengunjung'
         $conn->query("ALTER TABLE users MODIFY COLUMN role ENUM('petugas', 'admin', 'kepala', 'pengunjung') NOT NULL");
+    }
+
+    $checkAntrianNik = $conn->query("SHOW COLUMNS FROM antrian LIKE 'nik'");
+    if ($checkAntrianNik && $checkAntrianNik->num_rows === 0) {
+        $conn->query("ALTER TABLE antrian ADD COLUMN nik VARCHAR(16) DEFAULT NULL AFTER nama");
+    }
+
+    $checkBtNik = $conn->query("SHOW COLUMNS FROM buku_tamu LIKE 'nik'");
+    if ($checkBtNik && $checkBtNik->num_rows === 0) {
+        $conn->query("ALTER TABLE buku_tamu ADD COLUMN nik VARCHAR(16) DEFAULT NULL AFTER nama");
     }
 
     $checkAntrianCol = $conn->query("SHOW COLUMNS FROM antrian LIKE 'fasilitas'");

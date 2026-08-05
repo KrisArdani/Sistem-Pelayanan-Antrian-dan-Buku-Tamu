@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` VARCHAR(50) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
   `name` VARCHAR(100) NOT NULL,
+  `nik` VARCHAR(16) DEFAULT NULL,
   `role` ENUM('petugas', 'admin', 'kepala', 'pengunjung') NOT NULL,
   `jenis_kelamin` ENUM('Laki Laki', 'Perempuan') DEFAULT 'Laki Laki',
   `umur` VARCHAR(30) DEFAULT NULL,

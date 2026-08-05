@@ -328,6 +328,7 @@ function showVisitorDetail(id) {
       <div><b>Kode Tiket / BT:</b> ${escapeHtml(item.kode_bt || item.nomor || '-')}</div>
       <div><b>Nomor Antrian:</b> <span class="font-extrabold text-sky-700">${escapeHtml(item.nomor || '-')}</span></div>
       <div><b>Nama Lengkap:</b> ${escapeHtml(item.nama)}</div>
+      <div><b>NIK (KTP):</b> <span class="font-mono text-slate-900">${escapeHtml(item.nik || '-')}</span></div>
       <div><b>Jenis Kelamin / Usia:</b> ${escapeHtml(item.jenis_kelamin || '-')} (${escapeHtml(item.umur || '-')})</div>
       <div><b>Nomor HP / WhatsApp:</b> ${escapeHtml(item.nohp || '-')}</div>
       <div><b>Alamat Email:</b> ${escapeHtml(item.email || '-')}</div>
@@ -398,7 +399,7 @@ function exportToCSV() {
   }
 
   const headers = [
-    "No", "Kode Tiket/BT", "Nomor Antrian", "Nama Pengunjung", "Jenis Kelamin",
+    "No", "Kode Tiket/BT", "Nomor Antrian", "Nama Pengunjung", "NIK", "Jenis Kelamin",
     "Usia", "No HP", "Email", "Pendidikan", "Pekerjaan", "Instansi",
     "Kategori Instansi", "Fasilitas", "Layanan PST", "Tujuan Pemanfaatan",
     "Data Diinginkan", "Monev", "Ulasan SKM", "Catatan SKM", "Tipe Pendaftaran", "Status", "Tanggal & Waktu"
@@ -409,6 +410,7 @@ function exportToCSV() {
     `"${item.kode_bt || item.kode_antrian || ''}"`,
     `"${item.nomor || ''}"`,
     `"${(item.nama || '').replace(/"/g, '""')}"`,
+    `"${item.nik || ''}"`,
     `"${item.jenis_kelamin || ''}"`,
     `"${item.umur || ''}"`,
     `"${item.nohp || ''}"`,

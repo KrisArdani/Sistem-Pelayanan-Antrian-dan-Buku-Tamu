@@ -2,6 +2,24 @@
 // TOBASA BPS Kota Tegal - Login Panel
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Jika pengguna sudah login, alihkan langsung ke beranda / panel sesuai peran
+if (isset($_SESSION['user_id'])) {
+    $role = $_SESSION['user_role'] ?? 'pengunjung';
+    if ($role === 'petugas') {
+        header("Location: admin/antrian.php");
+    } else if ($role === 'admin' || $role === 'kepala') {
+        header("Location: admin/dashboard.php");
+    } else {
+        header("Location: index.php");
+    }
+    exit();
+}
+
 $csrf_token = generateCsrfToken();
 ?>
 <!DOCTYPE html>

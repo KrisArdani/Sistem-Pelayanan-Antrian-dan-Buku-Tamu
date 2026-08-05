@@ -355,6 +355,7 @@ function showVisitorDetail(id) {
       <div><b>Kode Tiket / BT:</b> ${escapeHtml(item.kode_antrian || item.nomor || '-')}</div>
       <div><b>Nomor Antrian:</b> <span class="font-extrabold text-sky-700">${escapeHtml(item.nomor || '-')}</span></div>
       <div><b>Nama Lengkap:</b> ${escapeHtml(item.nama)}</div>
+      <div><b>NIK (KTP):</b> <span class="font-mono text-slate-900">${escapeHtml(item.nik || '-')}</span></div>
       <div><b>Jenis Kelamin / Usia:</b> ${escapeHtml(item.jenis_kelamin || '-')} (${escapeHtml(item.umur || '-')})</div>
       <div><b>Nomor HP / WhatsApp:</b> ${escapeHtml(item.nohp || '-')}</div>
       <div><b>Alamat Email:</b> ${escapeHtml(item.email || '-')}</div>

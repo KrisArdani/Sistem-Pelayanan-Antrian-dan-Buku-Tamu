@@ -2,6 +2,17 @@
 // TOBASA BPS Kota Tegal - Halaman Riwayat & Tiket Kunjungan Pengunjung
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Wajibkan login: Jika pengguna belum login, alihkan ke login.php terlebih dahulu
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
 $csrf_token = generateCsrfToken();
 $activeMenu = 'bukutamu';
 

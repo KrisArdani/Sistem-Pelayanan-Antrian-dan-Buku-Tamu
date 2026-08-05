@@ -366,6 +366,7 @@ function renderDigitalTicket(ticket) {
 
   // 2. Isi Bidang Tata Letak Cetak 2 Halaman Khusus (HALAMAN 1 & HALAMAN 2)
   const p1Nama = document.getElementById('p1_nama');
+  const p1Nik = document.getElementById('p1_nik');
   const p1NoHp = document.getElementById('p1_nohp');
   const p1Instansi = document.getElementById('p1_instansi');
   const p1Layanan = document.getElementById('p1_layanan');
@@ -377,6 +378,7 @@ function renderDigitalTicket(ticket) {
   const p1RincianData = document.getElementById('p1_rincian_data');
 
   if (p1Nama) p1Nama.textContent = ticket.nama || '-';
+  if (p1Nik) p1Nik.textContent = ticket.nik || '-';
   if (p1NoHp) p1NoHp.textContent = ticket.nohp || '-';
   if (p1Instansi) p1Instansi.textContent = ticket.instansi || '-';
   if (p1Layanan) p1Layanan.textContent = ticket.layanan || '-';

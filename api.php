@@ -57,6 +57,7 @@ switch ($action) {
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
         $name = trim($_POST['name'] ?? '');
+        $nik = trim($_POST['nik'] ?? '');
         $nohp = trim($_POST['nohp'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $jenis_kelamin = trim($_POST['jenis_kelamin'] ?? 'Laki Laki');
@@ -66,8 +67,12 @@ switch ($action) {
         $instansi = trim($_POST['instansi'] ?? '');
         $kategori_instansi = trim($_POST['kategori_instansi'] ?? 'Sekolah/Universitas');
 
-        if (empty($username) || empty($password) || empty($name) || empty($nohp) || empty($instansi)) {
+        if (empty($username) || empty($password) || empty($name) || empty($nik) || empty($nohp) || empty($instansi)) {
             sendJsonResponse('error', 'Harap lengkapi semua kolom pendaftaran yang wajib diisi.');
+        }
+
+        if (strlen($nik) !== 16 || !ctype_digit($nik)) {
+            sendJsonResponse('error', 'NIK wajib diisi dengan 16 digit angka sesuai KTP.');
         }
 
         if (!validatePhone($nohp)) {
@@ -89,20 +94,30 @@ switch ($action) {
                 }
             }
 
+            // Periksa apakah NIK sudah terdaftar
+            $stmtCheckNik = $conn->prepare("SELECT id FROM users WHERE nik = ?");
+            if ($stmtCheckNik) {
+                $stmtCheckNik->bind_param("s", $nik);
+                $stmtCheckNik->execute();
+                if ($stmtCheckNik->get_result()->num_rows > 0) {
+                    sendJsonResponse('error', 'NIK tersebut sudah terdaftar dalam sistem.');
+                }
+            }
+
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
             $role = 'pengunjung';
 
-            $stmt = $conn->prepare("INSERT INTO users (username, password, name, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO users (username, password, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
             if (!$stmt) {
                 error_log("DB Prepare Error register_pengunjung: " . $conn->error);
                 sendJsonResponse('error', 'Gagal memproses registrasi (Kesalahan struktur DB): ' . $conn->error);
             }
 
-            $stmt->bind_param("ssssssssssss", $username, $hashedPassword, $name, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi);
+            $stmt->bind_param("sssssssssssss", $username, $hashedPassword, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi);
 
             if ($stmt->execute()) {
-                logSecurityEvent($conn, 'register_pengunjung', "Registered visitor username: $username");
+                logSecurityEvent($conn, 'register_pengunjung', "Registered visitor username: $username (NIK: $nik)");
                 sendJsonResponse('success', 'Registrasi akun pengunjung berhasil! Silakan login.');
             } else {
                 sendJsonResponse('error', 'Gagal mendaftarkan akun pengunjung: ' . $stmt->error);
@@ -126,7 +141,7 @@ switch ($action) {
             sendJsonResponse('error', 'Username dan password wajib diisi.');
         }
 
-        $stmt = $conn->prepare("SELECT id, username, password, name, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, password, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -143,6 +158,7 @@ switch ($action) {
                 // Tetapkan variabel sesi
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_nik'] = $user['nik'];
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['user_username'] = $user['username'];
                 $_SESSION['user_jenis_kelamin'] = $user['jenis_kelamin'];
@@ -157,7 +173,7 @@ switch ($action) {
 
                 // Tentukan rute pengalihan (redirect)
                 if ($user['role'] === 'pengunjung') {
-                    $user['redirect'] = 'antrian.php';
+                    $user['redirect'] = 'index.php';
                 } else if ($user['role'] === 'petugas') {
                     $user['redirect'] = 'admin/antrian.php';
                 } else {
@@ -214,6 +230,7 @@ switch ($action) {
             sendJsonResponse('success', 'Session aktif.', [
                 'user_id' => $_SESSION['user_id'],
                 'name' => $_SESSION['user_name'],
+                'nik' => $_SESSION['user_nik'] ?? '',
                 'role' => $_SESSION['user_role'],
                 'csrf_token' => generateCsrfToken()
             ]);

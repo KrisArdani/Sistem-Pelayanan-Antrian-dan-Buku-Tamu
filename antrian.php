@@ -2,12 +2,24 @@
 // TOBASA BPS Kota Tegal - Form Antrian & Keperluan Layanan Terintegrasi
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Wajibkan login: Jika pengguna belum login, alihkan ke login.php terlebih dahulu
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
 $csrf_token = generateCsrfToken();
 $activeMenu = 'antrian';
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $userRole = $_SESSION['user_role'] ?? 'guest';
 $userName = $_SESSION['user_name'] ?? '';
+$userNik = $_SESSION['user_nik'] ?? '';
 $userNoHp = $_SESSION['user_nohp'] ?? '';
 $userInstansi = $_SESSION['user_instansi'] ?? '';
 $userEmail = $_SESSION['user_email'] ?? '';
@@ -151,8 +163,9 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
               <div class="text-xs font-bold text-sky-800 uppercase tracking-wider flex items-center gap-1">
                 <span class="material-icons text-sm">verified_user</span> Profil Pemohon (Tersimpan dari Akun)
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-700">
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs text-slate-700">
                 <div><b>Nama:</b> <?php echo htmlspecialchars($userName); ?></div>
+                <div><b>NIK:</b> <?php echo htmlspecialchars($userNik ?: '-'); ?></div>
                 <div><b>No HP:</b> <?php echo htmlspecialchars($userNoHp ?: '-'); ?></div>
                 <div><b>Instansi:</b> <?php echo htmlspecialchars($userInstansi ?: '-'); ?></div>
               </div>
@@ -467,6 +480,10 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
           <tr>
             <td style="padding: 6px 10px; border: 1px solid #cbd5e1; width: 35%; font-weight: bold; background-color: #f8fafc;">Nama Lengkap:</td>
             <td style="padding: 6px 10px; border: 1px solid #cbd5e1;" id="p1_nama"><?php echo htmlspecialchars($userName); ?></td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 10px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc;">NIK (KTP):</td>
+            <td style="padding: 6px 10px; border: 1px solid #cbd5e1;" id="p1_nik"><?php echo htmlspecialchars($userNik ?: '-'); ?></td>
           </tr>
           <tr>
             <td style="padding: 6px 10px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc;">No. Telepon / HP:</td>

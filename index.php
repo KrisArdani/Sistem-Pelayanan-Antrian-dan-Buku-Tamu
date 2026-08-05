@@ -2,6 +2,17 @@
 // TOBASA BPS Kota Tegal - Main Portal Landing Page
 require_once __DIR__ . '/security.php';
 setSecurityHeaders();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Wajibkan login: Jika pengguna belum login, alihkan ke login.php terlebih dahulu
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
 $csrf_token = generateCsrfToken();
 $activeMenu = 'home';
 ?>
@@ -72,18 +83,140 @@ $activeMenu = 'home';
             </p>
 
             <div class="pt-4 flex flex-wrap gap-4">
-              <a href="register.php" class="btn btn-warning btn-lg px-6 py-3 font-bold text-[#003366] bg-[#FF6B35] border-none text-white hover:bg-[#E85A24] shadow-lg flex items-center gap-2">
-                <span class="material-icons">person_add</span>
-                <span>Daftar Akun Pengunjung</span>
-              </a>
-              <a href="antrian.php" class="btn btn-outline-light btn-lg px-6 py-3 font-semibold flex items-center gap-2">
-                <span class="material-icons">confirmation_number</span>
-                <span>Reservasi Antrean & Layanan</span>
+              <a href="antrian.php" class="btn btn-warning btn-lg px-8 py-3.5 font-extrabold text-white bg-[#FF6B35] hover:bg-[#E85A24] border-none shadow-xl flex items-center gap-2.5 rounded-2xl hover:scale-105 transition-all">
+                <span class="material-icons text-2xl">confirmation_number</span>
+                <span class="text-base">Reservasi Sekarang</span>
               </a>
             </div>
           </div>
           <div class="absolute -right-10 -bottom-10 opacity-10 text-white pointer-events-none">
             <span class="material-icons" style="font-size: 260px;">analytics</span>
+          </div>
+        </div>
+
+        <!-- ----------------------------------------------------
+             CONNECTED PROGRESS TIMELINE STEPPER BAR
+             ---------------------------------------------------- -->
+        <div class="glass-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-md space-y-6">
+          
+          <!-- Header Bar -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-base md:text-lg font-black text-slate-900 brand-font flex items-center gap-2">
+                <span class="material-icons text-sky-600 text-2xl">alt_route</span>
+                <span>Alur & Langkah Pendaftaran Layanan PST</span>
+              </h2>
+              <p class="text-xs text-slate-500">Ikuti 5 langkah berurutan di bawah ini untuk melakukan reservasi antrean.</p>
+            </div>
+            <span class="text-xs font-extrabold text-sky-800 bg-sky-100 px-3.5 py-1.5 rounded-full border border-sky-300 shadow-sm shrink-0">Alur Berurutan</span>
+          </div>
+
+          <!-- Connected Timeline Container -->
+          <div class="relative px-2 py-2">
+            
+            <!-- Continuous Connecting Background Line (Desktop) -->
+            <div class="hidden lg:block absolute top-1/2 left-10 right-10 -translate-y-1/2 h-1.5 bg-gradient-to-r from-sky-500 via-amber-500 to-purple-600 rounded-full z-0 opacity-30"></div>
+
+            <!-- 5 Steps Flow Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
+              
+              <!-- STEP 1 -->
+              <a href="register.php" class="group bg-white hover:bg-sky-50/80 p-3.5 rounded-2xl border-2 border-sky-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
+                <!-- Step Badge -->
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-600 to-blue-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-sky-500/30 group-hover:scale-110 transition">
+                  1
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-sky-700">1. Registrasi Akun</div>
+                  <div class="text-[10px] font-semibold text-sky-700 mt-0.5">NIK KTP 16 Digit</div>
+                </div>
+                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-sky-600 bg-sky-100/80 px-2 py-0.5 rounded-full mt-1">
+                  <span>Daftar Akun</span>
+                  <span class="material-icons text-xs">arrow_forward</span>
+                </div>
+
+                <!-- Floating Desktop Arrow Badge connecting to Step 2 -->
+                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-sky-600 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
+                  <span class="material-icons text-sm">east</span>
+                </div>
+              </a>
+
+              <!-- STEP 2 -->
+              <a href="login.php" class="group bg-white hover:bg-blue-50/80 p-3.5 rounded-2xl border-2 border-blue-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-blue-500/30 group-hover:scale-110 transition">
+                  2
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-blue-700">2. Masuk / Login</div>
+                  <div class="text-[10px] font-semibold text-blue-700 mt-0.5">Username & Password</div>
+                </div>
+                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full mt-1">
+                  <span>Masuk Portal</span>
+                  <span class="material-icons text-xs">arrow_forward</span>
+                </div>
+
+                <!-- Floating Desktop Arrow Badge connecting to Step 3 -->
+                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-blue-600 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
+                  <span class="material-icons text-sm">east</span>
+                </div>
+              </a>
+
+              <!-- STEP 3 -->
+              <a href="antrian.php" class="group bg-white hover:bg-amber-50/80 p-3.5 rounded-2xl border-2 border-amber-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-amber-500/30 group-hover:scale-110 transition">
+                  3
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-amber-700">3. Pesan Antrean</div>
+                  <div class="text-[10px] font-semibold text-amber-700 mt-0.5">Jadwal & Layanan</div>
+                </div>
+                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full mt-1">
+                  <span>Pesan Layanan</span>
+                  <span class="material-icons text-xs">arrow_forward</span>
+                </div>
+
+                <!-- Floating Desktop Arrow Badge connecting to Step 4 -->
+                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-amber-500 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
+                  <span class="material-icons text-sm">east</span>
+                </div>
+              </a>
+
+              <!-- STEP 4 -->
+              <a href="bukutamu.php" class="group bg-white hover:bg-emerald-50/80 p-3.5 rounded-2xl border-2 border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-emerald-500/30 group-hover:scale-110 transition">
+                  4
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-700">4. Tiket Digital QR</div>
+                  <div class="text-[10px] font-semibold text-emerald-700 mt-0.5">Resi Tiket 2 Hal</div>
+                </div>
+                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full mt-1">
+                  <span>Lihat Tiket</span>
+                  <span class="material-icons text-xs">arrow_forward</span>
+                </div>
+
+                <!-- Floating Desktop Arrow Badge connecting to Step 5 -->
+                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-emerald-600 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
+                  <span class="material-icons text-sm">east</span>
+                </div>
+              </a>
+
+              <!-- STEP 5 -->
+              <a href="bukutamu.php" class="group bg-white hover:bg-purple-50/80 p-3.5 rounded-2xl border-2 border-purple-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-purple-500/30 group-hover:scale-110 transition">
+                  5
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-purple-700">5. Datang Ke Loket</div>
+                  <div class="text-[10px] font-semibold text-purple-700 mt-0.5">Scan QR di PST</div>
+                </div>
+                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full mt-1">
+                  <span>Petunjuk Loket</span>
+                  <span class="material-icons text-xs">arrow_forward</span>
+                </div>
+              </a>
+
+            </div>
           </div>
         </div>
 
@@ -98,7 +231,7 @@ $activeMenu = 'home';
               </div>
               <h2 class="text-2xl font-bold text-slate-900 brand-font">Registrasi Akun Pengunjung</h2>
               <p class="text-slate-600 text-sm leading-relaxed">
-                Daftarkan identitas Anda <b>cukup 1x</b>. Dapatkan akses cepat untuk memesan antrean dan konsultasi statistik tanpa mengisi ulang profil.
+                Daftarkan NIK KTP & identitas Anda <b>cukup 1x</b>. Dapatkan akses cepat untuk memesan antrean dan konsultasi statistik tanpa mengulang pengisian profil.
               </p>
             </div>
             <a href="register.php" class="btn btn-primary w-full py-3 bg-[#003366] border-[#003366] font-semibold flex items-center justify-center gap-2">
@@ -121,23 +254,6 @@ $activeMenu = 'home';
             <a href="antrian.php" class="btn btn-warning w-full py-3 bg-[#FF6B35] text-white border-none font-semibold flex items-center justify-center gap-2">
               <span>Ambil Tiket Antrian</span>
               <span class="material-icons text-sm">qr_code_2</span>
-            </a>
-          </div>
-
-          <!-- Card 2: Daftar Antrian -->
-          <div class="glass-card p-8 flex flex-col justify-between space-y-6">
-            <div class="space-y-4">
-              <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center font-bold">
-                <span class="material-icons text-3xl">summarize</span>
-              </div>
-              <h2 class="text-2xl font-bold text-slate-900 brand-font">Antrian Online PST</h2>
-              <p class="text-slate-600 text-sm leading-relaxed">
-                Pesan nomor antrean secara online sebelum datang ke kantor BPS Kota Tegal. Dapatkan tiket antrian digital beserta QR Code yang siap dicetak.
-              </p>
-            </div>
-            <a href="antrian.php" class="btn btn-primary w-full py-3 bg-[#003366] border-[#003366] font-semibold flex items-center justify-center gap-2">
-              <span>Ambil Tiket Antrian</span>
-              <span class="material-icons text-sm">arrow_forward</span>
             </a>
           </div>
 

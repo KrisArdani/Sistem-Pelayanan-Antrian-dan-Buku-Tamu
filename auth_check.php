@@ -26,3 +26,4 @@ if (!in_array($_SESSION['user_role'], $allowed_roles)) {
     exit;
 }
 ?>
+
