@@ -1,6 +1,6 @@
 <?php
 // SPST BPS Kota Tegal - Pelindung Autentikasi Sisi Server
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/security.php';
 
 setSecurityHeaders();
 
