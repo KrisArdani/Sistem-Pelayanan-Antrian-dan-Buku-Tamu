@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     filterLayananSelect.value = user.layanan_tugas;
   }
 
+  const walkinLayananSelect = document.getElementById('walkin_layanan');
+  if (walkinLayananSelect && user.layanan_tugas) {
+    walkinLayananSelect.value = user.layanan_tugas;
+    if (user.role === 'petugas') {
+      walkinLayananSelect.disabled = true;
+    }
+  }
+
   const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');
   if (filterTanggalSelect) {
     filterTanggalSelect.addEventListener('change', () => renderAntrianDashboard());

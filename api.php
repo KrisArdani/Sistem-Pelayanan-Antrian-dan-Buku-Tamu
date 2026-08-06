@@ -660,7 +660,15 @@ switch ($action) {
         requireAuth(['petugas', 'admin', 'kepala']);
 
         $filterTanggal = sanitizeInput($_GET['tanggal'] ?? 'today');
-        $filterLayanan = sanitizeInput($_GET['layanan'] ?? ($_SESSION['user_layanan_tugas'] ?? ''));
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+            $filterLayanan = $assignedLayanan;
+        } else {
+            $filterLayanan = sanitizeInput($_GET['layanan'] ?? $assignedLayanan);
+        }
+
         $todayStr = date('Y-m-d');
         $tomorrowStr = date('Y-m-d', strtotime('+1 day'));
 
@@ -710,10 +718,29 @@ switch ($action) {
 
         $id = intval($_POST['id'] ?? 0);
         $isRepeat = isset($_POST['repeat']) && ($_POST['repeat'] == '1' || $_POST['repeat'] == 'true');
-        $filterLayanan = sanitizeInput($_POST['layanan'] ?? ($_SESSION['user_layanan_tugas'] ?? ''));
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+            $filterLayanan = $assignedLayanan;
+        } else {
+            $filterLayanan = sanitizeInput($_POST['layanan'] ?? $assignedLayanan);
+        }
+
         $tanggal = date('Y-m-d');
 
         if ($id > 0) {
+            // Verifikasi petugas hanya boleh memanggil antrean layanannya sendiri
+            if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+                $stmtCheck = $conn->prepare("SELECT id FROM antrian WHERE id = ? AND layanan LIKE ?");
+                $likeAssigned = '%' . $assignedLayanan . '%';
+                $stmtCheck->bind_param("is", $id, $likeAssigned);
+                $stmtCheck->execute();
+                if ($stmtCheck->get_result()->num_rows === 0) {
+                    sendJsonResponse('error', 'Anda tidak memiliki hak akses untuk memanggil antrean dari loket layanan lain.');
+                }
+            }
+
             if ($isRepeat) {
                 // Pemanggilan ulang: cukup atur ulang status ke 'Dipanggil'
                 $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil' WHERE id = ? AND status = 'Dipanggil'");
@@ -721,8 +748,14 @@ switch ($action) {
                 $stmt->execute();
             } else {
                 // Selesaikan antrean LAIN yang sedang berstatus 'Dipanggil' (BUKAN 'Dilayani') kecuali ID yang diminta
-                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ?");
-                $stmtFinish->bind_param("si", $tanggal, $id);
+                if (!empty($filterLayanan) && $filterLayanan !== 'all') {
+                    $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ? AND layanan LIKE ?");
+                    $likeLayanan = '%' . $filterLayanan . '%';
+                    $stmtFinish->bind_param("sis", $tanggal, $id, $likeLayanan);
+                } else {
+                    $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ?");
+                    $stmtFinish->bind_param("si", $tanggal, $id);
+                }
                 $stmtFinish->execute();
 
                 // Hanya ubah ke Dipanggil jika saat ini berstatus Menunggu atau sudah Dipanggil
@@ -771,6 +804,21 @@ switch ($action) {
 
         $id = intval($_POST['id'] ?? 0);
         $status = sanitizeInput($_POST['status'] ?? 'Selesai');
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        if ($id <= 0) sendJsonResponse('error', 'ID antrian tidak valid.');
+
+        // Verifikasi petugas hanya boleh mengubah status antrean layanannya sendiri
+        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+            $stmtCheck = $conn->prepare("SELECT id FROM antrian WHERE id = ? AND layanan LIKE ?");
+            $likeAssigned = '%' . $assignedLayanan . '%';
+            $stmtCheck->bind_param("is", $id, $likeAssigned);
+            $stmtCheck->execute();
+            if ($stmtCheck->get_result()->num_rows === 0) {
+                sendJsonResponse('error', 'Anda tidak memiliki hak akses untuk mengubah status antrean dari loket layanan lain.');
+            }
+        }
         if ($id <= 0) sendJsonResponse('error', 'ID antrian tidak valid.');
 
         $allowedStatuses = ['Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan'];

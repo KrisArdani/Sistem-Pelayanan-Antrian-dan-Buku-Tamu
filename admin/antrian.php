@@ -169,16 +169,28 @@ $csrf_token = generateCsrfToken();
               </div>
 
               <!-- Filter Layanan Loket Antrian -->
-              <div class="flex items-center gap-2">
-                <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">Loket Layanan:</label>
-                <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 w-48">
-                  <option value="all">🏢 Semua Loket Layanan</option>
-                  <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
-                  <option value="Perpustakaan">📚 Loket Perpustakaan</option>
-                  <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
-                  <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
-                </select>
-              </div>
+              <?php
+              $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+              $userRole = $_SESSION['user_role'] ?? '';
+              if ($userRole === 'petugas' && !empty($assignedLayanan)):
+              ?>
+                <div class="px-3.5 py-1.5 bg-purple-100 text-purple-900 border border-purple-300 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm" title="Akses Loket Terkunci Untuk Tugas Anda">
+                  <span class="material-icons text-purple-600 text-sm">lock</span>
+                  <span>Loket Tugas: <?php echo htmlspecialchars($assignedLayanan); ?></span>
+                  <input type="hidden" id="filter_layanan_antrian" value="<?php echo htmlspecialchars($assignedLayanan); ?>">
+                </div>
+              <?php else: ?>
+                <div class="flex items-center gap-2">
+                  <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">Loket Layanan:</label>
+                  <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 w-48">
+                    <option value="all">🏢 Semua Loket Layanan</option>
+                    <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
+                    <option value="Perpustakaan">📚 Loket Perpustakaan</option>
+                    <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
+                    <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
+                  </select>
+                </div>
+              <?php endif; ?>
 
               <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md" data-bs-toggle="modal" data-bs-target="#modalWalkin">
                 <span class="material-icons text-sm">person_add_alt_1</span>
