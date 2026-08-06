@@ -106,8 +106,8 @@
 
       <p class="text-xs text-slate-400 leading-relaxed">
         Badan Pusat Statistik Kota Tegal (BPS-Statistics of Tegal City)<br>
-        Jl. Perintis Kemerdekaan No. 2 Kota Tegal<br>
-        Telp: (0283) 351190<br>
+        Jl. Nakula No. 36A, Kota Tegal, Jawa Tengah 52124<br>
+        Telp/Faks: (0283) 351593 / (0283) 351190<br>
         E-Mail : <a href="mailto:bps3376@bps.go.id" class="text-sky-400 hover:underline">bps3376@bps.go.id</a>
       </p>
 

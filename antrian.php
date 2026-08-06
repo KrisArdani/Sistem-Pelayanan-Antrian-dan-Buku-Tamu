@@ -75,13 +75,18 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
 
         <div class="flex items-center gap-3">
           <?php if ($isLoggedIn): ?>
-            <span class="text-xs font-semibold text-slate-600 hidden sm:inline">Hallo, <b class="text-sky-700"><?php echo htmlspecialchars($userName); ?></b></span>
-            <a href="api.php?action=logout" class="btn btn-outline-danger btn-sm text-xs flex items-center gap-1">
-              <span class="material-icons text-sm">logout</span> Keluar
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-sky-50 border border-sky-200 rounded-full text-xs font-semibold text-slate-700 shadow-sm">
+              <span class="material-icons text-sky-600 text-sm">account_circle</span>
+              <span class="hidden sm:inline">Pengunjung: <b class="text-sky-900"><?php echo htmlspecialchars($userName); ?></b></span>
+              <span class="sm:hidden font-bold text-sky-900"><?php echo htmlspecialchars(explode(' ', $userName)[0]); ?></span>
+            </div>
+            <a href="logout.php" class="btn btn-outline-danger btn-sm text-xs flex items-center gap-1 border-rose-300 text-rose-700 hover:bg-rose-600 hover:text-white font-bold px-3 rounded-xl shadow-sm" title="Keluar dari Akun">
+              <span class="material-icons text-sm">logout</span>
+              <span class="hidden sm:inline">Keluar</span>
             </a>
           <?php else: ?>
             <a href="login.php" class="btn btn-primary btn-sm bg-[#003366] border-[#003366] text-xs flex items-center gap-1">
-              <span class="material-icons text-sm">login</span> Masuk / Daftar
+              <span class="material-icons text-sm">login</span> Masuk / Login
             </a>
           <?php endif; ?>
         </div>
@@ -134,6 +139,11 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
             </span>
           </div>
         </div>
+
+        <!-- ----------------------------------------------------
+             DYNAMIC PROGRESS TIMELINE STEPPER BAR
+             ---------------------------------------------------- -->
+        <?php include __DIR__ . '/stepper.php'; ?>
 
         <?php if (!$isLoggedIn): ?>
         <!-- Login Prompt Notice for Visitors -->
@@ -211,7 +221,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
                 <select id="ant_layanan" class="form-select form-select-lg text-sm rounded-xl" required>
                   <option value="">-- Pilih Layanan --</option>
                   <option value="Konsultasi Statistik">Konsultasi Statistik</option>
-                  <option value="Perpustakaan & Diseminasi Data">Perpustakaan & Diseminasi Data</option>
+                  <option value="Perpustakaan">Perpustakaan</option>
                   <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
                   <option value="Layanan Pengaduan">Layanan Pengaduan</option>
                 </select>
@@ -440,12 +450,18 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-6 space-y-3">
-      <a href="index.php" class="bps-nav-item"><span class="material-icons">home</span> Beranda</a>
+      <a href="index.php" class="bps-nav-item"><span class="material-icons">home</span> Beranda Utama</a>
       <a href="register.php" class="bps-nav-item"><span class="material-icons">how_to_reg</span> Daftar Akun Pengunjung</a>
       <a href="antrian.php" class="bps-nav-item active"><span class="material-icons">confirmation_number</span> Reservasi Antrean & Layanan</a>
       <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">receipt_long</span> Riwayat & Tiket Saya</a>
-      <div class="pt-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Internal</div>
-      <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Login Internal Petugas</a>
+      
+      <?php if ($isLoggedIn): ?>
+        <a href="logout.php" class="bps-nav-item text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 rounded-xl my-2">
+          <span class="material-icons text-rose-400">logout</span> Keluar / Logout Sesi
+        </a>
+      <?php else: ?>
+        <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Masuk / Login</a>
+      <?php endif; ?>
     </div>
   </div>
 

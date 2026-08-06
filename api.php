@@ -398,6 +398,7 @@ switch ($action) {
             requireAuth(['pengunjung', 'petugas', 'admin', 'kepala']);
         }
 
+        $nik = sanitizeInput($_POST['nik'] ?? $_SESSION['user_nik'] ?? '');
         $nama = sanitizeInput($_POST['nama'] ?? $_SESSION['user_name'] ?? '');
         $jenis_kelamin = sanitizeInput($_POST['jenis_kelamin'] ?? $_SESSION['user_jenis_kelamin'] ?? 'Laki Laki');
         $umur = sanitizeInput($_POST['umur'] ?? $_SESSION['user_umur'] ?? '17-25 tahun');
@@ -477,10 +478,10 @@ switch ($action) {
             $kode_antrian = 'ANT-' . substr(time(), -6);
 
             $stmt = $conn->prepare("INSERT INTO antrian (
-                user_id, kode_antrian, nomor, nama, jenis_kelamin, umur, nohp, email, pendidikan,
+                user_id, kode_antrian, nomor, nik, nama, jenis_kelamin, umur, nohp, email, pendidikan,
                 pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan,
                 foto, monev, tanggal, waktu, tipe_pendaftaran, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu')");
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu')");
 
             if (!$stmt) {
                 $conn->rollback();
@@ -489,8 +490,8 @@ switch ($action) {
             }
 
             $stmt->bind_param(
-                "issssssssssssssssssss",
-                $userId, $kode_antrian, $nomor, $nama, $jenis_kelamin, $umur, $nohp, $email, $pendidikan,
+                "isssssssssssssssssssss",
+                $userId, $kode_antrian, $nomor, $nik, $nama, $jenis_kelamin, $umur, $nohp, $email, $pendidikan,
                 $pekerjaan, $instansi, $kategori_instansi, $fasilitas, $layanan, $pemanfaatan, $data_diinginkan,
                 $foto, $monev, $tanggal, $waktu, $tipePendaftaran
             );
@@ -524,6 +525,72 @@ switch ($action) {
             error_log("DB Error save_antrian: " . $e->getMessage());
             sendJsonResponse('error', 'Gagal memproses tiket antrian: ' . $e->getMessage());
         }
+        break;
+
+    case 'get_stepper_status':
+        $isUserLoggedIn = isset($_SESSION['user_id']);
+        $userId = (int)($_SESSION['user_id'] ?? 0);
+        $userNik = trim($_SESSION['user_nik'] ?? '');
+        $userEmail = trim($_SESSION['user_email'] ?? '');
+        $userNohp = trim($_SESSION['user_nohp'] ?? '');
+        $userName = trim($_SESSION['user_name'] ?? '');
+
+        $activeTicket = null;
+        $completedTicket = null;
+
+        if ($isUserLoggedIn) {
+            // Check active ticket
+            $sqlActive = "SELECT id, nomor, kode_antrian, status, tanggal, waktu, layanan, pendapat, catatan FROM antrian 
+                          WHERE status IN ('Menunggu', 'Dipanggil', 'Dilayani') 
+                            AND (
+                              (? > 0 AND user_id = ?) 
+                              OR (? != '' AND nik = ?) 
+                              OR (? != '' AND nohp = ?) 
+                              OR (? != '' AND email = ?) 
+                              OR (? != '' AND nama = ?)
+                            ) 
+                          ORDER BY id DESC LIMIT 1";
+            $stmt = $conn->prepare($sqlActive);
+            if ($stmt) {
+                $stmt->bind_param("iissssssss", $userId, $userId, $userNik, $userNik, $userNohp, $userNohp, $userEmail, $userEmail, $userName, $userName);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($row = $res->fetch_assoc()) {
+                    $activeTicket = $row;
+                }
+                $stmt->close();
+            }
+
+            // Check completed ticket
+            $sqlCompleted = "SELECT id, nomor, kode_antrian, status, tanggal, waktu, layanan, pendapat, catatan FROM antrian 
+                             WHERE status = 'Selesai' 
+                               AND (
+                                 (? > 0 AND user_id = ?) 
+                                 OR (? != '' AND nik = ?) 
+                                 OR (? != '' AND nohp = ?) 
+                                 OR (? != '' AND email = ?) 
+                                 OR (? != '' AND nama = ?)
+                               ) 
+                             ORDER BY id DESC LIMIT 1";
+            $stmt = $conn->prepare($sqlCompleted);
+            if ($stmt) {
+                $stmt->bind_param("iissssssss", $userId, $userId, $userNik, $userNik, $userNohp, $userNohp, $userEmail, $userEmail, $userName, $userName);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($row = $res->fetch_assoc()) {
+                    $completedTicket = $row;
+                }
+                $stmt->close();
+            }
+        }
+
+        sendJsonResponse('success', 'Status alur berhasil diambil.', [
+            'is_logged_in' => $isUserLoggedIn,
+            'has_active_ticket' => !empty($activeTicket),
+            'has_completed_ticket' => !empty($completedTicket),
+            'active_ticket' => $activeTicket,
+            'completed_ticket' => $completedTicket,
+        ]);
         break;
 
     case 'get_my_antrian':

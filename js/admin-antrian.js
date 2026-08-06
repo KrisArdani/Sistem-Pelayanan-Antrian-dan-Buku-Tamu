@@ -112,7 +112,13 @@ async function renderAntrianDashboard(isSilent = false) {
 
   tableBody.innerHTML = '';
 
-  // Cari yang sedang dipanggil / aktif
+  const boardNextNumber = document.getElementById('board_next_number');
+  const boardNextName = document.getElementById('board_next_name');
+  const boardNextService = document.getElementById('board_next_service');
+  const boardNextInfo = document.getElementById('board_next_info');
+  const boardNextBadge = document.getElementById('board_next_badge');
+
+  // 1. Cari antrean yang sedang dipanggil / aktif
   const activeItem = data.find(i => i.status === 'Dipanggil');
   if (activeItem) {
     if (boardActiveNumber) boardActiveNumber.textContent = activeItem.nomor;
@@ -124,6 +130,30 @@ async function renderAntrianDashboard(isSilent = false) {
     if (boardActiveService) boardActiveService.textContent = '-';
   }
 
+  // 2. Cari antrean berikutnya yang berstatus 'Menunggu' (Akan Dipanggil)
+  const nextItem = data.find(i => i.status === 'Menunggu');
+  const totalMenunggu = data.filter(i => i.status === 'Menunggu').length;
+
+  if (nextItem) {
+    if (boardNextNumber) boardNextNumber.textContent = nextItem.nomor;
+    if (boardNextName) boardNextName.textContent = nextItem.nama;
+    if (boardNextService) boardNextService.textContent = nextItem.layanan;
+    if (boardNextInfo) boardNextInfo.textContent = `${nextItem.tipe_pendaftaran ? nextItem.tipe_pendaftaran.toUpperCase() : 'ONLINE'} • Jam ${nextItem.waktu ? nextItem.waktu.substring(0,5) : ''} WIB`;
+    if (boardNextBadge) {
+      boardNextBadge.textContent = `Akan Dipanggil (${totalMenunggu} Menunggu)`;
+      boardNextBadge.className = 'badge bg-emerald-500 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-sm animate-pulse';
+    }
+  } else {
+    if (boardNextNumber) boardNextNumber.textContent = '---';
+    if (boardNextName) boardNextName.textContent = 'Tidak Ada Antrean Menunggu';
+    if (boardNextService) boardNextService.textContent = 'Semua antrean telah dipanggil / selesai';
+    if (boardNextInfo) boardNextInfo.textContent = '-';
+    if (boardNextBadge) {
+      boardNextBadge.textContent = 'Antrean Kosong (0)';
+      boardNextBadge.className = 'badge bg-slate-700 text-slate-300 font-bold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-sm';
+    }
+  }
+
   if (data.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Belum ada antrian hari ini.</td></tr>`;
     return;
@@ -131,7 +161,13 @@ async function renderAntrianDashboard(isSilent = false) {
 
   data.forEach((item, idx) => {
     const tr = document.createElement('tr');
-    tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition';
+    const isNext = (nextItem && item.id === nextItem.id);
+    
+    if (isNext) {
+      tr.className = 'border-b border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/80 transition font-medium';
+    } else {
+      tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition';
+    }
 
     let badgeClass = 'bg-amber-100 text-amber-700';
     if (item.status === 'Dipanggil') badgeClass = 'bg-sky-100 text-sky-700 animate-pulse font-bold';
@@ -148,7 +184,10 @@ async function renderAntrianDashboard(isSilent = false) {
       <td class="py-3 px-4 font-semibold text-slate-800 text-sm">${escapeHtml(item.nama)}</td>
       <td class="py-3 px-4 text-xs font-medium text-slate-600">${escapeHtml(item.layanan)}</td>
       <td class="py-3 px-4 text-xs text-slate-500">${escapeHtml(item.tanggal)} (${escapeHtml(item.waktu)})</td>
-      <td class="py-3 px-4"><span class="badge ${badgeClass} px-2.5 py-1 rounded-md text-xs">${escapeHtml(item.status)}</span></td>
+      <td class="py-3 px-4">
+        <span class="badge ${badgeClass} px-2.5 py-1 rounded-md text-xs">${escapeHtml(item.status)}</span>
+        ${isNext ? '<span class="badge bg-emerald-600 text-white px-2 py-1 rounded-md text-[10px] ml-1 font-bold shadow-sm animate-pulse">⏳ Berikutnya</span>' : ''}
+      </td>
       <td class="py-3 px-4 flex items-center gap-1">
         <button onclick="showVisitorDetail(${rowId})" class="btn btn-sm btn-outline-primary text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Lihat Detail">
           <span class="material-icons text-xs">visibility</span> Detail
@@ -297,7 +336,14 @@ function speakQueueAnnouncement(nomor, nama, layanan) {
     }
 
     const namaPengunjung = nama || 'Pengunjung';
-    const textToSpeak = `Nomor antrean ${formattedNomor}, atas nama ${namaPengunjung}, silakan menuju ke Loket Pelayanan Statistik Terpadu.`;
+    
+    // Format nama layanan agar diucapkan sesuai nama loket layanan yang dipilih (misal: "Loket Konsultasi Statistik")
+    let namaLayanan = layanan ? layanan.replace(/&/g, 'dan').trim() : 'Pelayanan Statistik Terpadu';
+    if (!namaLayanan.toLowerCase().startsWith('loket')) {
+      namaLayanan = 'Loket ' + namaLayanan;
+    }
+
+    const textToSpeak = `Nomor antrean ${formattedNomor}, atas nama ${namaPengunjung}, silakan menuju ${namaLayanan}.`;
 
     window.speechSynthesis.cancel(); // Hentikan panggilan sebelumnya jika ada
     const utterance = new SpeechSynthesisUtterance(textToSpeak);

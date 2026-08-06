@@ -82,52 +82,68 @@ $csrf_token = generateCsrfToken();
           <p class="text-slate-500 text-xs">Panggil nomor antrian yang menunggu secara teratur.</p>
         </div>
 
-        <!-- Call Board Header -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Call Board Header & Next Queue Card -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          <!-- Board Active Card -->
-          <div class="md:col-span-2 bg-gradient-to-r from-[#003366] to-[#0055A5] rounded-3xl p-8 text-white shadow-xl flex flex-col justify-between space-y-4">
+          <!-- Board Active Card (Sedang Dipanggil) -->
+          <div class="lg:col-span-2 bg-gradient-to-r from-[#002B5B] via-[#003366] to-[#0284c7] rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col justify-between space-y-4 relative overflow-hidden border border-sky-400/20">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-sky-300 uppercase tracking-widest">LOKET PST 1 (AKTIF)</span>
-              <span class="badge bg-amber-400 text-slate-900 font-extrabold text-xs uppercase">Panggilan Aktif</span>
+              <span class="text-xs font-bold text-sky-200 uppercase tracking-widest flex items-center gap-1.5">
+                <span class="material-icons text-amber-400 text-sm">volume_up</span>
+                <span>LOKET PST 1 (SEDANG DIPANGGIL)</span>
+              </span>
+              <span class="badge bg-amber-400 text-slate-900 font-extrabold text-xs uppercase px-3 py-1.5 rounded-full shadow-sm">
+                Panggilan Aktif
+              </span>
             </div>
             
-            <div class="text-center py-4 space-y-2">
-              <div class="text-6xl md:text-7xl font-extrabold tracking-wider brand-font" id="board_active_number">---</div>
-              <div class="text-lg font-bold text-sky-200" id="board_active_name">Belum Ada Panggilan</div>
-              <div class="text-xs text-sky-300" id="board_active_service">-</div>
+            <div class="text-center py-2 space-y-2">
+              <div class="text-5xl md:text-7xl font-black tracking-wider brand-font text-white drop-shadow-md" id="board_active_number">---</div>
+              <div class="text-lg md:text-xl font-bold text-sky-100" id="board_active_name">Belum Ada Panggilan</div>
+              <div class="text-xs font-semibold text-sky-300 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full inline-block border border-white/10" id="board_active_service">-</div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-              <button id="btn_panggil_berikutnya" class="btn btn-warning btn-lg w-full py-3 bg-[#FF6B35] border-none text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-[#E85A24] text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button id="btn_panggil_berikutnya" class="btn btn-warning btn-lg w-full py-3 bg-[#FF6B35] border-none text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-[#E85A24] text-sm rounded-2xl transition">
                 <span class="material-icons text-xl">volume_up</span>
                 <span>Panggil Berikutnya</span>
               </button>
 
-              <button id="btn_panggil_ulang_aktif" class="btn btn-sky btn-lg w-full py-3 bg-sky-600 border-none text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-sky-500 text-sm">
+              <button id="btn_panggil_ulang_aktif" class="btn btn-sky btn-lg w-full py-3 bg-sky-600 border-none text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-sky-500 text-sm rounded-2xl transition">
                 <span class="material-icons text-xl">replay</span>
                 <span>Panggil Ulang (Re-Call)</span>
               </button>
             </div>
           </div>
 
-          <!-- Quick Stats Card -->
-          <div class="glass-card p-6 flex flex-col justify-between space-y-4">
-            <h3 class="text-base font-bold text-slate-900 brand-font">Status Pelayanan PST</h3>
+          <!-- Board Next Queue Card (Akan Dipanggil Berikutnya) -->
+          <div class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 text-white shadow-xl flex flex-col justify-between space-y-4 border border-emerald-400/20 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-emerald-300 uppercase tracking-widest flex items-center gap-1.5">
+                <span class="material-icons text-emerald-400 text-sm">queue_play_next</span>
+                <span>AKAN DIPANGGIL</span>
+              </span>
+              <span id="board_next_badge" class="badge bg-emerald-500 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-sm">
+                Antrean Kosong
+              </span>
+            </div>
             
-            <div class="space-y-3 text-sm">
-              <div class="p-3 bg-slate-100 rounded-xl flex items-center justify-between">
-                <span class="text-slate-600 font-medium">Sistem Pemanggilan:</span>
-                <span class="font-bold text-sky-700">Audio Bell & Visual</span>
-              </div>
-              <div class="p-3 bg-slate-100 rounded-xl flex items-center justify-between">
-                <span class="text-slate-600 font-medium">Jam Pelayanan:</span>
-                <span class="font-bold text-slate-800">Senin - Jumat</span>
-              </div>
+            <div class="text-center py-2 space-y-1.5">
+              <div class="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Nomor Berikutnya:</div>
+              <div class="text-4xl md:text-5xl font-black tracking-wider brand-font text-emerald-200 drop-shadow-md" id="board_next_number">---</div>
+              <div class="text-base font-bold text-white truncate max-w-[240px] mx-auto" id="board_next_name">Tidak Ada Antrean Menunggu</div>
+              <div class="text-xs text-emerald-300 truncate max-w-[240px] mx-auto" id="board_next_service">-</div>
+              <div class="text-[11px] text-emerald-400/80 font-mono pt-1" id="board_next_info">-</div>
             </div>
 
-            <div class="p-4 bg-sky-50 rounded-xl border border-sky-200 text-xs text-sky-900">
-              Setiap kali tombol "Panggil Berikutnya" diklik, sistem akan memainkan bunyi bell notifikasi panggilan.
+            <div class="p-3 bg-emerald-950/80 rounded-2xl border border-emerald-500/20 text-center space-y-1">
+              <div class="text-[11px] font-bold text-emerald-300 flex items-center justify-center gap-1">
+                <span class="material-icons text-xs">info</span> 
+                <span>Informasi Petugas Loket:</span>
+              </div>
+              <p class="text-[10px] text-emerald-100/70 leading-relaxed">
+                Nomor di atas akan dipanggil otomatis saat Anda menekan tombol <b>Panggil Berikutnya</b>.
+              </p>
             </div>
           </div>
 
@@ -256,7 +272,7 @@ $csrf_token = generateCsrfToken();
                     <label class="form-label text-xs font-bold text-slate-700 uppercase">Jenis Layanan PST <span class="text-red-500">*</span></label>
                     <select id="walkin_layanan" class="form-select text-sm rounded-xl" required>
                       <option value="Konsultasi Statistik">Konsultasi Statistik</option>
-                      <option value="Perpustakaan & Diseminasi Data">Perpustakaan & Diseminasi Data</option>
+                      <option value="Perpustakaan">Perpustakaan</option>
                       <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
                       <option value="Layanan Pengaduan">Layanan Pengaduan</option>
                     </select>

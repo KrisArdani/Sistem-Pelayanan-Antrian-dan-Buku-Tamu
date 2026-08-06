@@ -63,10 +63,23 @@ $activeMenu = 'home';
             <span class="material-icons text-base">volume_off</span>
             <span class="hidden sm:inline text-xs font-semibold">Suara</span>
           </button>
-          <a href="login.php" class="btn btn-primary btn-sm flex items-center gap-1 bg-[#003366] border-[#003366]">
-            <span class="material-icons text-base">lock</span>
-            <span class="text-xs font-semibold">Login Petugas</span>
-          </a>
+
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-sky-50 border border-sky-200 rounded-full text-xs font-semibold text-slate-700 shadow-sm">
+              <span class="material-icons text-sky-600 text-sm">account_circle</span>
+              <span class="hidden sm:inline">Pengunjung: <b class="text-sky-900"><?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?></b></span>
+              <span class="sm:hidden font-bold text-sky-900"><?php echo htmlspecialchars(explode(' ', $_SESSION['user_name'] ?? '')[0]); ?></span>
+            </div>
+            <a href="logout.php" class="btn btn-outline-danger btn-sm text-xs flex items-center gap-1 border-rose-300 text-rose-700 hover:bg-rose-600 hover:text-white font-bold px-3 rounded-xl shadow-sm" title="Keluar dari Akun">
+              <span class="material-icons text-sm">logout</span>
+              <span class="hidden sm:inline">Keluar</span>
+            </a>
+          <?php else: ?>
+            <a href="login.php" class="btn btn-primary btn-sm flex items-center gap-1 bg-[#003366] border-[#003366]">
+              <span class="material-icons text-base">login</span>
+              <span class="text-xs font-semibold">Masuk / Login</span>
+            </a>
+          <?php endif; ?>
         </div>
       </header>
 
@@ -95,130 +108,9 @@ $activeMenu = 'home';
         </div>
 
         <!-- ----------------------------------------------------
-             CONNECTED PROGRESS TIMELINE STEPPER BAR
+             DYNAMIC PROGRESS TIMELINE STEPPER BAR
              ---------------------------------------------------- -->
-        <div class="glass-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-md space-y-6">
-          
-          <!-- Header Bar -->
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-            <div>
-              <h2 class="text-base md:text-lg font-black text-slate-900 brand-font flex items-center gap-2">
-                <span class="material-icons text-sky-600 text-2xl">alt_route</span>
-                <span>Alur & Langkah Pendaftaran Layanan PST</span>
-              </h2>
-              <p class="text-xs text-slate-500">Ikuti 5 langkah berurutan di bawah ini untuk melakukan reservasi antrean.</p>
-            </div>
-            <span class="text-xs font-extrabold text-sky-800 bg-sky-100 px-3.5 py-1.5 rounded-full border border-sky-300 shadow-sm shrink-0">Alur Berurutan</span>
-          </div>
-
-          <!-- Connected Timeline Container -->
-          <div class="relative px-2 py-2">
-            
-            <!-- Continuous Connecting Background Line (Desktop) -->
-            <div class="hidden lg:block absolute top-1/2 left-10 right-10 -translate-y-1/2 h-1.5 bg-gradient-to-r from-sky-500 via-amber-500 to-purple-600 rounded-full z-0 opacity-30"></div>
-
-            <!-- 5 Steps Flow Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
-              
-              <!-- STEP 1 -->
-              <a href="register.php" class="group bg-white hover:bg-sky-50/80 p-3.5 rounded-2xl border-2 border-sky-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
-                <!-- Step Badge -->
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-600 to-blue-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-sky-500/30 group-hover:scale-110 transition">
-                  1
-                </div>
-                <div>
-                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-sky-700">1. Registrasi Akun</div>
-                  <div class="text-[10px] font-semibold text-sky-700 mt-0.5">NIK KTP 16 Digit</div>
-                </div>
-                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-sky-600 bg-sky-100/80 px-2 py-0.5 rounded-full mt-1">
-                  <span>Daftar Akun</span>
-                  <span class="material-icons text-xs">arrow_forward</span>
-                </div>
-
-                <!-- Floating Desktop Arrow Badge connecting to Step 2 -->
-                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-sky-600 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
-                  <span class="material-icons text-sm">east</span>
-                </div>
-              </a>
-
-              <!-- STEP 2 -->
-              <a href="login.php" class="group bg-white hover:bg-blue-50/80 p-3.5 rounded-2xl border-2 border-blue-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-blue-500/30 group-hover:scale-110 transition">
-                  2
-                </div>
-                <div>
-                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-blue-700">2. Masuk / Login</div>
-                  <div class="text-[10px] font-semibold text-blue-700 mt-0.5">Username & Password</div>
-                </div>
-                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full mt-1">
-                  <span>Masuk Portal</span>
-                  <span class="material-icons text-xs">arrow_forward</span>
-                </div>
-
-                <!-- Floating Desktop Arrow Badge connecting to Step 3 -->
-                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-blue-600 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
-                  <span class="material-icons text-sm">east</span>
-                </div>
-              </a>
-
-              <!-- STEP 3 -->
-              <a href="antrian.php" class="group bg-white hover:bg-amber-50/80 p-3.5 rounded-2xl border-2 border-amber-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-amber-500/30 group-hover:scale-110 transition">
-                  3
-                </div>
-                <div>
-                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-amber-700">3. Pesan Antrean</div>
-                  <div class="text-[10px] font-semibold text-amber-700 mt-0.5">Jadwal & Layanan</div>
-                </div>
-                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full mt-1">
-                  <span>Pesan Layanan</span>
-                  <span class="material-icons text-xs">arrow_forward</span>
-                </div>
-
-                <!-- Floating Desktop Arrow Badge connecting to Step 4 -->
-                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-amber-500 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
-                  <span class="material-icons text-sm">east</span>
-                </div>
-              </a>
-
-              <!-- STEP 4 -->
-              <a href="bukutamu.php" class="group bg-white hover:bg-emerald-50/80 p-3.5 rounded-2xl border-2 border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-emerald-500/30 group-hover:scale-110 transition">
-                  4
-                </div>
-                <div>
-                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-700">4. Tiket Digital QR</div>
-                  <div class="text-[10px] font-semibold text-emerald-700 mt-0.5">Resi Tiket 2 Hal</div>
-                </div>
-                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full mt-1">
-                  <span>Lihat Tiket</span>
-                  <span class="material-icons text-xs">arrow_forward</span>
-                </div>
-
-                <!-- Floating Desktop Arrow Badge connecting to Step 5 -->
-                <div class="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-emerald-600 text-white shadow-lg items-center justify-center border-2 border-white font-extrabold">
-                  <span class="material-icons text-sm">east</span>
-                </div>
-              </a>
-
-              <!-- STEP 5 -->
-              <a href="bukutamu.php" class="group bg-white hover:bg-purple-50/80 p-3.5 rounded-2xl border-2 border-purple-500 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center space-y-2 relative">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-purple-500/30 group-hover:scale-110 transition">
-                  5
-                </div>
-                <div>
-                  <div class="text-xs font-extrabold text-slate-900 group-hover:text-purple-700">5. Datang Ke Loket</div>
-                  <div class="text-[10px] font-semibold text-purple-700 mt-0.5">Scan QR di PST</div>
-                </div>
-                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full mt-1">
-                  <span>Petunjuk Loket</span>
-                  <span class="material-icons text-xs">arrow_forward</span>
-                </div>
-              </a>
-
-            </div>
-          </div>
-        </div>
+        <?php include __DIR__ . '/stepper.php'; ?>
 
         <!-- 2 Main Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -274,10 +166,17 @@ $activeMenu = 'home';
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-6 space-y-4">
-      <a href="index.php" class="bps-nav-item active"><span class="material-icons">home</span> Beranda</a>
-      <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">groups</span> Buku Tamu</a>
-      <a href="antrian.php" class="bps-nav-item"><span class="material-icons">summarize</span> Daftar Antrian</a>
-      <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Login Petugas</a>
+      <a href="index.php" class="bps-nav-item active"><span class="material-icons">home</span> Beranda Utama</a>
+      <a href="antrian.php" class="bps-nav-item"><span class="material-icons">confirmation_number</span> Reservasi Antrean</a>
+      <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">receipt_long</span> Riwayat & Tiket Saya</a>
+      
+      <?php if (isset($_SESSION['user_id'])): ?>
+        <a href="logout.php" class="bps-nav-item text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 rounded-xl my-2">
+          <span class="material-icons text-rose-400">logout</span> Keluar / Logout Sesi
+        </a>
+      <?php else: ?>
+        <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Masuk / Login</a>
+      <?php endif; ?>
     </div>
   </div>
 

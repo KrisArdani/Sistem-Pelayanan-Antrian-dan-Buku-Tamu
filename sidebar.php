@@ -1,3 +1,9 @@
+<?php
+$isUserLoggedIn = isset($_SESSION['user_id']);
+$sidebarUserName = $_SESSION['user_name'] ?? 'Pengunjung';
+$sidebarUserNik = $_SESSION['user_nik'] ?? '';
+$sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
+?>
 <!-- Sidebar Navigation Left (Fixed Desktop) -->
 <aside class="w-72 bps-sidebar hidden lg:flex flex-col justify-between p-6 fixed inset-y-0 left-0 z-30 overflow-y-auto">
   <div>
@@ -72,13 +78,20 @@
         <span>Hubungi Kami</span>
       </a>
 
-      <!-- Kategori 3: Akses Internal Petugas -->
-      <div class="pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3">Akses Internal</div>
+      <!-- Kategori 3: Akses Internal & Sesi -->
+      <div class="pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3">Akses & Sesi</div>
       
-      <a href="login.php" class="bps-nav-item <?php echo ($activeMenu == 'login') ? 'active' : ''; ?>">
-        <span class="material-icons">login</span>
-        <span>Login Internal Petugas</span>
-      </a>
+      <?php if ($isUserLoggedIn): ?>
+        <a href="logout.php" class="bps-nav-item text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl my-1">
+          <span class="material-icons text-rose-400">logout</span>
+          <span class="font-bold">Keluar / Logout Sesi</span>
+        </a>
+      <?php else: ?>
+        <a href="login.php" class="bps-nav-item <?php echo ($activeMenu == 'login') ? 'active' : ''; ?>">
+          <span class="material-icons">login</span>
+          <span>Login Akun / Petugas</span>
+        </a>
+      <?php endif; ?>
     </nav>
   </div>
 

@@ -105,12 +105,19 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
 
         <div class="flex items-center gap-3">
           <?php if ($isLoggedIn): ?>
-            <div class="text-xs font-semibold text-slate-700 flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full">
-              <span class="material-icons text-sm text-sky-600">account_circle</span>
-              <span><?php echo htmlspecialchars($userName); ?></span>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-sky-50 border border-sky-200 rounded-full text-xs font-semibold text-slate-700 shadow-sm">
+              <span class="material-icons text-sky-600 text-sm">account_circle</span>
+              <span class="hidden sm:inline">Pengunjung: <b class="text-sky-900"><?php echo htmlspecialchars($userName); ?></b></span>
+              <span class="sm:hidden font-bold text-sky-900"><?php echo htmlspecialchars(explode(' ', $userName)[0]); ?></span>
             </div>
+            <a href="logout.php" class="btn btn-outline-danger btn-sm text-xs flex items-center gap-1 border-rose-300 text-rose-700 hover:bg-rose-600 hover:text-white font-bold px-3 rounded-xl shadow-sm" title="Keluar dari Akun">
+              <span class="material-icons text-sm">logout</span>
+              <span class="hidden sm:inline">Keluar</span>
+            </a>
           <?php else: ?>
-            <a href="login.php" class="btn btn-sm btn-outline-primary rounded-full text-xs font-bold">Masuk / Login</a>
+            <a href="login.php" class="btn btn-primary btn-sm bg-[#003366] border-[#003366] text-xs flex items-center gap-1">
+              <span class="material-icons text-sm">login</span> Masuk / Login
+            </a>
           <?php endif; ?>
         </div>
       </header>
@@ -135,6 +142,9 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
             </a>
           </div>
         </div>
+
+        <!-- DYNAMIC PROGRESS TIMELINE STEPPER BAR -->
+        <?php include __DIR__ . '/stepper.php'; ?>
 
         <?php if (!$isLoggedIn): ?>
         <!-- Banner Jika Pengunjung Belum Login -->
@@ -234,6 +244,28 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
       <?php include 'footer.php'; ?>
 
     </main>
+  </div>
+
+  <!-- Mobile Offcanvas Sidebar -->
+  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header border-b border-slate-700">
+      <h5 class="offcanvas-title text-white font-bold brand-font">SPST BPS KOTA TEGAL</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-6 space-y-3">
+      <a href="index.php" class="bps-nav-item"><span class="material-icons">home</span> Beranda Utama</a>
+      <a href="register.php" class="bps-nav-item"><span class="material-icons">how_to_reg</span> Daftar Akun Pengunjung</a>
+      <a href="antrian.php" class="bps-nav-item"><span class="material-icons">confirmation_number</span> Reservasi Antrean & Layanan</a>
+      <a href="bukutamu.php" class="bps-nav-item active"><span class="material-icons">receipt_long</span> Riwayat & Tiket Saya</a>
+      
+      <?php if ($isLoggedIn): ?>
+        <a href="logout.php" class="bps-nav-item text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 rounded-xl my-2">
+          <span class="material-icons text-rose-400">logout</span> Keluar / Logout Sesi
+        </a>
+      <?php else: ?>
+        <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Masuk / Login</a>
+      <?php endif; ?>
+    </div>
   </div>
 
   <!-- Modal Display Tiket Digital & Print Area -->
