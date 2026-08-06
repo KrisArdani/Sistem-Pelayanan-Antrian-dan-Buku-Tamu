@@ -68,8 +68,12 @@ try {
             ADD COLUMN instansi VARCHAR(150) DEFAULT NULL AFTER pekerjaan,
             ADD COLUMN kategori_instansi VARCHAR(100) DEFAULT NULL AFTER instansi");
     } else {
-        // Pastikan ENUM role memuat opsi 'pengunjung'
         $conn->query("ALTER TABLE users MODIFY COLUMN role ENUM('petugas', 'admin', 'kepala', 'pengunjung') NOT NULL");
+    }
+
+    $checkUserLayananTugas = $conn->query("SHOW COLUMNS FROM users LIKE 'layanan_tugas'");
+    if ($checkUserLayananTugas && $checkUserLayananTugas->num_rows === 0) {
+        $conn->query("ALTER TABLE users ADD COLUMN layanan_tugas VARCHAR(150) DEFAULT NULL AFTER role");
     }
 
     $checkAntrianNik = $conn->query("SHOW COLUMNS FROM antrian LIKE 'nik'");

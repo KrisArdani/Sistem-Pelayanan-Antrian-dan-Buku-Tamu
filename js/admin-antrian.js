@@ -6,12 +6,21 @@ let fetchedAntrianData = [];
 let lastAntrianJson = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const isAuth = await checkAuth(['petugas', 'admin', 'kepala']);
-  if (!isAuth) return;
+  const user = await checkAuth(['petugas', 'admin', 'kepala']);
+  if (!user) return;
+
+  const filterLayananSelect = document.getElementById('filter_layanan_antrian');
+  if (filterLayananSelect && user.layanan_tugas) {
+    filterLayananSelect.value = user.layanan_tugas;
+  }
 
   const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');
   if (filterTanggalSelect) {
     filterTanggalSelect.addEventListener('change', () => renderAntrianDashboard());
+  }
+
+  if (filterLayananSelect) {
+    filterLayananSelect.addEventListener('change', () => renderAntrianDashboard());
   }
 
   await renderAntrianDashboard();
@@ -88,11 +97,13 @@ async function renderAntrianDashboard(isSilent = false) {
   if (!tableBody) return;
 
   const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');
+  const filterLayananSelect = document.getElementById('filter_layanan_antrian');
   const dateVal = filterTanggalSelect ? filterTanggalSelect.value : 'today';
+  const layananVal = filterLayananSelect ? filterLayananSelect.value : 'all';
 
   let data = [];
   try {
-    const res = await fetch(`../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}`);
+    const res = await fetch(`../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}&layanan=${encodeURIComponent(layananVal)}`);
     const json = await res.json();
     if (json.status === 'success') {
       data = json.data || [];
@@ -227,7 +238,11 @@ async function renderAntrianDashboard(isSilent = false) {
 
 async function panggilAntrianBerikutnya() {
   try {
+    const filterLayananSelect = document.getElementById('filter_layanan_antrian');
+    const layananVal = filterLayananSelect ? filterLayananSelect.value : 'all';
+
     const formData = new FormData();
+    formData.append('layanan', layananVal);
     formData.append('csrf_token', getCsrfToken());
 
     const res = await fetch('../api.php?action=panggil_antrian', { method: 'POST', body: formData });

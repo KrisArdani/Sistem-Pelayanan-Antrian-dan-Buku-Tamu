@@ -160,11 +160,23 @@ $csrf_token = generateCsrfToken();
             <div class="flex flex-wrap items-center gap-3">
               <!-- Filter Tanggal Loket Antrian -->
               <div class="flex items-center gap-2">
-                <label for="filter_tanggal_antrian" class="text-xs font-bold text-slate-600 shrink-0">Filter Tanggal:</label>
-                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-44">
+                <label for="filter_tanggal_antrian" class="text-xs font-bold text-slate-600 shrink-0">Tanggal:</label>
+                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-40">
                   <option value="today" selected>☀️ Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
                   <option value="tomorrow">🗓️ Besok (<?php echo date('d/m/Y', strtotime('+1 day')); ?>)</option>
                   <option value="all">🌐 Semua Tanggal</option>
+                </select>
+              </div>
+
+              <!-- Filter Layanan Loket Antrian -->
+              <div class="flex items-center gap-2">
+                <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">Loket Layanan:</label>
+                <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 w-48">
+                  <option value="all">🏢 Semua Loket Layanan</option>
+                  <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
+                  <option value="Perpustakaan">📚 Loket Perpustakaan</option>
+                  <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
+                  <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
                 </select>
               </div>
 

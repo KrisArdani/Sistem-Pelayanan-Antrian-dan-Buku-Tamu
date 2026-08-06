@@ -141,7 +141,7 @@ switch ($action) {
             sendJsonResponse('error', 'Username dan password wajib diisi.');
         }
 
-        $stmt = $conn->prepare("SELECT id, username, password, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, password, name, nik, role, layanan_tugas, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -160,6 +160,7 @@ switch ($action) {
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_nik'] = $user['nik'];
                 $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_layanan_tugas'] = $user['layanan_tugas'] ?? '';
                 $_SESSION['user_username'] = $user['username'];
                 $_SESSION['user_jenis_kelamin'] = $user['jenis_kelamin'];
                 $_SESSION['user_umur'] = $user['umur'];
@@ -181,16 +182,12 @@ switch ($action) {
                 }
 
                 unset($user['password']);
-                logSecurityEvent($conn, 'login_success', "User: {$user['username']}, Role: {$user['role']}");
+                logSecurityEvent($conn, 'login_success', "User ID: {$user['id']}, Role: {$user['role']}");
 
-                sendJsonResponse('success', 'Login berhasil!', [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'name' => $user['name'],
-                    'role' => $user['role'],
-                    'redirect' => $user['redirect'],
-                    'csrf_token' => generateCsrfToken()
-                ]);
+                sendJsonResponse('success', 'Login berhasil!', $user);
+            } else {
+                recordFailedAttempt($conn, $username);
+                sendJsonResponse('error', 'Username atau password salah.');
             }
         }
 
@@ -232,6 +229,7 @@ switch ($action) {
                 'name' => $_SESSION['user_name'],
                 'nik' => $_SESSION['user_nik'] ?? '',
                 'role' => $_SESSION['user_role'],
+                'layanan_tugas' => $_SESSION['user_layanan_tugas'] ?? '',
                 'csrf_token' => generateCsrfToken()
             ]);
         } else {
@@ -662,22 +660,41 @@ switch ($action) {
         requireAuth(['petugas', 'admin', 'kepala']);
 
         $filterTanggal = sanitizeInput($_GET['tanggal'] ?? 'today');
+        $filterLayanan = sanitizeInput($_GET['layanan'] ?? ($_SESSION['user_layanan_tugas'] ?? ''));
         $todayStr = date('Y-m-d');
         $tomorrowStr = date('Y-m-d', strtotime('+1 day'));
 
-        if ($filterTanggal === 'all' || empty($filterTanggal)) {
-            $stmt = $conn->prepare("SELECT * FROM antrian ORDER BY id DESC");
-        } else if ($filterTanggal === 'today') {
-            $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
-            $stmt->bind_param("s", $todayStr);
+        $query = "SELECT * FROM antrian WHERE 1=1";
+        $types = "";
+        $params = [];
+
+        if ($filterTanggal === 'today') {
+            $query .= " AND tanggal = ?";
+            $types .= "s";
+            $params[] = $todayStr;
         } else if ($filterTanggal === 'tomorrow') {
-            $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
-            $stmt->bind_param("s", $tomorrowStr);
-        } else {
-            $stmt = $conn->prepare("SELECT * FROM antrian WHERE tanggal = ? ORDER BY id DESC");
-            $stmt->bind_param("s", $filterTanggal);
+            $query .= " AND tanggal = ?";
+            $types .= "s";
+            $params[] = $tomorrowStr;
+        } else if ($filterTanggal !== 'all' && !empty($filterTanggal)) {
+            $query .= " AND tanggal = ?";
+            $types .= "s";
+            $params[] = $filterTanggal;
         }
 
+        // Filter khusus berdasarkan layanan loket tugas
+        if (!empty($filterLayanan) && $filterLayanan !== 'all') {
+            $query .= " AND layanan LIKE ?";
+            $types .= "s";
+            $params[] = '%' . $filterLayanan . '%';
+        }
+
+        $query .= " ORDER BY id DESC";
+
+        $stmt = $conn->prepare($query);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -693,6 +710,7 @@ switch ($action) {
 
         $id = intval($_POST['id'] ?? 0);
         $isRepeat = isset($_POST['repeat']) && ($_POST['repeat'] == '1' || $_POST['repeat'] == 'true');
+        $filterLayanan = sanitizeInput($_POST['layanan'] ?? ($_SESSION['user_layanan_tugas'] ?? ''));
         $tanggal = date('Y-m-d');
 
         if ($id > 0) {
@@ -714,13 +732,26 @@ switch ($action) {
             }
         } else {
             // Selesaikan antrean yang sedang berstatus 'Dipanggil' secara aman sebelum mengambil antrean berikutnya
-            $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ?");
-            $stmtFinish->bind_param("s", $tanggal);
+            if (!empty($filterLayanan) && $filterLayanan !== 'all') {
+                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND layanan LIKE ?");
+                $likeLayanan = '%' . $filterLayanan . '%';
+                $stmtFinish->bind_param("ss", $tanggal, $likeLayanan);
+            } else {
+                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ?");
+                $stmtFinish->bind_param("s", $tanggal);
+            }
             $stmtFinish->execute();
 
             // Cari antrean berikutnya yang berstatus 'Menunggu' saja
-            $stmtNext = $conn->prepare("SELECT id FROM antrian WHERE status = 'Menunggu' AND tanggal = ? ORDER BY id ASC LIMIT 1");
-            $stmtNext->bind_param("s", $tanggal);
+            if (!empty($filterLayanan) && $filterLayanan !== 'all') {
+                $stmtNext = $conn->prepare("SELECT id FROM antrian WHERE status = 'Menunggu' AND tanggal = ? AND layanan LIKE ? ORDER BY id ASC LIMIT 1");
+                $likeLayanan = '%' . $filterLayanan . '%';
+                $stmtNext->bind_param("ss", $tanggal, $likeLayanan);
+            } else {
+                $stmtNext = $conn->prepare("SELECT id FROM antrian WHERE status = 'Menunggu' AND tanggal = ? ORDER BY id ASC LIMIT 1");
+                $stmtNext->bind_param("s", $tanggal);
+            }
+            
             $stmtNext->execute();
             $res = $stmtNext->get_result();
             if ($next = $res->fetch_assoc()) {

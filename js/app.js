@@ -104,7 +104,7 @@ async function checkAuth(requiredRoles = []) {
     }
 
     sessionStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(json.data));
-    return true;
+    return json.data;
   } catch (e) {
     console.error('Session check failed:', e);
     return true; // Biarkan autentikasi server-side auth_check PHP menangani pengalihan
