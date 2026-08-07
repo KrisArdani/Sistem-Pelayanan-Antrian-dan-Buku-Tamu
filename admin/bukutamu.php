@@ -42,7 +42,16 @@ $csrf_token = generateCsrfToken();
         <nav class="space-y-1">
           <a href="dashboard.php" class="bps-nav-item"><span class="material-icons">dashboard</span> Executive Dashboard</a>
           <a href="bukutamu.php" class="bps-nav-item active"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
-          <a href="antrian.php" class="bps-nav-item"><span class="material-icons">summarize</span> Kelola Loket Antrian</a>
+          <a href="antrian.php" class="bps-nav-item flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-icons">summarize</span>
+              <span>Kelola Loket Antrian</span>
+            </div>
+            <span id="admin_sidebar_waiting_badge" class="hidden px-2 py-0.5 bg-amber-500 text-slate-950 font-extrabold text-[10px] rounded-full shadow-sm animate-pulse" title="Antrean Menunggu Hari Ini">0</span>
+          </a>
+          <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+          <a href="users.php" class="bps-nav-item"><span class="material-icons">manage_accounts</span> Kelola Pengguna</a>
+          <?php endif; ?>
           <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
           <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
         </nav>
@@ -82,9 +91,27 @@ $csrf_token = generateCsrfToken();
             <h1 class="text-2xl font-extrabold text-slate-900 brand-font">Kelola Buku Tamu & Data Pengunjung Terintegrasi</h1>
             <p class="text-slate-500 text-xs">Presensi seluruh pengunjung PST BPS Kota Tegal (Online & Walk-In Onsite).</p>
           </div>
-          <button id="btn_export_csv" class="btn btn-success btn-sm flex items-center gap-1 font-bold px-4 py-2 rounded-xl shadow-sm">
-            <span class="material-icons text-sm">download</span> Export CSV Lengkap
-          </button>
+          <!-- Dropdown Export Buku Tamu -->
+          <div class="dropdown">
+            <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm dropdown-toggle" data-bs-toggle="dropdown">
+              <span class="material-icons text-sm">download</span>
+              <span>Ekspor Buku Tamu</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end text-xs shadow-xl rounded-xl border border-slate-200 p-2">
+              <li>
+                <button type="button" onclick="exportData('bukutamu', 'excel')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-emerald-700 hover:bg-emerald-50">
+                  <span class="material-icons text-sm">table_view</span>
+                  <span>Unduh Format Excel / CSV</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" onclick="exportData('bukutamu', 'pdf')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-rose-700 hover:bg-rose-50">
+                  <span class="material-icons text-sm">picture_as_pdf</span>
+                  <span>Pratinjau / Cetak Laporan PDF</span>
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <!-- Filter & Categorization Controls -->

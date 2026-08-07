@@ -102,10 +102,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderBukuTamuTable(true);
   }, 3000);
 
-  // Ekspor CSV
+  // Ekspor CSV / Excel
   const btnExport = document.getElementById('btn_export_csv');
   if (btnExport) {
-    btnExport.addEventListener('click', exportToCSV);
+    btnExport.addEventListener('click', () => exportData('bukutamu', 'excel'));
   }
 });
 

@@ -44,7 +44,16 @@ $csrf_token = generateCsrfToken();
         <nav class="space-y-1">
           <a href="dashboard.php" class="bps-nav-item active"><span class="material-icons">dashboard</span> Executive Dashboard</a>
           <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
-          <a href="antrian.php" class="bps-nav-item"><span class="material-icons">summarize</span> Kelola Loket Antrian</a>
+          <a href="antrian.php" class="bps-nav-item flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-icons">summarize</span>
+              <span>Kelola Loket Antrian</span>
+            </div>
+            <span id="admin_sidebar_waiting_badge" class="hidden px-2 py-0.5 bg-amber-500 text-slate-950 font-extrabold text-[10px] rounded-full shadow-sm animate-pulse" title="Antrean Menunggu Hari Ini">0</span>
+          </a>
+          <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+          <a href="users.php" class="bps-nav-item"><span class="material-icons">manage_accounts</span> Kelola Pengguna</a>
+          <?php endif; ?>
           <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
           <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
         </nav>
@@ -82,18 +91,40 @@ $csrf_token = generateCsrfToken();
       <div class="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10">
         
         <!-- Page Title & Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
             <h1 class="text-3xl md:text-4xl font-black text-slate-900 brand-font tracking-tight">Executive Dashboard Monitoring PST</h1>
             <p class="text-slate-500 text-sm font-medium mt-1">Laporan komprehensif & analisis performa pelayanan publik BPS Kota Tegal</p>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="px-4 py-2 bg-sky-100/80 text-sky-800 text-xs font-bold rounded-xl border border-sky-200 shadow-sm flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span> Real-time Live Sync
+          <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+            <span class="px-3.5 py-2 bg-sky-100/80 text-sky-800 text-xs font-bold rounded-xl border border-sky-200 shadow-sm flex items-center gap-1.5 shrink-0">
+              <span class="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span> Real-time Live Sync
             </span>
-            <span id="dashboard_live_clock" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 shadow-sm flex items-center gap-1.5">
+            <span id="dashboard_live_clock" class="px-3.5 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 shadow-sm flex items-center gap-1.5 shrink-0">
               <span class="material-icons text-sm text-slate-500">schedule</span> <span id="live_clock_text"><?php echo date('d M Y, H:i'); ?> WIB</span>
             </span>
+
+            <!-- Dropdown Export SKM & Kinerja -->
+            <div class="dropdown shrink-0">
+              <button type="button" class="btn btn-primary bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md dropdown-toggle" data-bs-toggle="dropdown">
+                <span class="material-icons text-sm">download</span>
+                <span>Ekspor SKM & Kinerja</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end text-xs shadow-xl rounded-xl border border-slate-200 p-2">
+                <li>
+                  <button type="button" onclick="exportData('skm', 'excel')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-emerald-700 hover:bg-emerald-50">
+                    <span class="material-icons text-sm">table_view</span>
+                    <span>Unduh Excel SKM (Hasil Survei)</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" onclick="exportData('skm', 'pdf')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-rose-700 hover:bg-rose-50">
+                    <span class="material-icons text-sm">picture_as_pdf</span>
+                    <span>Cetak Laporan PDF SKM</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 

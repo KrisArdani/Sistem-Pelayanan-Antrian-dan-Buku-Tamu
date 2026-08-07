@@ -1070,6 +1070,667 @@ switch ($action) {
         }
         break;
 
+
+    // ----------------------------------------------------
+    // 6. USER MANAGEMENT ENDPOINTS (Khusus Admin)
+    // ----------------------------------------------------
+    case 'get_users':
+        requireAuth(['admin']);
+
+        $search = sanitizeInput($_GET['search'] ?? '');
+        $roleFilter = sanitizeInput($_GET['role'] ?? 'all');
+
+        $query = "SELECT id, username, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, created_at FROM users WHERE 1=1";
+        $types = "";
+        $params = [];
+
+        if (!empty($roleFilter) && $roleFilter !== 'all') {
+            $query .= " AND role = ?";
+            $types .= "s";
+            $params[] = $roleFilter;
+        }
+
+        if (!empty($search)) {
+            $likeSearch = '%' . $search . '%';
+            $query .= " AND (username LIKE ? OR name LIKE ? OR email LIKE ? OR nohp LIKE ? OR instansi LIKE ?)";
+            $types .= "sssss";
+            $params[] = $likeSearch;
+            $params[] = $likeSearch;
+            $params[] = $likeSearch;
+            $params[] = $likeSearch;
+            $params[] = $likeSearch;
+        }
+
+        $query .= " ORDER BY id DESC";
+
+        $stmt = $conn->prepare($query);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $users = [];
+        $counts = [
+            'total' => 0,
+            'petugas' => 0,
+            'admin' => 0,
+            'kepala' => 0,
+            'pengunjung' => 0
+        ];
+
+        // Hitung total ringkasan pengguna
+        $resCount = $conn->query("SELECT role, COUNT(*) as count FROM users GROUP BY role");
+        while ($c = $resCount->fetch_assoc()) {
+            $rName = $c['role'];
+            if (isset($counts[$rName])) {
+                $counts[$rName] = (int)$c['count'];
+            }
+            $counts['total'] += (int)$c['count'];
+        }
+
+        while ($row = $result->fetch_assoc()) {
+            $users[] = $row;
+        }
+
+        sendJsonResponse('success', 'Data daftar pengguna berhasil diambil.', [
+            'users' => $users,
+            'summary' => $counts
+        ]);
+        break;
+
+    case 'save_user':
+        requireAuth(['admin']);
+
+        $id = intval($_POST['id'] ?? 0);
+        $username = trim($_POST['username'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $name = trim($_POST['name'] ?? '');
+        $nik = trim($_POST['nik'] ?? '');
+        $role = trim($_POST['role'] ?? 'petugas');
+        $jenis_kelamin = trim($_POST['jenis_kelamin'] ?? 'Laki Laki');
+        $umur = trim($_POST['umur'] ?? '17-25 tahun');
+        $nohp = trim($_POST['nohp'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $pendidikan = trim($_POST['pendidikan'] ?? 'D4-S1');
+        $pekerjaan = trim($_POST['pekerjaan'] ?? 'Pegawai BPS');
+        $instansi = trim($_POST['instansi'] ?? 'BPS Kota Tegal');
+        $kategori_instansi = trim($_POST['kategori_instansi'] ?? 'Instansi Pemerintah');
+
+        if (empty($username) || empty($name) || empty($role)) {
+            sendJsonResponse('error', 'Username, Nama Lengkap, dan Role wajib diisi.');
+        }
+
+        $allowedRoles = ['petugas', 'admin', 'kepala'];
+        if (!in_array($role, $allowedRoles)) {
+            sendJsonResponse('error', 'Admin hanya dapat mengelola akun staf internal (Petugas, Admin, Kepala). Akun pengunjung mendaftar secara mandiri.');
+        }
+
+        if (!empty($email) && !validateEmail($email)) {
+            sendJsonResponse('error', 'Format email tidak valid.');
+        }
+
+        if (!empty($nohp) && !validatePhone($nohp)) {
+            sendJsonResponse('error', 'Format nomor HP tidak valid.');
+        }
+
+        // Cek keunikan username
+        if ($id > 0) {
+            // Cek role target user sebelum diubah
+            $stmtRole = $conn->prepare("SELECT role FROM users WHERE id = ?");
+            $stmtRole->bind_param("i", $id);
+            $stmtRole->execute();
+            $targetUser = $stmtRole->get_result()->fetch_assoc();
+            if ($targetUser && $targetUser['role'] === 'pengunjung') {
+                sendJsonResponse('error', 'Admin tidak dapat mengubah akun pengunjung. Akun pengunjung mengelola profil & password secara mandiri.');
+            }
+
+            $stmtCheck = $conn->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+            $stmtCheck->bind_param("si", $username, $id);
+        } else {
+            $stmtCheck = $conn->prepare("SELECT id FROM users WHERE username = ?");
+            $stmtCheck->bind_param("s", $username);
+        }
+        $stmtCheck->execute();
+        if ($stmtCheck->get_result()->num_rows > 0) {
+            sendJsonResponse('error', 'Username sudah digunakan oleh akun lain.');
+        }
+
+        try {
+            if ($id > 0) {
+                // Update User Internal
+                if (!empty($password)) {
+                    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                    $stmt = $conn->prepare("UPDATE users SET username = ?, password = ?, name = ?, nik = ?, role = ?, jenis_kelamin = ?, umur = ?, nohp = ?, email = ?, pendidikan = ?, pekerjaan = ?, instansi = ?, kategori_instansi = ? WHERE id = ?");
+                    $stmt->bind_param("sssssssssssssi", $username, $hashedPassword, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi, $id);
+                } else {
+                    $stmt = $conn->prepare("UPDATE users SET username = ?, name = ?, nik = ?, role = ?, jenis_kelamin = ?, umur = ?, nohp = ?, email = ?, pendidikan = ?, pekerjaan = ?, instansi = ?, kategori_instansi = ? WHERE id = ?");
+                    $stmt->bind_param("ssssssssssssi", $username, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi, $id);
+                }
+
+                if ($stmt->execute()) {
+                    logSecurityEvent($conn, 'update_user', "Updated internal user ID: $id ($username)");
+                    sendJsonResponse('success', 'Data akun staf internal berhasil diperbarui!');
+                } else {
+                    sendJsonResponse('error', 'Gagal memperbarui data pengguna: ' . $stmt->error);
+                }
+            } else {
+                // Insert New Internal User
+                if (empty($password)) {
+                    sendJsonResponse('error', 'Password wajib diisi untuk pendaftaran akun internal baru.');
+                }
+
+                $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                $stmt = $conn->prepare("INSERT INTO users (username, password, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssssssssssss", $username, $hashedPassword, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi);
+
+                if ($stmt->execute()) {
+                    logSecurityEvent($conn, 'create_user', "Created new internal user username: $username ($role)");
+                    sendJsonResponse('success', 'Akun staf internal baru berhasil dibuat!');
+                } else {
+                    sendJsonResponse('error', 'Gagal membuat akun pengguna baru: ' . $stmt->error);
+                }
+            }
+        } catch (Throwable $e) {
+            error_log("Exception save_user: " . $e->getMessage());
+            sendJsonResponse('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
+        break;
+
+    case 'reset_password_user':
+        requireAuth(['admin']);
+
+        $id = intval($_POST['id'] ?? 0);
+        $newPassword = trim($_POST['new_password'] ?? '');
+
+        if ($id <= 0) sendJsonResponse('error', 'ID pengguna tidak valid.');
+        if (empty($newPassword)) sendJsonResponse('error', 'Password baru tidak boleh kosong.');
+        if (strlen($newPassword) < 6) sendJsonResponse('error', 'Password minimal terdiri dari 6 karakter.');
+
+        // Proteksi: Admin tidak boleh reset password pengunjung secara langsung
+        $stmtRole = $conn->prepare("SELECT role, username FROM users WHERE id = ?");
+        $stmtRole->bind_param("i", $id);
+        $stmtRole->execute();
+        $targetUser = $stmtRole->get_result()->fetch_assoc();
+
+        if (!$targetUser) sendJsonResponse('error', 'Pengguna tidak ditemukan.');
+        if ($targetUser['role'] === 'pengunjung') {
+            sendJsonResponse('error', 'Admin tidak dapat mereset password akun pengunjung. Pengunjung melakukan reset password mandiri via Email.');
+        }
+
+        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->bind_param("si", $hashedPassword, $id);
+
+        if ($stmt->execute()) {
+            logSecurityEvent($conn, 'reset_password_user', "Reset password for internal user ID: $id ({$targetUser['username']})");
+            sendJsonResponse('success', 'Password akun staf internal berhasil direset.');
+        } else {
+            sendJsonResponse('error', 'Gagal mereset password pengguna.');
+        }
+        break;
+
+    case 'delete_user':
+        requireAuth(['admin']);
+
+        $id = intval($_POST['id'] ?? $_GET['id'] ?? 0);
+        if ($id <= 0) sendJsonResponse('error', 'ID pengguna tidak valid.');
+
+        // Self deletion protection
+        if ($id === intval($_SESSION['user_id'] ?? 0)) {
+            sendJsonResponse('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan saat ini.');
+        }
+
+        // Proteksi: Hapus pengunjung dari admin
+        $stmtRole = $conn->prepare("SELECT role FROM users WHERE id = ?");
+        $stmtRole->bind_param("i", $id);
+        $stmtRole->execute();
+        $targetUser = $stmtRole->get_result()->fetch_assoc();
+
+        if ($targetUser && $targetUser['role'] === 'pengunjung') {
+            sendJsonResponse('error', 'Admin tidak dapat menghapus akun pengunjung. Akun pengunjung bersifat read-only di panel admin.');
+        }
+
+        $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->bind_param("i", $id);
+
+        if ($stmt->execute()) {
+            logSecurityEvent($conn, 'delete_user', "Deleted internal user ID: $id");
+            sendJsonResponse('success', 'Akun pengguna berhasil dihapus.');
+        } else {
+            sendJsonResponse('error', 'Gagal menghapus pengguna. Pengguna mungkin memiliki data keterkaitan.');
+        }
+        break;
+
+
+    // ----------------------------------------------------
+    // 7. VISITOR SELF-SERVICE PASSWORD RESET ENDPOINTS
+    // ----------------------------------------------------
+    case 'request_password_reset':
+        // Rate limit: Max 5 reset requests per hour per IP
+        if (!checkRateLimit($conn, 'request_password_reset', 5, 3600)) {
+            sendJsonResponse('error', 'Batas percobaan reset password tercapai. Silakan coba lagi nanti.', null, 429);
+        }
+
+        $email = trim($_POST['email'] ?? '');
+        if (empty($email)) {
+            sendJsonResponse('error', 'Email wajib diisi.');
+        }
+
+        if (!validateEmail($email)) {
+            sendJsonResponse('error', 'Format email tidak valid.');
+        }
+
+        $stmt = $conn->prepare("SELECT id, username, name, email FROM users WHERE email = ? AND role = 'pengunjung'");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        if ($user = $res->fetch_assoc()) {
+            $token = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+            $stmtUpdate = $conn->prepare("UPDATE users SET reset_token = ?, reset_expires_at = ? WHERE id = ?");
+            $stmtUpdate->bind_param("ssi", $token, $expiresAt, $user['id']);
+            $stmtUpdate->execute();
+
+            $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+            $resetUrl = "$scheme://$host$scriptDir/reset_password.php?token=$token";
+
+            logSecurityEvent($conn, 'request_password_reset', "Reset requested for visitor email: $email");
+
+            sendJsonResponse('success', 'Instruksi reset password telah dikirimkan ke email Anda. Silakan periksa inbox/spam email Anda.', [
+                'reset_url' => $resetUrl,
+                'email' => $email
+            ]);
+        } else {
+            // Generik response untuk proteksi kebocoran email
+            sendJsonResponse('error', 'Email tidak ditemukan sebagai akun pengunjung terdaftar.');
+        }
+        break;
+
+    case 'verify_reset_token':
+        $token = trim($_GET['token'] ?? $_POST['token'] ?? '');
+        if (empty($token)) {
+            sendJsonResponse('error', 'Token reset password wajib diisi.');
+        }
+
+        $nowStr = date('Y-m-d H:i:s');
+        $stmt = $conn->prepare("SELECT id, username, name, email FROM users WHERE reset_token = ? AND reset_expires_at >= ? AND role = 'pengunjung'");
+        $stmt->bind_param("ss", $token, $nowStr);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        if ($user = $res->fetch_assoc()) {
+            sendJsonResponse('success', 'Token reset password valid.', [
+                'username' => $user['username'],
+                'email' => $user['email'],
+                'name' => $user['name']
+            ]);
+        } else {
+            sendJsonResponse('error', 'Token reset password tidak valid atau telah kedaluwarsa. Silakan ajukan reset password kembali.', null, 400);
+        }
+        break;
+
+    case 'reset_password_with_token':
+        $token = trim($_POST['token'] ?? '');
+        $newPassword = trim($_POST['new_password'] ?? '');
+
+        if (empty($token) || empty($newPassword)) {
+            sendJsonResponse('error', 'Token dan password baru wajib diisi.');
+        }
+
+        if (strlen($newPassword) < 6) {
+            sendJsonResponse('error', 'Password minimal terdiri dari 6 karakter.');
+        }
+
+        $nowStr = date('Y-m-d H:i:s');
+        $stmt = $conn->prepare("SELECT id, username FROM users WHERE reset_token = ? AND reset_expires_at >= ? AND role = 'pengunjung'");
+        $stmt->bind_param("ss", $token, $nowStr);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        if ($user = $res->fetch_assoc()) {
+            $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+            $stmtUpdate = $conn->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires_at = NULL WHERE id = ?");
+            $stmtUpdate->bind_param("si", $hashedPassword, $user['id']);
+
+            if ($stmtUpdate->execute()) {
+                logSecurityEvent($conn, 'reset_password_success', "Visitor password reset successfully for ID: {$user['id']}");
+                sendJsonResponse('success', 'Password Anda berhasil diperbarui! Silakan masuk dengan password baru Anda.');
+            } else {
+                sendJsonResponse('error', 'Gagal memperbarui password.');
+            }
+        } else {
+            sendJsonResponse('error', 'Token reset password tidak valid atau telah kedaluwarsa. Silakan ajukan reset password baru.');
+        }
+        break;
+
+    case 'get_waiting_count':
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        $sql = "SELECT COUNT(*) as total_menunggu FROM antrian WHERE status = 'Menunggu' AND DATE(tanggal) = CURDATE()";
+        $params = [];
+        $types = "";
+
+        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+            $sql .= " AND layanan = ?";
+            $params[] = $assignedLayanan;
+            $types .= "s";
+        }
+
+        $stmt = $conn->prepare($sql);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_assoc();
+        $count = (int)($res['total_menunggu'] ?? 0);
+
+        // Juga dapatkan statistik per-layanan
+        $sqlServices = "SELECT layanan, COUNT(*) as count FROM antrian WHERE status = 'Menunggu' AND DATE(tanggal) = CURDATE() GROUP BY layanan";
+        $resServices = $conn->query($sqlServices);
+        $servicesCount = [];
+        if ($resServices) {
+            while ($r = $resServices->fetch_assoc()) {
+                $servicesCount[$r['layanan']] = (int)$r['count'];
+            }
+        }
+
+        sendJsonResponse('success', 'Jumlah antrean menunggu.', [
+            'total_menunggu' => $count,
+            'services' => $servicesCount
+        ]);
+        break;
+
+    case 'export_antrian':
+        requireAuth(['petugas', 'admin', 'kepala']);
+        $filterTanggal = sanitizeInput($_GET['tanggal'] ?? $_POST['tanggal'] ?? 'today');
+        $filterLayanan = sanitizeInput($_GET['layanan'] ?? $_POST['layanan'] ?? 'all');
+        $filterStatus = sanitizeInput($_GET['status'] ?? $_POST['status'] ?? 'all');
+        $format = strtolower(trim($_GET['format'] ?? $_POST['format'] ?? 'excel'));
+
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        if ($_SESSION['user_role'] === 'petugas' && !empty($assignedLayanan)) {
+            $filterLayanan = $assignedLayanan;
+        }
+
+        if ($format === 'pdf') {
+            sendJsonResponse('success', 'URL Cetak PDF', [
+                'redirect_url' => "admin/cetak_laporan.php?type=antrian&tanggal=" . urlencode($filterTanggal) . "&layanan=" . urlencode($filterLayanan) . "&status=" . urlencode($filterStatus)
+            ]);
+        }
+
+        // Export Excel / CSV
+        $whereClause = [];
+        $params = [];
+        $types = "";
+
+        if ($filterTanggal === 'today') {
+            $whereClause[] = "DATE(tanggal) = CURDATE()";
+        } else if ($filterTanggal === 'tomorrow') {
+            $whereClause[] = "DATE(tanggal) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+        } else if ($filterTanggal !== 'all' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterTanggal)) {
+            $whereClause[] = "DATE(tanggal) = ?";
+            $params[] = $filterTanggal;
+            $types .= "s";
+        }
+
+        if ($filterLayanan !== 'all') {
+            $whereClause[] = "layanan = ?";
+            $params[] = $filterLayanan;
+            $types .= "s";
+        }
+        if ($filterStatus !== 'all') {
+            $whereClause[] = "status = ?";
+            $params[] = $filterStatus;
+            $types .= "s";
+        }
+
+        $sql = "SELECT * FROM antrian";
+        if (!empty($whereClause)) {
+            $sql .= " WHERE " . implode(" AND ", $whereClause);
+        }
+        $sql .= " ORDER BY id DESC";
+
+        $stmt = $conn->prepare($sql);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        $filename = "Rekap_Antrian_SPST_" . date('Ymd_His') . ".csv";
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo "\xEF\xBB\xBF"; // UTF-8 BOM
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['No', 'Kode Antrian', 'Nama', 'NIK', 'Jenis Kelamin', 'Umur', 'No HP', 'Email', 'Pendidikan', 'Pekerjaan', 'Instansi', 'Kategori Instansi', 'Fasilitas', 'Layanan PST', 'Tujuan Pemanfaatan', 'Data Diinginkan', 'Monev', 'Tipe Pendaftaran', 'Status', 'Tanggal', 'Waktu', 'Tingkat Kepuasan SKM', 'Catatan SKM']);
+
+        foreach ($rows as $idx => $r) {
+            fputcsv($output, [
+                $idx + 1,
+                $r['kode_antrian'],
+                $r['nama'],
+                "'" . $r['nik'], // Prefix single quote for Excel text formatting
+                $r['jenis_kelamin'],
+                $r['umur'],
+                "'" . $r['nohp'],
+                $r['email'],
+                $r['pendidikan'],
+                $r['pekerjaan'],
+                $r['instansi'],
+                $r['kategori_instansi'],
+                $r['fasilitas'],
+                $r['layanan'],
+                $r['pemanfaatan'],
+                $r['data_diinginkan'],
+                $r['monev'],
+                $r['tipe_pendaftaran'],
+                $r['status'],
+                $r['tanggal'],
+                $r['waktu'],
+                $r['pendapat'],
+                $r['catatan']
+            ]);
+        }
+        fclose($output);
+        exit();
+
+    case 'export_bukutamu':
+        requireAuth(['petugas', 'admin', 'kepala']);
+        $filterTanggal = sanitizeInput($_GET['tanggal'] ?? $_GET['waktu'] ?? $_POST['tanggal'] ?? $_POST['waktu'] ?? 'today');
+        $filterLayanan = sanitizeInput($_GET['layanan'] ?? $_POST['layanan'] ?? 'all');
+        $filterStatus = sanitizeInput($_GET['status'] ?? $_POST['status'] ?? 'all');
+        $filterTipe = sanitizeInput($_GET['tipe'] ?? $_POST['tipe'] ?? 'all');
+        $filterKategoriInstansi = sanitizeInput($_GET['kategori_instansi'] ?? $_POST['kategori_instansi'] ?? '');
+        $q = sanitizeInput($_GET['q'] ?? $_POST['q'] ?? '');
+        $tglMulai = sanitizeInput($_GET['tanggal_mulai'] ?? $_POST['tanggal_mulai'] ?? '');
+        $tglSelesai = sanitizeInput($_GET['tanggal_selesai'] ?? $_POST['tanggal_selesai'] ?? '');
+        $format = strtolower(trim($_GET['format'] ?? $_POST['format'] ?? 'excel'));
+
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        if ($_SESSION['user_role'] === 'petugas' && !empty($assignedLayanan)) {
+            $filterLayanan = $assignedLayanan;
+        }
+
+        if ($format === 'pdf') {
+            $queryStr = http_build_query([
+                'type' => 'bukutamu',
+                'q' => $q,
+                'kategori_instansi' => $filterKategoriInstansi,
+                'layanan' => $filterLayanan,
+                'waktu' => $filterTanggal,
+                'tanggal_mulai' => $tglMulai,
+                'tanggal_selesai' => $tglSelesai,
+                'tipe' => $filterTipe,
+                'status' => $filterStatus
+            ]);
+            sendJsonResponse('success', 'URL Cetak PDF', [
+                'redirect_url' => "admin/cetak_laporan.php?" . $queryStr
+            ]);
+        }
+
+        $whereClause = [];
+        $params = [];
+        $types = "";
+
+        if (!empty($q)) {
+            $whereClause[] = "(nama LIKE ? OR instansi LIKE ? OR layanan LIKE ? OR kode_antrian LIKE ? OR nomor LIKE ? OR nohp LIKE ? OR email LIKE ?)";
+            $likeQ = '%' . $q . '%';
+            for ($i = 0; $i < 7; $i++) {
+                $params[] = $likeQ;
+                $types .= "s";
+            }
+        }
+
+        if (!empty($filterKategoriInstansi)) {
+            $whereClause[] = "kategori_instansi = ?";
+            $params[] = $filterKategoriInstansi;
+            $types .= "s";
+        }
+
+        if ($filterLayanan !== 'all' && !empty($filterLayanan)) {
+            $whereClause[] = "layanan LIKE ?";
+            $params[] = '%' . $filterLayanan . '%';
+            $types .= "s";
+        }
+
+        if ($filterTipe !== 'all' && !empty($filterTipe)) {
+            $whereClause[] = "tipe_pendaftaran = ?";
+            $params[] = $filterTipe;
+            $types .= "s";
+        }
+
+        if ($filterStatus !== 'all' && !empty($filterStatus)) {
+            $whereClause[] = "status = ?";
+            $params[] = $filterStatus;
+            $types .= "s";
+        }
+
+        if ($filterTanggal === 'today') {
+            $whereClause[] = "DATE(tanggal) = CURDATE()";
+        } else if ($filterTanggal === 'tomorrow') {
+            $whereClause[] = "DATE(tanggal) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+        } else if ($filterTanggal === 'this_week') {
+            $whereClause[] = "YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+        } else if ($filterTanggal === 'this_month') {
+            $whereClause[] = "YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+        } else if ($filterTanggal === 'custom' && !empty($tglMulai) && !empty($tglSelesai)) {
+            $whereClause[] = "tanggal BETWEEN ? AND ?";
+            $params[] = $tglMulai;
+            $params[] = $tglSelesai;
+            $types .= "ss";
+        } else if ($filterTanggal !== 'all' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterTanggal)) {
+            $whereClause[] = "DATE(tanggal) = ?";
+            $params[] = $filterTanggal;
+            $types .= "s";
+        }
+
+        $sql = "SELECT id, user_id, kode_antrian AS kode_bt, nomor, nama, nik, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, pendapat, monev, catatan, tipe_pendaftaran, status, tanggal, waktu, created_at FROM antrian";
+        if (!empty($whereClause)) {
+            $sql .= " WHERE " . implode(" AND ", $whereClause);
+        }
+        $sql .= " ORDER BY id DESC";
+
+        $stmt = $conn->prepare($sql);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        $filename = "Rekap_BukuTamu_SPST_" . date('Ymd_His') . ".csv";
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo "\xEF\xBB\xBF";
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['No', 'Kode BT / Antrian', 'Nama Tamu', 'NIK', 'Jenis Kelamin', 'Umur', 'No HP', 'Email', 'Pendidikan', 'Pekerjaan', 'Instansi', 'Kategori Instansi', 'Layanan Terkait', 'Tipe Pendaftaran', 'Status', 'Tanggal', 'Waktu']);
+
+        foreach ($rows as $idx => $r) {
+            fputcsv($output, [
+                $idx + 1,
+                $r['kode_bt'],
+                $r['nama'],
+                "'" . $r['nik'],
+                $r['jenis_kelamin'],
+                $r['umur'],
+                "'" . $r['nohp'],
+                $r['email'],
+                $r['pendidikan'],
+                $r['pekerjaan'],
+                $r['instansi'],
+                $r['kategori_instansi'],
+                $r['layanan'],
+                $r['tipe_pendaftaran'],
+                $r['status'],
+                $r['tanggal'],
+                $r['waktu']
+            ]);
+        }
+        fclose($output);
+        exit();
+
+    case 'export_skm':
+        requireAuth(['petugas', 'admin', 'kepala']);
+        $filterLayanan = sanitizeInput($_GET['layanan'] ?? $_POST['layanan'] ?? 'all');
+        $format = strtolower(trim($_GET['format'] ?? $_POST['format'] ?? 'excel'));
+
+        if ($format === 'pdf') {
+            sendJsonResponse('success', 'URL Cetak PDF', [
+                'redirect_url' => "admin/cetak_laporan.php?type=skm&layanan=" . urlencode($filterLayanan)
+            ]);
+        }
+
+        $whereClause = ["pendapat IS NOT NULL"];
+        $params = [];
+        $types = "";
+
+        if ($filterLayanan !== 'all') {
+            $whereClause[] = "layanan = ?";
+            $params[] = $filterLayanan;
+            $types .= "s";
+        }
+
+        $sql = "SELECT id, kode_antrian, nama, layanan, pendapat, catatan, tanggal FROM antrian WHERE " . implode(" AND ", $whereClause) . " ORDER BY id DESC";
+
+        $stmt = $conn->prepare($sql);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        $filename = "Rekap_SKM_SPST_" . date('Ymd_His') . ".csv";
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo "\xEF\xBB\xBF";
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['No', 'Kode Tiket', 'Responden', 'Layanan PST', 'Tingkat Kepuasan', 'Kritik & Saran', 'Tanggal']);
+
+        foreach ($rows as $idx => $r) {
+            fputcsv($output, [
+                $idx + 1,
+                $r['kode_antrian'],
+                $r['nama'],
+                $r['layanan'],
+                $r['pendapat'],
+                $r['catatan'],
+                $r['tanggal']
+            ]);
+        }
+        fclose($output);
+        exit();
+
     default:
         sendJsonResponse('error', 'Action API tidak dikenali.', null, 400);
         break;

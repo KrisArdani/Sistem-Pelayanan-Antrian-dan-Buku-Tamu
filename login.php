@@ -90,17 +90,14 @@ $csrf_token = generateCsrfToken();
     <!-- RIGHT COLUMN: Clean Login Form -->
     <div class="lg:col-span-6 bg-slate-900 p-8 sm:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
       
-      <!-- Top Navigation -->
+      <!-- Top Brand Header -->
       <div class="flex items-center justify-between">
-        <a href="index.php" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition">
-          <span class="material-icons text-sm">arrow_back</span>
-          <span>Kembali ke Beranda</span>
-        </a>
-
-        <!-- Mobile Logo Display -->
-        <div class="lg:hidden flex items-center gap-2">
-          <img src="img/Logo_BPS.png" alt="Logo BPS" class="w-7 h-7 object-contain">
-          <span class="text-xs font-bold text-white brand-font">SPST BPS</span>
+        <div class="flex items-center gap-3">
+          <img src="img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-9 h-9 object-contain filter drop-shadow">
+          <div>
+            <div class="text-white font-extrabold text-xs brand-font tracking-wider leading-none">BPS KOTA TEGAL</div>
+            <div class="text-[10px] text-sky-400 font-semibold uppercase tracking-widest mt-1">Pelayanan Statistik Terpadu</div>
+          </div>
         </div>
       </div>
 
@@ -131,7 +128,10 @@ $csrf_token = generateCsrfToken();
 
           <!-- Password Input -->
           <div class="space-y-2">
-            <label class="form-label text-xs font-semibold text-slate-300 uppercase tracking-wider">Password</label>
+            <div class="flex items-center justify-between">
+              <label class="form-label text-xs font-semibold text-slate-300 uppercase tracking-wider mb-0">Password</label>
+              <button type="button" onclick="openModalForgotPassword()" class="text-xs text-sky-400 hover:text-sky-300 transition hover:underline">Lupa Password?</button>
+            </div>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                 <span class="material-icons text-lg">lock_outline</span>
@@ -157,17 +157,21 @@ $csrf_token = generateCsrfToken();
         </div>
 
         <?php if (defined('APP_ENV') && APP_ENV === 'development'): ?>
-        <!-- Collapsible Demo Account Box (Dev Mode Only) -->
+        <!-- Collapsible Demo Account Box (Clean & Minimalist) -->
         <details class="text-xs text-slate-400 bg-slate-800/60 rounded-xl border border-slate-700/60 p-3">
-          <summary class="font-semibold cursor-pointer text-slate-300 hover:text-white flex items-center justify-between">
-            <span>Akun Simulasi Demo</span>
+          <summary class="font-semibold cursor-pointer text-slate-300 hover:text-white flex items-center justify-between select-none">
+            <span>Akun Simulasi Demo (Password: 123)</span>
             <span class="material-icons text-sm">expand_more</span>
           </summary>
-          <div class="pt-3 space-y-1.5 font-mono text-[11px] border-t border-slate-700/60 mt-2">
-            <div>• <b>Pengunjung:</b> <code>ahmad_fauzi</code> / <code>petugas123</code></div>
-            <div>• <b>Petugas PST:</b> <code>petugas</code> / <code>petugas123</code></div>
-            <div>• <b>Admin:</b> <code>admin</code> / <code>admin123</code></div>
-            <div>• <b>Kepala BPS:</b> <code>kepala</code> / <code>kepala123</code></div>
+          <div class="pt-2.5 space-y-1.5 font-mono text-[11px] border-t border-slate-700/60 mt-2 text-slate-300">
+            <div>• <b>Admin Sentral:</b> <button type="button" onclick="fillDemoLogin('admin','123')" class="text-sky-400 font-bold hover:underline">admin</button></div>
+            <div>• <b>Petugas Utama:</b> <button type="button" onclick="fillDemoLogin('petugas','123')" class="text-sky-400 font-bold hover:underline">petugas</button></div>
+            <div>• <b>Loket Konsultasi:</b> <button type="button" onclick="fillDemoLogin('petugas_konsultasi','123')" class="text-purple-400 font-bold hover:underline">petugas_konsultasi</button></div>
+            <div>• <b>Loket Perpustakaan:</b> <button type="button" onclick="fillDemoLogin('petugas_perpustakaan','123')" class="text-purple-400 font-bold hover:underline">petugas_perpustakaan</button></div>
+            <div>• <b>Loket Rekomendasi:</b> <button type="button" onclick="fillDemoLogin('petugas_rekomendasi','123')" class="text-purple-400 font-bold hover:underline">petugas_rekomendasi</button></div>
+            <div>• <b>Loket Pengaduan:</b> <button type="button" onclick="fillDemoLogin('petugas_pengaduan','123')" class="text-purple-400 font-bold hover:underline">petugas_pengaduan</button></div>
+            <div>• <b>Kepala BPS:</b> <button type="button" onclick="fillDemoLogin('kepala','123')" class="text-emerald-400 font-bold hover:underline">kepala</button></div>
+            <div>• <b>Pengunjung:</b> <button type="button" onclick="fillDemoLogin('kris','123')" class="text-emerald-400 font-bold hover:underline">kris</button></div>
           </div>
         </details>
         <?php endif; ?>
@@ -183,9 +187,147 @@ $csrf_token = generateCsrfToken();
 
   </div>
 
+  <!-- Modal Lupa Password Pengunjung -->
+  <div class="modal fade" id="modalForgotPassword" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="modal-header border-b border-slate-800 p-5">
+          <h5 class="modal-title font-bold text-base text-white flex items-center gap-2 brand-font">
+            <span class="material-icons text-sky-400">mark_email_read</span>
+            <span>Lupa Password Pengunjung</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formForgotPassword" onsubmit="handleRequestPasswordReset(event)">
+          <div class="modal-body p-6 space-y-4 text-xs">
+            <p class="text-slate-300 leading-relaxed">
+              Masukkan alamat email akun pengunjung Anda yang terdaftar. Kami akan mengirimkan instruksi & link pemulihan password ke email Anda.
+            </p>
+            <div>
+              <label class="form-label font-bold text-slate-300 uppercase tracking-wider">Email Terdaftar <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <span class="material-icons text-sm">email</span>
+                </span>
+                <input type="email" id="reset_email_input" class="form-control rounded-xl pl-9 py-2.5 bg-slate-800 border border-slate-700 text-white text-xs placeholder-slate-500 focus:border-sky-500" placeholder="nama@email.com" required>
+              </div>
+            </div>
+            
+            <div id="resetDevNotice" class="hidden p-3 bg-sky-950/60 rounded-xl border border-sky-800/60 text-sky-200 space-y-2">
+              <div class="font-bold flex items-center gap-1.5 text-sky-400">
+                <span class="material-icons text-sm">info</span>
+                <span>Mode Simulasi Lokal:</span>
+              </div>
+              <div class="text-[11px] text-sky-300">Link pemulihan password Anda telah dibuat:</div>
+              <a id="resetDevLink" href="#" target="_blank" class="btn btn-sm btn-info w-full text-xs font-bold py-2 rounded-lg bg-sky-600 hover:bg-sky-500 border-none text-white flex items-center justify-center gap-1">
+                <span class="material-icons text-sm">open_in_new</span> Buka Halaman Reset Password
+              </a>
+            </div>
+
+          </div>
+          <div class="modal-footer bg-slate-900/90 border-t border-slate-800 p-4 flex items-center justify-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-light text-slate-400 hover:text-white border-slate-700 rounded-xl px-4" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" id="btnSubmitResetReq" class="btn btn-sm btn-primary bg-sky-600 hover:bg-sky-500 border-none font-bold rounded-xl px-4 py-2 flex items-center gap-1.5">
+              <span class="material-icons text-sm">send</span>
+              <span>Kirim Link Reset</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/app.js"></script>
   <script>
+    let modalForgotObj = null;
+
+    function openModalForgotPassword() {
+      document.getElementById('formForgotPassword').reset();
+      document.getElementById('resetDevNotice').classList.add('hidden');
+      if (!modalForgotObj) {
+        modalForgotObj = new bootstrap.Modal(document.getElementById('modalForgotPassword'));
+      }
+      modalForgotObj.show();
+    }
+
+    async function handleRequestPasswordReset(e) {
+      e.preventDefault();
+      const email = document.getElementById('reset_email_input').value.trim();
+      const btn = document.getElementById('btnSubmitResetReq');
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> <span>Mengirim...</span>`;
+
+      try {
+        const formData = new FormData();
+        formData.append('action', 'request_password_reset');
+        formData.append('email', email);
+        formData.append('csrf_token', csrfToken);
+
+        const res = await fetch('api.php', {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'Permintaan Terkirim!',
+            text: data.message,
+            confirmButtonColor: '#003366'
+          });
+
+          if (data.data && data.data.reset_url) {
+            document.getElementById('resetDevNotice').classList.remove('hidden');
+            document.getElementById('resetDevLink').href = data.data.reset_url;
+          }
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal Memproses',
+            text: data.message || 'Email tidak ditemukan.',
+            confirmButtonColor: '#003366'
+          });
+        }
+      } catch (err) {
+        console.error("Reset request error:", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Kesalahan Sistem',
+          text: 'Gagal terhubung ke server.',
+          confirmButtonColor: '#003366'
+        });
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-icons text-sm">send</span> <span>Kirim Link Reset</span>`;
+      }
+    }
+
+    function fillDemoLogin(username, password) {
+      const uInput = document.getElementById('login_username');
+      const pInput = document.getElementById('login_password');
+      if (uInput) uInput.value = username;
+      if (pInput) pInput.value = password;
+      
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: `Form terisi: ${username}`,
+          showConfirmButton: false,
+          timer: 1800
+        });
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // Toggle Password Visibility
       const btnToggle = document.getElementById('btnTogglePassword');

@@ -110,6 +110,10 @@ try {
         // Pastikan ENUM kolom status memuat opsi 'Dilayani' dan 'Dibatalkan'
         $conn->query("ALTER TABLE antrian MODIFY COLUMN status ENUM('Menunggu', 'Dipanggil', 'Dilayani', 'Selesai', 'Terlewat', 'Dibatalkan') DEFAULT 'Menunggu'");
     }
+    $checkResetToken = $conn->query("SHOW COLUMNS FROM users LIKE 'reset_token'");
+    if ($checkResetToken && $checkResetToken->num_rows === 0) {
+        $conn->query("ALTER TABLE users ADD COLUMN reset_token VARCHAR(64) DEFAULT NULL, ADD COLUMN reset_expires_at DATETIME DEFAULT NULL");
+    }
 } catch (Throwable $e) {
     error_log("Auto Migration Note: " . $e->getMessage());
 }
