@@ -114,9 +114,11 @@ async function checkAuth(requiredRoles = []) {
 // Pembantu: Polling Real-Time Jumlah Antrean Menunggu untuk Sidebar Badges
 async function updateWaitingBadgeCounter() {
   const visitorBadge = document.getElementById('visitor_waiting_badge');
+  const visitorMobileBadge = document.getElementById('visitor_mobile_waiting_badge');
   const adminBadge = document.getElementById('admin_sidebar_waiting_badge');
+  const adminMobileBadge = document.getElementById('admin_mobile_waiting_badge');
 
-  if (!visitorBadge && !adminBadge) return;
+  if (!visitorBadge && !visitorMobileBadge && !adminBadge && !adminMobileBadge) return;
 
   try {
     const apiPath = window.location.pathname.includes('/admin/') ? '../api.php?action=get_waiting_count' : 'api.php?action=get_waiting_count';
@@ -126,7 +128,7 @@ async function updateWaitingBadgeCounter() {
     if (json.status === 'success') {
       const count = json.data.total_menunggu || 0;
       
-      [visitorBadge, adminBadge].forEach(badge => {
+      [visitorBadge, visitorMobileBadge, adminBadge, adminMobileBadge].forEach(badge => {
         if (badge) {
           if (count > 0) {
             badge.textContent = count;
@@ -168,6 +170,10 @@ function exportData(type, format) {
 
     const activeStatusBtn = document.querySelector('#status-tabs .filter-status-btn.active');
     if (activeStatusBtn) status = activeStatusBtn.getAttribute('data-status') || 'all';
+  } else if (type === 'skm') {
+    waktu = document.getElementById('filter_tanggal_skm')?.value || document.getElementById('filter_tanggal_antrian')?.value || 'all';
+    layanan = document.getElementById('filter_layanan_antrian')?.value || 'all';
+    status = document.getElementById('filter_status_antrian')?.value || 'all';
   } else {
     waktu = document.getElementById('filter_tanggal_antrian')?.value || 'today';
     layanan = document.getElementById('filter_layanan_antrian')?.value || 'all';

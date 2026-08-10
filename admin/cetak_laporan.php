@@ -97,7 +97,7 @@ if ($type === 'antrian') {
     $title .= "BUKU TAMU PENGUNJUNG PST";
 } else if ($type === 'skm') {
     $title .= "SURVEI KEPUASAN MASYARAKAT (SKM)";
-    $whereClause[] = "pendapat IS NOT NULL";
+    $whereClause[] = "pendapat IS NOT NULL AND pendapat != ''";
 }
 
 $sql = "SELECT id, user_id, kode_antrian AS kode_bt, kode_antrian, nomor, nama, nik, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, pendapat, monev, catatan, tipe_pendaftaran, status, tanggal, waktu, created_at FROM antrian";
@@ -136,16 +136,47 @@ $totalRows = count($data);
 <body class="bg-slate-100 font-['Inter'] text-slate-800 p-6 md:p-10">
 
   <!-- Control Header (No Print) -->
-  <div class="max-w-5xl mx-auto mb-6 flex items-center justify-between no-print bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+  <div class="max-w-5xl mx-auto mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 no-print bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
     <div class="flex items-center gap-3">
-      <a href="javascript:window.close()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition">
+      <a href="javascript:window.history.back()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition shrink-0">
         <span class="material-icons text-sm">arrow_back</span> Kembali
       </a>
-      <span class="text-xs text-slate-500 font-semibold">Tampilan Pratinjau Dokumen Resmi Cetak / PDF</span>
+      <div>
+        <div class="text-xs font-extrabold text-slate-900">Pratinjau Dokumen Resmi PDF / Cetak</div>
+        <div class="text-[11px] text-slate-500">Ubah filter waktu & loket langsung di bawah ini lalu tekan Cetak.</div>
+      </div>
     </div>
-    <button onclick="window.print()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-md transition">
-      <span class="material-icons text-sm">print</span> Cetak Dokumen / Simpan PDF
-    </button>
+
+    <!-- Filter Control Form (Interactive Auto-Submit - No Print) -->
+    <form method="GET" action="cetak_laporan.php" class="flex items-center gap-2 flex-wrap">
+      <input type="hidden" name="type" value="<?php echo htmlspecialchars($type); ?>">
+      
+      <!-- Select Filter Tanggal / Waktu -->
+      <div class="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+        <span class="material-icons text-slate-400 text-sm pl-1.5">date_range</span>
+        <select name="tanggal" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold text-slate-800 focus:ring-0 cursor-pointer py-1 pr-6">
+          <option value="all" <?php echo ($filterTanggal == 'all') ? 'selected' : ''; ?>>Semua Periode</option>
+          <option value="today" <?php echo ($filterTanggal == 'today') ? 'selected' : ''; ?>>Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
+          <option value="this_week" <?php echo ($filterTanggal == 'this_week') ? 'selected' : ''; ?>>Minggu Ini</option>
+          <option value="this_month" <?php echo ($filterTanggal == 'this_month') ? 'selected' : ''; ?>>Bulan Ini (<?php echo date('F Y'); ?>)</option>
+        </select>
+      </div>
+
+      <!-- Select Filter Loket Layanan -->
+      <div class="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+        <span class="material-icons text-slate-400 text-sm pl-1.5">storefront</span>
+        <select name="layanan" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold text-slate-800 focus:ring-0 cursor-pointer py-1 pr-6">
+          <option value="all" <?php echo ($filterLayanan == 'all') ? 'selected' : ''; ?>>Semua Loket PST</option>
+          <option value="Perpustakaan" <?php echo ($filterLayanan == 'Perpustakaan') ? 'selected' : ''; ?>>Perpustakaan</option>
+          <option value="Konsultasi Statistik" <?php echo ($filterLayanan == 'Konsultasi Statistik') ? 'selected' : ''; ?>>Konsultasi Statistik</option>
+          <option value="Rekomendasi Statistik" <?php echo ($filterLayanan == 'Rekomendasi Statistik') ? 'selected' : ''; ?>>Rekomendasi Statistik</option>
+        </select>
+      </div>
+
+      <button type="button" onclick="window.print()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold rounded-xl flex items-center gap-1.5 shadow transition shrink-0 ml-auto">
+        <span class="material-icons text-sm">print</span> Cetak PDF
+      </button>
+    </form>
   </div>
 
   <!-- Printable Report Container -->

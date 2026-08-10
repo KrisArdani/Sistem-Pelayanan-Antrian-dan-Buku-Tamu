@@ -15,8 +15,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (roleElem) roleElem.textContent = `Aktor: ${String(curUser.role).toUpperCase()}`;
   }
 
+  const filterSelect = document.getElementById('filter_tanggal_skm');
+  if (filterSelect) {
+    filterSelect.addEventListener('change', async () => {
+      const kpiData = await calculateKPIs();
+      if (kpiData) initCharts(kpiData);
+    });
+  }
+
   const kpiData = await calculateKPIs();
-  initCharts(kpiData);
+  if (kpiData) initCharts(kpiData);
 });
 
 async function calculateKPIs() {
@@ -34,7 +42,8 @@ async function calculateKPIs() {
   const kpiTotalPengaduan = document.getElementById('kpi_total_pengaduan');
 
   try {
-    const res = await fetch('../api.php?action=get_dashboard_kpi');
+    const filterVal = document.getElementById('filter_tanggal_skm')?.value || 'all';
+    const res = await fetch(`../api.php?action=get_dashboard_kpi&tanggal=${encodeURIComponent(filterVal)}`);
     const json = await res.json();
     if (json.status === 'success') {
       if (kpiTotalPengunjung) kpiTotalPengunjung.textContent = json.data.total_pengunjung || 0;

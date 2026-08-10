@@ -1,8 +1,6 @@
-# Scratch and temporary directories
-scratch/
+# Temporary files
 *.tmp
 *.log
-fake_work.ps1
 
 # OS generated files
 .DS_Store

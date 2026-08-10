@@ -55,14 +55,82 @@ $csrf_token = generateCsrfToken();
         </nav>
       </div>
 
-      <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700/50 text-xs text-slate-300 space-y-2">
-        <div id="user_display_name" class="font-bold text-white text-sm"><?php echo htmlspecialchars($_SESSION['user_name'] ?? '-'); ?></div>
-        <div id="user_display_role" class="text-sky-400 text-xs uppercase font-semibold"><?php echo htmlspecialchars($_SESSION['user_role'] ?? '-'); ?></div>
-        <button onclick="logoutUser()" class="btn btn-outline-danger btn-sm w-full mt-2 flex items-center justify-center gap-1">
-          <span class="material-icons text-sm">logout</span> Logout
+      <div class="p-3 bg-slate-800/90 rounded-2xl border border-slate-700/70 space-y-2 shadow-inner">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-blue-700 text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-md">
+            <span class="material-icons text-xl">admin_panel_settings</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div id="user_display_name" class="font-extrabold text-white text-xs truncate leading-tight" title="<?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Administrator'); ?>">
+              <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Administrator'); ?>
+            </div>
+            <div id="user_display_role" class="text-[10px] font-bold text-sky-400 uppercase tracking-wider mt-0.5 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Aktor: <?php echo htmlspecialchars($_SESSION['user_role'] ?? 'Admin'); ?></span>
+            </div>
+          </div>
+        </div>
+        <button onclick="logoutUser()" type="button" class="w-full py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm mt-1">
+          <span class="material-icons text-sm">logout</span>
+          <span>Keluar / Logout Sesi</span>
         </button>
       </div>
     </aside>
+
+    <!-- Mobile Navigation Offcanvas Drawer (Admin Panel) -->
+    <div class="offcanvas offcanvas-start bps-sidebar text-slate-100 w-80 lg:hidden" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+      <div class="offcanvas-header p-6 border-b border-slate-700/60">
+        <div class="flex items-center gap-3">
+          <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-10 h-10 object-contain filter drop-shadow">
+          <div>
+            <h5 class="offcanvas-title font-extrabold text-base tracking-wide leading-tight brand-font text-white" id="mobileSidebarLabel">PANEL SPST</h5>
+            <p class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-6 flex flex-col justify-between overflow-y-auto">
+        <div>
+          <nav class="space-y-1">
+            <a href="dashboard.php" class="bps-nav-item"><span class="material-icons">dashboard</span> Executive Dashboard</a>
+            <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
+            <a href="antrian.php" class="bps-nav-item flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="material-icons">summarize</span>
+                <span>Kelola Loket Antrian</span>
+              </div>
+              <span id="admin_mobile_waiting_badge" class="hidden px-2 py-0.5 bg-amber-500 text-slate-950 font-extrabold text-[10px] rounded-full shadow-sm animate-pulse">0</span>
+            </a>
+            <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+            <a href="users.php" class="bps-nav-item active"><span class="material-icons">manage_accounts</span> Kelola Pengguna</a>
+            <?php endif; ?>
+            <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
+            <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
+          </nav>
+        </div>
+
+        <div class="p-3 bg-slate-800/90 rounded-2xl border border-slate-700/70 space-y-2 shadow-inner mt-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-blue-700 text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-md">
+              <span class="material-icons text-xl">admin_panel_settings</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="font-extrabold text-white text-xs truncate leading-tight" title="<?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Administrator'); ?>">
+                <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Administrator'); ?>
+              </div>
+              <div class="text-[10px] font-bold text-sky-400 uppercase tracking-wider mt-0.5 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Aktor: <?php echo htmlspecialchars($_SESSION['user_role'] ?? 'Admin'); ?></span>
+              </div>
+            </div>
+          </div>
+          <button onclick="logoutUser()" type="button" class="w-full py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm mt-1">
+            <span class="material-icons text-sm">logout</span>
+            <span>Keluar / Logout Sesi</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Main Content Area -->
     <main class="flex-1 lg:ml-72 min-h-screen flex flex-col justify-between">
