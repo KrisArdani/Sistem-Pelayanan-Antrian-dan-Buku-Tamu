@@ -14,9 +14,9 @@ $csrf_token = generateCsrfToken();
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Bootstrap 5.3.8 CSS & Bundle -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap 5.3.3 CSS & Bundle -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Icons & Fonts -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -264,10 +264,10 @@ $csrf_token = generateCsrfToken();
               <!-- Filter Tanggal Loket Antrian -->
               <div class="flex items-center gap-2 shrink-0">
                 <label for="filter_tanggal_antrian" class="text-xs font-bold text-slate-600 shrink-0">Tanggal:</label>
-                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-36">
+                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-48">
                   <option value="today" selected>☀️ Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
                   <option value="tomorrow">🗓️ Besok (<?php echo date('d/m/Y', strtotime('+1 day')); ?>)</option>
-                  <option value="all">🌐 Semua Tanggal</option>
+                  <option value="all">🌐 Semua Tanggal (Mendatang)</option>
                 </select>
               </div>
 
@@ -275,25 +275,22 @@ $csrf_token = generateCsrfToken();
               <?php
               $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
               $userRole = $_SESSION['user_role'] ?? '';
-              if ($userRole === 'petugas' && !empty($assignedLayanan)):
               ?>
-                <div class="px-3.5 py-1.5 bg-purple-100 text-purple-900 border border-purple-300 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm shrink-0" title="Akses Loket Terkunci Untuk Tugas Anda">
-                  <span class="material-icons text-purple-600 text-sm">lock</span>
-                  <span>Loket Tugas: <?php echo htmlspecialchars($assignedLayanan); ?></span>
-                  <input type="hidden" id="filter_layanan_antrian" value="<?php echo htmlspecialchars($assignedLayanan); ?>">
-                </div>
-              <?php else: ?>
-                <div class="flex items-center gap-2 shrink-0">
-                  <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">Loket Layanan:</label>
-                  <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 w-44">
-                    <option value="all">🏢 Semua Loket Layanan</option>
-                    <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
-                    <option value="Perpustakaan">📚 Loket Perpustakaan</option>
-                    <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
-                    <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
-                  </select>
-                </div>
-              <?php endif; ?>
+              <div class="flex items-center gap-2 shrink-0">
+                <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">
+                  Loket Layanan:
+                  <?php if ($userRole === 'petugas' && !empty($assignedLayanan)): ?>
+                    <span class="text-[10px] text-purple-700 font-extrabold bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200">Tugas: <?php echo htmlspecialchars($assignedLayanan); ?></span>
+                  <?php endif; ?>
+                </label>
+                <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 w-48">
+                  <option value="all" selected>🏢 Semua Loket Layanan</option>
+                  <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
+                  <option value="Perpustakaan">📚 Loket Perpustakaan</option>
+                  <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
+                  <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
+                </select>
+              </div>
 
               <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shrink-0 whitespace-nowrap" data-bs-toggle="modal" data-bs-target="#modalWalkin">
                 <span class="material-icons text-sm">person_add_alt_1</span>
@@ -319,185 +316,253 @@ $csrf_token = generateCsrfToken();
               </tbody>
             </table>
           </div>
+      <!-- Footer Status Bar Admin Modern -->
+      <footer class="bg-white/80 backdrop-blur border-t border-slate-200/80 py-2.5 px-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 mt-auto">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-semibold text-slate-700">SPST BPS Kota Tegal</span>
+          <span class="text-slate-400">• Portal Loket & Antrean Real-Time v2.4</span>
         </div>
-
-      </div>
-
-      <!-- Modal Walk-In Pengunjung Offline -->
-      <div class="modal fade" id="modalWalkin" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content rounded-2xl border-none shadow-2xl overflow-hidden">
-            <div class="modal-header bg-emerald-700 text-white p-4">
-              <h5 class="modal-title font-bold text-base brand-font flex items-center gap-2">
-                <span class="material-icons">person_add_alt_1</span> Input Pengunjung Walk-In (Offline)
-              </h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formWalkin">
-              <div class="modal-body p-6 space-y-4">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Nama Lengkap Pengunjung <span class="text-red-500">*</span></label>
-                    <input type="text" id="walkin_nama" class="form-control text-sm rounded-xl" placeholder="Nama pengunjung..." required>
-                  </div>
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Nomor HP / WA <span class="text-red-500">*</span></label>
-                    <input type="tel" id="walkin_nohp" class="form-control text-sm rounded-xl" placeholder="0812..." required>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Jenis Kelamin</label>
-                    <select id="walkin_jk" class="form-select text-sm rounded-xl">
-                      <option value="Laki Laki">Laki Laki</option>
-                      <option value="Perempuan">Perempuan</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Usia</label>
-                    <select id="walkin_umur" class="form-select text-sm rounded-xl">
-                      <option value="17-25 tahun">17-25 tahun</option>
-                      <option value="26-34 tahun">26-34 tahun</option>
-                      <option value="35-44 tahun">35-44 tahun</option>
-                      <option value="45+ tahun">45+ tahun</option>
-                      <option value="< 17 tahun">&lt; 17 tahun</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Pendidikan</label>
-                    <select id="walkin_pendidikan" class="form-select text-sm rounded-xl">
-                      <option value="D4-S1">D4-S1</option>
-                      <option value="SMA Ke Bawah">SMA Ke Bawah</option>
-                      <option value="D1/D2/D3">D1/D2/D3</option>
-                      <option value="S2-S3">S2-S3</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Pekerjaan <span class="text-red-500">*</span></label>
-                    <select id="walkin_pekerjaan" class="form-select text-sm rounded-xl" required>
-                      <option value="Mahasiswa">Mahasiswa / Pelajar</option>
-                      <option value="Peneliti/Dosen">Peneliti / Dosen</option>
-                      <option value="Pegawai Negeri / TNI POLRI">Pegawai Negeri / TNI POLRI</option>
-                      <option value="Pegawai Swasta">Pegawai Swasta</option>
-                      <option value="Wiraswasta">Wiraswasta</option>
-                      <option value="Lainnya">Lainnya</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Nama Instansi <span class="text-red-500">*</span></label>
-                    <input type="text" id="walkin_instansi" class="form-control text-sm rounded-xl" placeholder="UPS Tegal, Pemda, umum..." required>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Jenis Layanan PST <span class="text-red-500">*</span></label>
-                    <select id="walkin_layanan" class="form-select text-sm rounded-xl" required>
-                      <option value="Konsultasi Statistik">Konsultasi Statistik</option>
-                      <option value="Perpustakaan">Perpustakaan</option>
-                      <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
-                      <option value="Layanan Pengaduan">Layanan Pengaduan</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="form-label text-xs font-bold text-slate-700 uppercase">Tujuan Pemanfaatan Data</label>
-                    <select id="walkin_pemanfaatan" class="form-select text-sm rounded-xl">
-                      <option value="Tugas Sekolah/Kuliah">Tugas Sekolah / Kuliah</option>
-                      <option value="Penelitian">Penelitian / Skripsi</option>
-                      <option value="Pemerintah">Pemerintah</option>
-                      <option value="Komersial/Wirausaha">Komersial / Usaha</option>
-                      <option value="Lainnya">Lainnya</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="form-label text-xs font-bold text-slate-700 uppercase">Digunakan untuk Perencanaan / Monev Pembangunan? <span class="text-red-500">*</span></label>
-                  <select id="walkin_monev" class="form-select text-sm rounded-xl" required>
-                    <option value="Ya">Ya (Perencanaan, Monitoring & Evaluasi Pembangunan)</option>
-                    <option value="Tidak">Tidak</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="form-label text-xs font-bold text-slate-700 uppercase">Rincian Data yang Dicari</label>
-                  <textarea id="walkin_data_diinginkan" class="form-control text-sm rounded-xl" rows="2" placeholder="Catatan data yang dicari pengunjung..."></textarea>
-                </div>
-
-              </div>
-              <div class="modal-footer bg-slate-100 p-4">
-                <button type="button" class="btn btn-secondary text-xs rounded-xl" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" id="btnSubmitWalkin" class="btn btn-success bg-emerald-600 text-white font-bold text-xs rounded-xl flex items-center gap-1">
-                  <span class="material-icons text-sm">save</span> Simpan & Buat Antrian Walk-In
-                </button>
-              </div>
-            </form>
-          </div>
+        <div class="text-[11px] text-slate-400 font-medium">
+          © <?php echo date('Y'); ?> Badan Pusat Statistik Kota Tegal
         </div>
-      </div>
-
-      <!-- Modal Detail Dokumen Pengunjung -->
-      <div class="modal fade" id="modalVisitorDetail" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content rounded-2xl border-0 shadow-2xl overflow-hidden">
-            <div class="modal-header bg-slate-900 text-white p-4">
-              <h5 class="modal-title font-bold text-base flex items-center gap-2">
-                <span class="material-icons text-sky-400">account_box</span>
-                <span>Detail Lengkap Pengunjung</span>
-              </h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-6 space-y-4 text-xs text-slate-800" id="detail_visitor_content">
-              <!-- Rendered via JS -->
-            </div>
-            <div class="modal-footer bg-slate-100 p-3">
-              <button type="button" class="btn btn-secondary text-xs rounded-xl" data-bs-dismiss="modal">Tutup</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <footer class="bg-slate-900 text-slate-400 py-4 px-6 text-center text-xs border-t border-slate-800">
-        Panel Admin SPST BPS Kota Tegal © 2026
       </footer>
 
     </main>
   </div>
 
-  <!-- Mobile Offcanvas Sidebar Admin -->
-  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
-    <div class="offcanvas-header border-b border-slate-700/60 p-4">
-      <div class="flex items-center gap-3">
-        <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-10 h-10 object-contain filter drop-shadow">
-        <div>
-          <h5 class="offcanvas-title text-white font-extrabold brand-font text-base leading-tight">PANEL SPST</h5>
-          <p class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
+  <!-- ================= MODALS (Placed at body root level) ================= -->
+  
+  <!-- Modal Walk-In Pengunjung Offline -->
+  <div class="modal fade" id="modalWalkin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-2xl border-none shadow-2xl overflow-hidden">
+        <div class="modal-header bg-emerald-700 text-white p-4">
+          <h5 class="modal-title font-bold text-base brand-font flex items-center gap-2">
+            <span class="material-icons">person_add_alt_1</span> Input Pengunjung Walk-In (Offline)
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body p-5 flex flex-col justify-between">
-      <nav class="space-y-1">
-        <a href="dashboard.php" class="bps-nav-item"><span class="material-icons">dashboard</span> Executive Dashboard</a>
-        <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
-        <a href="antrian.php" class="bps-nav-item active"><span class="material-icons">summarize</span> Kelola Loket Antrian</a>
-        <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
-        <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
-      </nav>
+        <form id="formWalkin">
+          <div class="modal-body p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Nama Lengkap Pengunjung <span class="text-red-500">*</span></label>
+                <input type="text" id="walkin_nama" class="form-control text-sm rounded-xl" placeholder="Nama pengunjung..." required>
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">NIK KTP <span class="text-slate-400 font-normal lowercase">(16 digit)</span></label>
+                <input type="text" id="walkin_nik" class="form-control text-sm rounded-xl font-mono" maxlength="16" placeholder="33760...">
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Nomor HP / WA <span class="text-red-500">*</span></label>
+                <input type="tel" id="walkin_nohp" class="form-control text-sm rounded-xl" placeholder="0812..." required>
+              </div>
+            </div>
 
-      <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700/50 text-xs text-slate-300 space-y-2 mt-6">
-        <button onclick="logoutUser()" class="btn btn-outline-danger btn-sm w-full flex items-center justify-center gap-1">
-          <span class="material-icons text-sm">logout</span> Logout
-        </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Alamat Email</label>
+                <input type="email" id="walkin_email" class="form-control text-sm rounded-xl" placeholder="email@contoh.com">
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Jenis Kelamin</label>
+                <select id="walkin_jk" class="form-select text-sm rounded-xl">
+                  <option value="Laki Laki">Laki Laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Usia</label>
+                <select id="walkin_umur" class="form-select text-sm rounded-xl">
+                  <option value="17-25 tahun">17-25 tahun</option>
+                  <option value="26-34 tahun">26-34 tahun</option>
+                  <option value="35-44 tahun">35-44 tahun</option>
+                  <option value="45+ tahun">45+ tahun</option>
+                  <option value="< 17 tahun">&lt; 17 tahun</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Pendidikan Terakhir</label>
+                <select id="walkin_pendidikan" class="form-select text-sm rounded-xl">
+                  <option value="D4-S1">D4-S1</option>
+                  <option value="SMA Ke Bawah">SMA Ke Bawah</option>
+                  <option value="D1/D2/D3">D1/D2/D3</option>
+                  <option value="S2-S3">S2-S3</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Pekerjaan <span class="text-red-500">*</span></label>
+                <select id="walkin_pekerjaan" class="form-select text-sm rounded-xl" required>
+                  <option value="Mahasiswa">Mahasiswa / Pelajar</option>
+                  <option value="Peneliti/Dosen">Peneliti / Dosen</option>
+                  <option value="Pegawai Negeri / TNI POLRI">Pegawai Negeri / TNI POLRI</option>
+                  <option value="Pegawai Swasta">Pegawai Swasta</option>
+                  <option value="Wiraswasta">Wiraswasta</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Nama Instansi <span class="text-red-500">*</span></label>
+                <input type="text" id="walkin_instansi" class="form-control text-sm rounded-xl" placeholder="UPS Tegal, Pemda, umum..." required>
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Kategori Instansi <span class="text-red-500">*</span></label>
+                <select id="walkin_kategori_instansi" class="form-select text-sm rounded-xl" required>
+                  <option value="Sekolah/Universitas">Sekolah / Universitas</option>
+                  <option value="Kementerian/Lembaga/Pemda">Kementerian / Pemda / OPD</option>
+                  <option value="BUMN/BUMD">BUMN / BUMD</option>
+                  <option value="Swasta/Wirausaha">Swasta / Usaha Bisnis</option>
+                  <option value="Lembaga Internasional">Lembaga Internasional</option>
+                  <option value="Perorangan/Lainnya">Perorangan / Masyarakat Umum</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Jenis Layanan PST <span class="text-red-500">*</span></label>
+                <select id="walkin_layanan" class="form-select text-sm rounded-xl" required>
+                  <option value="Konsultasi Statistik">Konsultasi Statistik</option>
+                  <option value="Perpustakaan">Perpustakaan</option>
+                  <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
+                  <option value="Layanan Pengaduan">Layanan Pengaduan</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-xs font-bold text-slate-700 uppercase">Tujuan Pemanfaatan Data</label>
+                <select id="walkin_pemanfaatan" class="form-select text-sm rounded-xl">
+                  <option value="Tugas Sekolah/Kuliah">Tugas Sekolah / Kuliah</option>
+                  <option value="Penelitian">Penelitian / Skripsi</option>
+                  <option value="Pemerintah">Pemerintah</option>
+                  <option value="Komersial/Wirausaha">Komersial / Usaha</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label text-xs font-bold text-slate-700 uppercase">Digunakan untuk Perencanaan / Monev Pembangunan? <span class="text-red-500">*</span></label>
+              <select id="walkin_monev" class="form-select text-sm rounded-xl" required>
+                <option value="Ya">Ya (Perencanaan, Monitoring & Evaluasi Pembangunan)</option>
+                <option value="Tidak">Tidak</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-xs font-bold text-slate-700 uppercase">Rincian Data yang Dicari</label>
+              <textarea id="walkin_data_diinginkan" class="form-control text-sm rounded-xl" rows="2" placeholder="Catatan data yang dicari pengunjung..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer bg-slate-100 p-4">
+            <button type="button" class="btn btn-secondary text-xs rounded-xl" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" id="btnSubmitWalkin" class="btn btn-success bg-emerald-600 text-white font-bold text-xs rounded-xl flex items-center gap-1">
+              <span class="material-icons text-sm">save</span> Simpan & Buat Antrian Walk-In
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+
+  <!-- Modal Input Catatan Pelayanan Petugas (Saat Selesai Pelayanan) -->
+  <div class="modal fade" id="modalSelesaiPelayanan" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-2xl border-0 shadow-2xl overflow-hidden">
+        <div class="modal-header bg-gradient-to-r from-emerald-700 to-teal-800 text-white p-4">
+          <h5 class="modal-title font-extrabold text-sm md:text-base flex items-center gap-2">
+            <span class="material-icons text-amber-300">task_alt</span>
+            <span>Konfirmasi Penyelesaian & Catatan Pelayanan</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formSelesaiPelayanan" class="space-y-0">
+          <input type="hidden" id="selesai_antrian_id" value="">
+          
+          <div class="modal-body p-5 space-y-4 text-xs">
+            <!-- Notice Banner saat dipanggil dari Panggil Berikutnya -->
+            <div id="selesai_modal_notice_autocall" class="hidden p-3 bg-amber-50 rounded-xl border border-amber-300 text-amber-900 font-semibold text-xs flex items-center gap-2 shadow-sm">
+              <span class="material-icons text-amber-600 text-sm">info</span>
+              <span>Mohon isi catatan pelayanan antrean saat ini sebelum memanggil antrean berikutnya.</span>
+            </div>
+
+            <!-- Summary Card Ringkasan Pengunjung -->
+            <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950 space-y-1">
+              <div class="flex items-center justify-between font-bold">
+                <span class="text-xs text-emerald-800" id="selesai_modal_nomor">KS-01</span>
+                <span class="text-[11px] px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded-md font-mono" id="selesai_modal_kode">ANT-123456</span>
+              </div>
+              <div class="text-sm font-extrabold text-slate-900" id="selesai_modal_nama">Nama Pengunjung</div>
+              <div class="text-xs text-slate-600 font-semibold flex items-center gap-1" id="selesai_modal_layanan">
+                <span class="material-icons text-xs text-emerald-600">storefront</span> Konsultasi Statistik
+              </div>
+              <div class="pt-1.5 border-t border-emerald-200/60 text-[11px] text-slate-700">
+                <span class="font-bold text-slate-900">Data Dicari Pengunjung:</span>
+                <p class="italic text-slate-600 bg-white/70 p-2 rounded-lg mt-1 border border-emerald-200/50" id="selesai_modal_data_diinginkan">-</p>
+              </div>
+            </div>
+
+            <!-- Form Input Catatan Petugas -->
+            <div class="space-y-2">
+              <label class="form-label font-extrabold text-slate-900 text-xs flex items-center justify-between">
+                <span>Catatan Pelayanan & Data Yang Diberikan:</span>
+                <span class="text-[10px] text-slate-400 font-normal">(Opsional / Sangat Dianjurkan)</span>
+              </label>
+              <textarea id="selesai_catatan_petugas" class="form-control text-xs rounded-xl p-3 border-2 border-slate-300 focus:border-emerald-500" rows="3" placeholder="Contoh: Menyerahkan Softcopy PDF Tegal Dalam Angka 2024 & Konsultasi SBR..."></textarea>
+            </div>
+
+            <!-- Quick Tags / Chips -->
+            <div class="space-y-1.5">
+              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sisipkan Quick-Tag Cepat:</div>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="appendQuickTag('[Softcopy PDF/Excel] ')" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 font-semibold text-[11px] rounded-lg border border-slate-200 transition">📄 Softcopy PDF/Excel</button>
+                <button type="button" onclick="appendQuickTag('[Publikasi BPS] ')" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 font-semibold text-[11px] rounded-lg border border-slate-200 transition">📚 Publikasi BPS</button>
+                <button type="button" onclick="appendQuickTag('[Konsultasi Metodologi] ')" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 font-semibold text-[11px] rounded-lg border border-slate-200 transition">💡 Konsultasi Metodologi</button>
+                <button type="button" onclick="appendQuickTag('[Surat Rekomendasi] ')" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 font-semibold text-[11px] rounded-lg border border-slate-200 transition">📜 Surat Rekomendasi</button>
+                <button type="button" onclick="appendQuickTag('[Bimbingan SBR] ')" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-slate-700 font-semibold text-[11px] rounded-lg border border-slate-200 transition">🏢 Bimbingan SBR</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer bg-slate-100 p-3 flex items-center justify-between">
+            <button type="button" class="btn btn-secondary text-xs rounded-xl" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" id="btnConfirmSelesai" class="btn btn-emerald bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl border-none shadow flex items-center gap-1.5">
+              <span class="material-icons text-sm">check_circle</span>
+              <span>Simpan & Selesaikan Pelayanan</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail Dokumen Pengunjung -->
+  <div class="modal fade" id="modalVisitorDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-2xl border-0 shadow-2xl overflow-hidden">
+        <div class="modal-header bg-slate-900 text-white p-4">
+          <h5 class="modal-title font-bold text-base flex items-center gap-2">
+            <span class="material-icons text-sky-400">account_box</span>
+            <span>Detail Lengkap Pengunjung</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-6 space-y-4 text-xs text-slate-800" id="detail_visitor_content">
+          <!-- Rendered via JS -->
+        </div>
+        <div class="modal-footer bg-slate-100 p-3">
+          <button type="button" class="btn btn-secondary text-xs rounded-xl" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Detail Dokumen Pengunjung -->
 
   <script src="../js/app.js?v=<?php echo time(); ?>"></script>
   <script src="../js/admin-antrian.js?v=<?php echo time(); ?>"></script>

@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!user) return;
 
   const filterLayananSelect = document.getElementById('filter_layanan_antrian');
-  if (filterLayananSelect && user.layanan_tugas) {
-    filterLayananSelect.value = user.layanan_tugas;
+  if (filterLayananSelect && !filterLayananSelect.value) {
+    filterLayananSelect.value = 'all';
   }
 
   const walkinLayananSelect = document.getElementById('walkin_layanan');
@@ -61,12 +61,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const formData = new FormData();
       formData.append('is_walkin', '1');
       formData.append('nama', document.getElementById('walkin_nama').value.trim());
+      formData.append('nik', document.getElementById('walkin_nik') ? document.getElementById('walkin_nik').value.trim() : '');
       formData.append('nohp', document.getElementById('walkin_nohp').value.trim());
+      formData.append('email', document.getElementById('walkin_email') ? document.getElementById('walkin_email').value.trim() : '');
       formData.append('jenis_kelamin', document.getElementById('walkin_jk').value);
       formData.append('umur', document.getElementById('walkin_umur').value);
       formData.append('pendidikan', document.getElementById('walkin_pendidikan').value);
       formData.append('pekerjaan', document.getElementById('walkin_pekerjaan').value.trim());
       formData.append('instansi', document.getElementById('walkin_instansi').value.trim());
+      formData.append('kategori_instansi', document.getElementById('walkin_kategori_instansi') ? document.getElementById('walkin_kategori_instansi').value : 'Sekolah/Universitas');
       formData.append('layanan', document.getElementById('walkin_layanan').value);
       formData.append('pemanfaatan', document.getElementById('walkin_pemanfaatan').value);
       formData.append('monev', document.getElementById('walkin_monev') ? document.getElementById('walkin_monev').value : 'Ya');
@@ -111,7 +114,7 @@ async function renderAntrianDashboard(isSilent = false) {
 
   let data = [];
   try {
-    const res = await fetch(`../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}&layanan=${encodeURIComponent(layananVal)}`);
+    const res = await fetch(`../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}&layanan=${encodeURIComponent(layananVal)}&_t=${Date.now()}`, { cache: 'no-store' });
     const json = await res.json();
     if (json.status === 'success') {
       data = json.data || [];
@@ -174,7 +177,22 @@ async function renderAntrianDashboard(isSilent = false) {
   }
 
   if (data.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Belum ada antrian hari ini.</td></tr>`;
+    const isTodayFilter = dateVal === 'today';
+    const filterLabel = dateVal === 'today' ? 'Hari Ini' : (dateVal === 'tomorrow' ? 'Besok' : 'Semua Tanggal');
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center py-8 text-slate-500 bg-slate-50/50">
+          <div class="max-w-md mx-auto space-y-2">
+            <span class="material-icons text-4xl text-sky-500/80">event_note</span>
+            <div class="font-extrabold text-slate-800 text-sm">Tidak Ada Antrean Diproses Untuk Filter (${filterLabel})</div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              ${isTodayFilter 
+                ? 'Pengunjung mungkin melakukan reservasi online untuk <b>tanggal mendatang (Besok atau Tanggal Lain)</b> atau memilih loket layanan yang berbeda.<br>Cobalah ubah filter <b>Tanggal</b> di atas ke <b>"🌐 Semua Tanggal"</b> atau <b>"🗓️ Besok"</b>.' 
+                : 'Belum ada data antrean yang terdaftar untuk filter ini.'}
+            </p>
+          </div>
+        </td>
+      </tr>`;
     return;
   }
 
@@ -218,12 +236,18 @@ async function renderAntrianDashboard(isSilent = false) {
           <button onclick="updateAntrianStatus(${rowId}, 'Dilayani')" class="btn btn-sm btn-info bg-cyan-600 text-white text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Tandai Sedang Dilayani">
             <span class="material-icons text-xs">support_agent</span> Dilayani
           </button>
+          <button onclick="updateAntrianStatus(${rowId}, 'Selesai')" class="btn btn-sm btn-success bg-emerald-600 text-white text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Selesaikan & Catat Data">
+            <span class="material-icons text-xs">check_circle</span> Selesai
+          </button>
           <button onclick="updateAntrianStatus(${rowId}, 'Terlewat')" class="btn btn-sm btn-secondary text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Tandai Terlewat">
             <span class="material-icons text-xs">skip_next</span> Lewati
           </button>
         ` : item.status === 'Dilayani' ? `
-          <button onclick="updateAntrianStatus(${rowId}, 'Selesai')" class="btn btn-sm btn-success text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Set Status Selesai">
+          <button onclick="updateAntrianStatus(${rowId}, 'Selesai')" class="btn btn-sm btn-success bg-emerald-600 text-white text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Selesaikan & Catat Data">
             <span class="material-icons text-xs">check_circle</span> Selesai
+          </button>
+          <button onclick="updateAntrianStatus(${rowId}, 'Terlewat')" class="btn btn-sm btn-secondary text-xs py-1 px-2 font-semibold flex items-center gap-1 rounded-lg" title="Tandai Terlewat">
+            <span class="material-icons text-xs">skip_next</span> Lewati
           </button>
         ` : item.status === 'Menunggu' ? `
           <button onclick="panggilSpesifik(${rowId}, false)" class="btn btn-sm btn-primary bg-[#003366] text-xs py-1 px-2 font-bold flex items-center gap-1 rounded-lg" title="Panggil Antrean Ini">
@@ -244,7 +268,20 @@ async function renderAntrianDashboard(isSilent = false) {
   });
 }
 
+let pendingAutoCallNext = false;
+
 async function panggilAntrianBerikutnya() {
+  // Jika sedang ada antrean aktif yang Dipanggil atau Dilayani, minta petugas mencatat pelayanan terlebih dahulu
+  const activeItem = fetchedAntrianData.find(i => i.status === 'Dipanggil' || i.status === 'Dilayani');
+  if (activeItem) {
+    openModalSelesaiPelayanan(activeItem.id, true);
+    return;
+  }
+
+  await executePanggilBerikutnya();
+}
+
+async function executePanggilBerikutnya() {
   try {
     const filterLayananSelect = document.getElementById('filter_layanan_antrian');
     const layananVal = filterLayananSelect ? filterLayananSelect.value : 'all';
@@ -307,7 +344,101 @@ async function panggilSpesifik(id, isRepeat = false) {
   }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const formSelesai = document.getElementById('formSelesaiPelayanan');
+  if (formSelesai) {
+    formSelesai.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('selesai_antrian_id').value;
+      const catatanPetugas = document.getElementById('selesai_catatan_petugas').value.trim();
+      const btn = document.getElementById('btnConfirmSelesai');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+
+      try {
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('status', 'Selesai');
+        formData.append('catatan_petugas', catatanPetugas);
+        formData.append('csrf_token', getCsrfToken());
+
+        const res = await fetch('../api.php?action=update_status_antrian', { method: 'POST', body: formData });
+        const json = await res.json();
+        if (json.status === 'success') {
+          const modalElem = document.getElementById('modalSelesaiPelayanan');
+          const modalBS = bootstrap.Modal.getInstance(modalElem) || bootstrap.Modal.getOrCreateInstance(modalElem);
+          if (modalBS) modalBS.hide();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Pelayanan Selesai!',
+            text: 'Status antrean diubah menjadi Selesai dan catatan petugas berhasil disimpan.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+
+          if (pendingAutoCallNext) {
+            pendingAutoCallNext = false;
+            await executePanggilBerikutnya();
+          } else {
+            await renderAntrianDashboard();
+          }
+        } else {
+          Swal.fire('Gagal', json.message || 'Gagal mengubah status antrian.', 'error');
+        }
+      } catch (err) {
+        Swal.fire('Error', 'Terjadi kesalahan sistem saat menyelesaikan pelayanan.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons text-sm">check_circle</span> <span>Simpan & Selesaikan Pelayanan</span>';
+      }
+    });
+  }
+});
+
+function openModalSelesaiPelayanan(id, autoCallNext = false) {
+  const item = fetchedAntrianData.find(d => d.id == id);
+  if (!item) return;
+
+  pendingAutoCallNext = autoCallNext;
+
+  document.getElementById('selesai_antrian_id').value = id;
+  document.getElementById('selesai_modal_nomor').textContent = item.nomor || '-';
+  document.getElementById('selesai_modal_kode').textContent = item.kode_antrian || '-';
+  document.getElementById('selesai_modal_nama').textContent = item.nama || 'Pengunjung';
+  document.getElementById('selesai_modal_layanan').innerHTML = `<span class="material-icons text-xs text-emerald-600">storefront</span> ${escapeHtml(item.layanan || '-')}`;
+  document.getElementById('selesai_modal_data_diinginkan').textContent = item.data_diinginkan || 'Tidak ada catatan data khusus dari pengunjung.';
+  document.getElementById('selesai_catatan_petugas').value = item.catatan_petugas || '';
+
+  const noticeElem = document.getElementById('selesai_modal_notice_autocall');
+  if (noticeElem) {
+    if (autoCallNext) {
+      noticeElem.classList.remove('hidden');
+    } else {
+      noticeElem.classList.add('hidden');
+    }
+  }
+
+  const modalElem = document.getElementById('modalSelesaiPelayanan');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElem);
+  modal.show();
+}
+
+function appendQuickTag(tagText) {
+  const textarea = document.getElementById('selesai_catatan_petugas');
+  if (!textarea) return;
+  if (!textarea.value.includes(tagText.trim())) {
+    textarea.value = (textarea.value ? textarea.value.trim() + ' ' : '') + tagText;
+  }
+  textarea.focus();
+}
+
 async function updateAntrianStatus(id, newStatus) {
+  if (newStatus === 'Selesai') {
+    openModalSelesaiPelayanan(id);
+    return;
+  }
+
   try {
     const formData = new FormData();
     formData.append('id', id);
@@ -443,6 +574,16 @@ function showVisitorDetail(id) {
     <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-1">
       <div class="font-bold text-amber-900">Rincian Data / Informasi yang Dicari:</div>
       <p class="text-slate-700">${escapeHtml(item.data_diinginkan || 'Tidak ada catatan rincian data khusus.')}</p>
+    </div>
+
+    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 space-y-2">
+      <div class="flex items-center justify-between font-bold text-emerald-900">
+        <span class="flex items-center gap-1.5"><span class="material-icons text-sm text-emerald-600">assignment_turned_in</span> Catatan Petugas (Pelayanan & Data Diberikan):</span>
+        <button type="button" onclick="openModalSelesaiPelayanan(${item.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-sm">
+          <span class="material-icons text-xs">edit</span> Edit Catatan
+        </button>
+      </div>
+      <p class="text-slate-800 font-medium leading-relaxed bg-white/80 p-3 rounded-lg border border-emerald-200">${escapeHtml(item.catatan_petugas || 'Belum ada catatan rincian pelayanan dari petugas.')}</p>
     </div>
 
     ${item.pendapat ? `

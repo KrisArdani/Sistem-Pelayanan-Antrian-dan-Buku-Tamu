@@ -100,7 +100,7 @@ if ($type === 'antrian') {
     $whereClause[] = "pendapat IS NOT NULL AND pendapat != ''";
 }
 
-$sql = "SELECT id, user_id, kode_antrian AS kode_bt, kode_antrian, nomor, nama, nik, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, pendapat, monev, catatan, tipe_pendaftaran, status, tanggal, waktu, created_at FROM antrian";
+$sql = "SELECT id, user_id, kode_antrian AS kode_bt, kode_antrian, nomor, nama, nik, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, pendapat, monev, catatan, catatan_petugas, tipe_pendaftaran, status, tanggal, waktu, created_at FROM antrian";
 if (!empty($whereClause)) {
     $sql .= " WHERE " . implode(" AND ", $whereClause);
 }
@@ -209,29 +209,33 @@ $totalRows = count($data);
     </div>
 
     <!-- Summary Box -->
-    <div class="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs">
       <div>
-        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Rekor Data</div>
-        <div class="text-xl font-black text-slate-900 font-mono"><?php echo $totalRows; ?></div>
+        <span class="text-slate-500 font-medium block">Total Rekor Data:</span>
+        <span class="text-base font-black text-slate-900"><?php echo $totalRows; ?> Transaksi</span>
       </div>
       <div>
-        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Loket Layanan</div>
-        <div class="text-sm font-bold text-purple-900 mt-1"><?php echo htmlspecialchars($filterLayanan === 'all' ? 'Semua Loket' : $filterLayanan); ?></div>
+        <span class="text-slate-500 font-medium block">Status Cetak:</span>
+        <span class="text-base font-black text-emerald-700">Resmi / Valid</span>
       </div>
       <div>
-        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status Dokumen</div>
-        <div class="text-xs font-extrabold text-emerald-700 bg-emerald-100 inline-block px-2.5 py-0.5 rounded-full mt-1">VERIFIKASI TERHUBUNG</div>
+        <span class="text-slate-500 font-medium block">Kategori Filter:</span>
+        <span class="text-base font-black text-sky-700 uppercase"><?php echo htmlspecialchars($type); ?></span>
+      </div>
+      <div>
+        <span class="text-slate-500 font-medium block">Lokasi Unit:</span>
+        <span class="text-base font-black text-purple-700">PST BPS Kota Tegal</span>
       </div>
     </div>
 
-    <!-- Data Table -->
+    <!-- Main Data Table -->
     <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
+      <table class="w-full text-left text-xs border-collapse border border-slate-300">
         <thead>
           <tr class="bg-slate-800 text-white font-bold uppercase tracking-wider">
             <th class="p-3 border border-slate-700 text-center w-10">No</th>
             <?php if ($type === 'antrian'): ?>
-              <th class="p-3 border border-slate-700">Kode / No</th>
+              <th class="p-3 border border-slate-700">Kode Antrean</th>
               <th class="p-3 border border-slate-700">Nama Pengunjung</th>
               <th class="p-3 border border-slate-700">Pekerjaan & Instansi</th>
               <th class="p-3 border border-slate-700">Layanan PST</th>
@@ -243,6 +247,7 @@ $totalRows = count($data);
               <th class="p-3 border border-slate-700">Kontak (HP/Email)</th>
               <th class="p-3 border border-slate-700">Instansi</th>
               <th class="p-3 border border-slate-700">Keperluan / Layanan</th>
+              <th class="p-3 border border-slate-700">Catatan Petugas / Data Diberikan</th>
               <th class="p-3 border border-slate-700 text-center">Tgl & Waktu</th>
             <?php elseif ($type === 'skm'): ?>
               <th class="p-3 border border-slate-700">Kode Tiket</th>
@@ -283,6 +288,7 @@ $totalRows = count($data);
                   <td class="p-2.5 border border-slate-300 text-slate-600 font-mono"><?php echo htmlspecialchars($row['nohp'] ?: $row['email']); ?></td>
                   <td class="p-2.5 border border-slate-300 text-slate-700"><?php echo htmlspecialchars($row['instansi']); ?></td>
                   <td class="p-2.5 border border-slate-300 font-semibold text-purple-900"><?php echo htmlspecialchars($row['layanan']); ?></td>
+                  <td class="p-2.5 border border-slate-300 text-slate-700 text-[11px] italic"><?php echo htmlspecialchars($row['catatan_petugas'] ?: '-'); ?></td>
                   <td class="p-2.5 border border-slate-300 text-center font-mono text-[11px]"><?php echo date('d/m/Y H:i', strtotime($row['tanggal'] . ' ' . $row['waktu'])); ?></td>
 
                 <?php elseif ($type === 'skm'): ?>

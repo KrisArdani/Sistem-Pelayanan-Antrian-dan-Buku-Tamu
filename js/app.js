@@ -88,8 +88,8 @@ async function logoutUser() {
 
 async function checkAuth(requiredRoles = []) {
   try {
-    const apiPath = window.location.pathname.includes('/admin/') ? '../api.php?action=check_session' : 'api.php?action=check_session';
-    const res = await fetch(apiPath);
+    const apiPath = window.location.pathname.includes('/admin/') ? `../api.php?action=check_session&_t=${Date.now()}` : `api.php?action=check_session&_t=${Date.now()}`;
+    const res = await fetch(apiPath, { cache: 'no-store' });
     const json = await res.json();
 
     if (json.status !== 'success') {
@@ -121,8 +121,8 @@ async function updateWaitingBadgeCounter() {
   if (!visitorBadge && !visitorMobileBadge && !adminBadge && !adminMobileBadge) return;
 
   try {
-    const apiPath = window.location.pathname.includes('/admin/') ? '../api.php?action=get_waiting_count' : 'api.php?action=get_waiting_count';
-    const res = await fetch(apiPath);
+    const apiPath = window.location.pathname.includes('/admin/') ? `../api.php?action=get_waiting_count&_t=${Date.now()}` : `api.php?action=get_waiting_count&_t=${Date.now()}`;
+    const res = await fetch(apiPath, { cache: 'no-store' });
     const json = await res.json();
 
     if (json.status === 'success') {
@@ -204,6 +204,41 @@ function exportData(type, format) {
   } else {
     // Unduh File Excel / CSV
     window.location.href = `${apiPath}?${params.toString()}`;
+  }
+}
+
+async function cancelVisitorQueue(id) {
+  const result = await Swal.fire({
+    title: 'Batalkan Reservasi Antrean?',
+    text: 'Apakah Anda yakin ingin membatalkan tiket antrean aktif ini? Setelah dibatalkan, Anda dapat memilih jadwal atau layanan baru.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Ya, Batalkan Tiket',
+    cancelButtonText: 'Batal'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('csrf_token', getCsrfToken());
+
+    const apiPath = window.location.pathname.includes('/admin/') ? '../api.php?action=batal_ant_pengunjung' : 'api.php?action=batal_ant_pengunjung';
+    const res = await fetch(apiPath, { method: 'POST', body: formData });
+    const json = await res.json();
+
+    if (json.status === 'success') {
+      Swal.fire('Berhasil!', json.message, 'success').then(() => {
+        window.location.reload();
+      });
+    } else {
+      Swal.fire('Gagal', json.message || 'Gagal membatalkan tiket.', 'error');
+    }
+  } catch (err) {
+    Swal.fire('Error', 'Gagal terhubung ke server.', 'error');
   }
 }
 

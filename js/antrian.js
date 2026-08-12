@@ -2,13 +2,21 @@
  * SPST BPS Kota Tegal - Penangan Antrean Digital & Generator Kode QR
  */
 
+function getLocalTodayDate() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Setel tanggal minimal ke hari ini
+  // Setel tanggal minimal ke hari ini (Zona Waktu Lokal)
   const dateInput = document.getElementById('ant_tanggal');
   if (dateInput) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalTodayDate();
     dateInput.min = today;
-    dateInput.value = today;
+    if (!dateInput.value) dateInput.value = today;
   }
 
   // Penanganan Webcam & Foto
@@ -211,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
           text: 'PST BPS Kota Tegal hanya melayani konsultasi pada hari kerja (Senin s.d. Jumat). Silakan pilih tanggal lain.',
           confirmButtonColor: '#003366'
         });
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalTodayDate();
         dateInput.value = today;
       }
     });

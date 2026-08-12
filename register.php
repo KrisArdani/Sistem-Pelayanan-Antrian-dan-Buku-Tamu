@@ -14,9 +14,9 @@ $csrf_token = generateCsrfToken();
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Bootstrap 5.3.8 CSS & Bundle -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap 5.3.3 CSS & Bundle -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Icons & Fonts -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -87,14 +87,15 @@ $csrf_token = generateCsrfToken();
             <input type="email" id="reg_email" class="form-control rounded-xl text-sm" placeholder="email@domain.com">
           </div>
         </div>
-          <div>
-            <label class="form-label text-xs font-bold text-slate-300 uppercase">Jenis Kelamin <span class="text-red-400">*</span></label>
-            <select id="reg_jk" class="form-select rounded-xl text-sm" required>
-              <option value="">-- Pilih Jenis Kelamin --</option>
-              <option value="Laki Laki">Laki Laki</option>
-              <option value="Perempuan">Perempuan</option>
-            </select>
-          </div>
+
+        <!-- Jenis Kelamin -->
+        <div>
+          <label class="form-label text-xs font-bold text-slate-300 uppercase">Jenis Kelamin <span class="text-red-400">*</span></label>
+          <select id="reg_jk" class="form-select rounded-xl text-sm" required>
+            <option value="">-- Pilih Jenis Kelamin --</option>
+            <option value="Laki Laki">Laki Laki</option>
+            <option value="Perempuan">Perempuan</option>
+          </select>
         </div>
 
         <!-- Kelompok Umur & Pendidikan -->
@@ -173,80 +174,6 @@ $csrf_token = generateCsrfToken();
     </div>
   </div>
 
-  <script>
-  document.getElementById('formRegister').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const nik = document.getElementById('reg_nik').value.trim();
-    if (!/^[0-9]{16}$/.test(nik)) {
-      Swal.fire('Format NIK Salah', 'NIK harus terdiri dari tepat 16 digit angka sesuai KTP.', 'warning');
-      return;
-    }
-
-    const btn = document.getElementById('btnRegister');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const payload = {
-      action: 'register_pengunjung',
-      username: document.getElementById('reg_username').value.trim(),
-      password: document.getElementById('reg_password').value,
-      name: document.getElementById('reg_name').value.trim(),
-      nik: nik,
-      nohp: document.getElementById('reg_nohp').value.trim(),
-      email: document.getElementById('reg_email').value.trim(),
-      jenis_kelamin: document.getElementById('reg_jk').value,
-      umur: document.getElementById('reg_umur').value,
-      pendidikan: document.getElementById('reg_pendidikan').value,
-      pekerjaan: document.getElementById('reg_pekerjaan').value,
-      instansi: document.getElementById('reg_instansi').value.trim(),
-      kategori_instansi: document.getElementById('reg_kategori_instansi').value,
-      csrf_token: csrfToken
-    };
-
-    try {
-      const res = await fetch('api.php?action=register_pengunjung', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const text = await res.text();
-      let data = {};
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        console.error('Non-JSON server response:', text);
-        Swal.fire('Error Server', 'Respon server tidak valid: ' + text.substring(0, 150), 'error');
-        return;
-      }
-
-      if (data.status === 'success') {
-        Swal.fire({
-          icon: 'success',
-          title: 'Registrasi Berhasil!',
-          text: 'Akun Anda berhasil dibuat. Silakan login untuk melakukan reservasi antrean.',
-          confirmButtonText: 'Masuk Sekarang',
-          confirmButtonColor: '#0284c7'
-        }).then(() => {
-          window.location.href = 'login.php';
-        });
-      } else {
-        Swal.fire('Gagal', data.message || 'Terjadi kesalahan saat registrasi', 'error');
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
-      Swal.fire('Error Jaringan', 'Gagal terhubung ke server: ' + (err.message || 'Koneksi terputus'), 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-icons">how_to_reg</span><span>Daftar Akun Pengunjung</span>';
-    }
-  });
-  </script>
-
+  <script src="js/register.js"></script>
 </body>
 </html>

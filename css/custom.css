@@ -196,15 +196,10 @@ h1, h2, h3, h4, .brand-font {
   background: #64748B;
 }
 
-/* ======================================================
-   Universal High-Visibility Input Styling (Clean & High Contrast)
-   ====================================================== */
-
-input.form-control,
-select.form-select,
-textarea.form-control,
-.form-control,
-.form-select {
+/* Universal High-Visibility Input Styling (Light Pages) */
+body:not(.bg-slate-900):not(.bg-slate-950) input.form-control,
+body:not(.bg-slate-900):not(.bg-slate-950) select.form-select,
+body:not(.bg-slate-900):not(.bg-slate-950) textarea.form-control {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border: 2px solid #cbd5e1 !important;
@@ -212,15 +207,38 @@ textarea.form-control,
   opacity: 1 !important;
 }
 
-input.form-control:focus,
-select.form-select:focus,
-textarea.form-control:focus,
-.form-control:focus,
-.form-select:focus {
+body:not(.bg-slate-900):not(.bg-slate-950) input.form-control:focus,
+body:not(.bg-slate-900):not(.bg-slate-950) select.form-select:focus,
+body:not(.bg-slate-900):not(.bg-slate-950) textarea.form-control:focus {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #0284c7 !important;
   box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Dark Pages Input Styling */
+body.bg-slate-900 input.form-control,
+body.bg-slate-900 select.form-select,
+body.bg-slate-900 textarea.form-control,
+body.bg-slate-950 input.form-control,
+body.bg-slate-950 select.form-select,
+body.bg-slate-950 textarea.form-control,
+.glass-card.bg-slate-800\/90 input.form-control,
+.glass-card.bg-slate-800\/90 select.form-select {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border: 1px solid #475569 !important;
+  font-weight: 500 !important;
+}
+
+body.bg-slate-900 input.form-control:focus,
+body.bg-slate-900 select.form-select:focus,
+body.bg-slate-950 input.form-control:focus,
+body.bg-slate-950 select.form-select:focus {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
 }
 
 /* Readable Placeholder */
@@ -232,12 +250,25 @@ textarea::placeholder,
   opacity: 1 !important;
 }
 
-/* Select Dropdown Options - White BG & Dark Text */
+body.bg-slate-900 input::placeholder,
+body.bg-slate-900 textarea::placeholder,
+body.bg-slate-950 input::placeholder,
+body.bg-slate-950 textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Select Dropdown Options */
 select option,
 .form-select option {
   background-color: #ffffff !important;
   color: #0f172a !important;
   font-weight: 500 !important;
+}
+
+body.bg-slate-900 select option,
+body.bg-slate-950 select option {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
 }
 
 /* SKM Emoji Active Micro-Animations */

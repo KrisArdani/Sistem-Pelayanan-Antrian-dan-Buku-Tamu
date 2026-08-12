@@ -71,7 +71,7 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
         <span>Ruang Infografis</span>
       </a>
 
-      <a href="#" class="bps-nav-item opacity-75">
+      <a href="webgis.php" class="bps-nav-item <?php echo ($activeMenu == 'webgis') ? 'active' : ''; ?>">
         <span class="material-icons">map</span>
         <span>Webgis Kota Tegal</span>
       </a>
@@ -195,7 +195,7 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
           <span>Ruang Infografis</span>
         </a>
 
-        <a href="#" class="bps-nav-item opacity-75">
+        <a href="webgis.php" class="bps-nav-item <?php echo ($activeMenu == 'webgis') ? 'active' : ''; ?>">
           <span class="material-icons">map</span>
           <span>Webgis Kota Tegal</span>
         </a>

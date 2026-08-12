@@ -15,9 +15,9 @@ $csrf_token = generateCsrfToken();
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Bootstrap 5.3.8 CSS & Bundle -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap 5.3.3 CSS & Bundle -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Icons & Fonts -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -71,7 +71,7 @@ $csrf_token = generateCsrfToken();
       </div>
 
       <!-- Form Set New Password -->
-      <form id="formSetPassword" onsubmit="handleNewPasswordSubmit(event)" class="hidden space-y-4">
+      <form id="formSetPassword" class="hidden space-y-4">
         <input type="hidden" id="reset_token" value="<?php echo htmlspecialchars($token); ?>">
 
         <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/60 text-xs text-slate-300 space-y-1">
@@ -114,115 +114,6 @@ $csrf_token = generateCsrfToken();
   </div>
 
   <script src="js/app.js"></script>
-  <script>
-    const urlToken = document.getElementById('reset_token').value;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      verifyToken();
-    });
-
-    async function verifyToken() {
-      if (!urlToken) {
-        showInvalidState('Token tidak ditemukan pada tautan.');
-        return;
-      }
-
-      try {
-        const res = await fetch(`api.php?action=verify_reset_token&token=${encodeURIComponent(urlToken)}`, {
-          headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        const data = await res.json();
-
-        document.getElementById('sectionChecking').classList.add('hidden');
-
-        if (data.status === 'success') {
-          document.getElementById('display_username').innerText = '@' + data.data.username;
-          document.getElementById('display_email').innerText = data.data.email;
-          document.getElementById('resetInfoSubtitle').innerText = `Pemulihan password untuk akun @${data.data.username}`;
-          document.getElementById('formSetPassword').classList.remove('hidden');
-        } else {
-          showInvalidState(data.message || 'Token tidak valid atau kedaluwarsa.');
-        }
-      } catch (err) {
-        console.error("Verify token error:", err);
-        showInvalidState('Gagal terhubung ke server.');
-      }
-    }
-
-    function showInvalidState(msg) {
-      document.getElementById('sectionChecking').classList.add('hidden');
-      document.getElementById('errorMessageToken').innerText = msg;
-      document.getElementById('sectionInvalid').classList.remove('hidden');
-    }
-
-    async function handleNewPasswordSubmit(e) {
-      e.preventDefault();
-      const newPass = document.getElementById('new_password').value;
-      const confirmPass = document.getElementById('confirm_password').value;
-
-      if (newPass !== confirmPass) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Tidak Cocok',
-          text: 'Konfirmasi password baru tidak cocok dengan password baru.',
-          confirmButtonColor: '#003366'
-        });
-        return;
-      }
-
-      const btn = document.getElementById('btnSavePassword');
-      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-      btn.disabled = true;
-      btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> <span>Menyimpan...</span>`;
-
-      try {
-        const formData = new FormData();
-        formData.append('action', 'reset_password_with_token');
-        formData.append('token', urlToken);
-        formData.append('new_password', newPass);
-        formData.append('csrf_token', csrfToken);
-
-        const res = await fetch('api.php', {
-          method: 'POST',
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': csrfToken
-          },
-          body: formData
-        });
-        const data = await res.json();
-
-        if (data.status === 'success') {
-          Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: data.message,
-            confirmButtonColor: '#003366'
-          }).then(() => {
-            window.location.href = 'login.php';
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Gagal',
-            text: data.message,
-            confirmButtonColor: '#003366'
-          });
-          btn.disabled = false;
-          btn.innerHTML = `<span class="material-icons text-base">check_circle</span> <span>Simpan Password Baru</span>`;
-        }
-      } catch (err) {
-        console.error("Reset password submit error:", err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Kesalahan Sistem',
-          text: 'Gagal terhubung ke server.',
-          confirmButtonColor: '#003366'
-        });
-        btn.disabled = false;
-        btn.innerHTML = `<span class="material-icons text-base">check_circle</span> <span>Simpan Password Baru</span>`;
-      }
-    }
-  </script>
+  <script src="js/reset-password.js"></script>
 </body>
 </html>

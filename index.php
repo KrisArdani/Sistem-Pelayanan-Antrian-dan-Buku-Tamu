@@ -26,9 +26,9 @@ $activeMenu = 'home';
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Bootstrap 5.3.8 CSS & Bundle -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap 5.3.3 CSS & Bundle -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Icons & Fonts -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -157,27 +157,6 @@ $activeMenu = 'home';
       <?php include 'footer.php'; ?>
 
     </main>
-  </div>
-
-  <!-- Mobile Offcanvas Sidebar -->
-  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
-    <div class="offcanvas-header border-b border-slate-700">
-      <h5 class="offcanvas-title text-white font-bold brand-font">SPST BPS KOTA TEGAL</h5>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body p-6 space-y-4">
-      <a href="index.php" class="bps-nav-item active"><span class="material-icons">home</span> Beranda Utama</a>
-      <a href="antrian.php" class="bps-nav-item"><span class="material-icons">confirmation_number</span> Reservasi Antrean</a>
-      <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">receipt_long</span> Riwayat & Tiket Saya</a>
-      
-      <?php if (isset($_SESSION['user_id'])): ?>
-        <a href="logout.php" class="bps-nav-item text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 rounded-xl my-2">
-          <span class="material-icons text-rose-400">logout</span> Keluar / Logout Sesi
-        </a>
-      <?php else: ?>
-        <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Masuk / Login</a>
-      <?php endif; ?>
-    </div>
   </div>
 
   <!-- Script Helpers -->

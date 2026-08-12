@@ -13,32 +13,7 @@
       <p class="text-xs text-slate-600 leading-relaxed">
         Seberapa puas Anda dengan pelayanan yang kami berikan? Sampaikan penilaian Anda melalui formulir berikut.
       </p>
-      <a href="#" onclick="
-        Swal.fire({
-          title: 'Penilaian Kepuasan',
-          input: 'textarea',
-          inputPlaceholder: 'Sampaikan ulasan atau masukan Anda...',
-          showCancelButton: true,
-          confirmButtonText: 'Kirim Penilaian',
-          confirmButtonColor: '#003366'
-        }).then(res => {
-          if (res.isConfirmed && res.value) {
-            const fd = new FormData();
-            fd.append('tipe', 'penilaian');
-            fd.append('pesan', res.value);
-            fd.append('csrf_token', getCsrfToken());
-            fetch('api.php?action=save_widget_feedback', { method: 'POST', body: fd })
-              .then(r => r.json())
-              .then(json => {
-                if (json.status === 'success') {
-                  Swal.fire('Terima Kasih', 'Penilaian Anda telah tersimpan di Database.', 'success');
-                } else {
-                  Swal.fire('Gagal', json.message || 'Gagal menyimpan penilaian.', 'error');
-                }
-              });
-          }
-        }); return false;
-      " class="btn btn-warning btn-sm w-full font-bold text-[#003366]">Beri Penilaian</a>
+      <a href="#" onclick="triggerWidgetFeedback('penilaian'); return false;" class="btn btn-warning btn-sm w-full font-bold text-[#003366]">Beri Penilaian</a>
     </div>
   </div>
 
@@ -55,32 +30,7 @@
       <p class="text-xs text-slate-600 leading-relaxed">
         Sampaikan pengaduan atau masukan Anda melalui formulir berikut. Kami siap membantu!
       </p>
-      <a href="#" onclick="
-        Swal.fire({
-          title: 'Form Pengaduan',
-          input: 'textarea',
-          inputPlaceholder: 'Jelaskan pengaduan atau keluhan Anda...',
-          showCancelButton: true,
-          confirmButtonText: 'Kirim Pengaduan',
-          confirmButtonColor: '#003366'
-        }).then(res => {
-          if (res.isConfirmed && res.value) {
-            const fd = new FormData();
-            fd.append('tipe', 'pengaduan');
-            fd.append('pesan', res.value);
-            fd.append('csrf_token', getCsrfToken());
-            fetch('api.php?action=save_widget_feedback', { method: 'POST', body: fd })
-              .then(r => r.json())
-              .then(json => {
-                if (json.status === 'success') {
-                  Swal.fire('Pengaduan Terkirim', 'Pengaduan Anda telah tercatat di Database.', 'info');
-                } else {
-                  Swal.fire('Gagal', json.message || 'Gagal menyimpan pengaduan.', 'error');
-                }
-              });
-          }
-        }); return false;
-      " class="btn btn-primary btn-sm w-full font-bold bg-[#003366] border-[#003366]">Isi Pengaduan</a>
+      <a href="#" onclick="triggerWidgetFeedback('pengaduan'); return false;" class="btn btn-primary btn-sm w-full font-bold bg-[#003366] border-[#003366]">Isi Pengaduan</a>
     </div>
   </div>
 </div>
@@ -210,3 +160,5 @@
     </div>
   </div>
 </footer>
+
+<script src="js/footer.js"></script>

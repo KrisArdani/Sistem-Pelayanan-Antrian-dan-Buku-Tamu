@@ -425,6 +425,17 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
               <span class="text-slate-500">Fasilitas:</span>
               <span class="font-bold text-slate-900" id="ticket_facility">Datang Langsung</span>
             </div>
+
+            <!-- Row Estimasi Waktu Tunggu Real-Time -->
+            <div id="ticket_live_status_row" class="pt-2 mt-2 border-t border-slate-200 hidden space-y-1">
+              <div class="font-extrabold text-sky-900 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Status Antrean Real-Time Hari Ini:</span>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-600"><span>• Sedang Dipanggil:</span> <b id="ticket_active_called" class="text-amber-700">-</b></div>
+              <div class="flex justify-between text-[11px] text-slate-600"><span>• Antrean Di Depan Anda:</span> <b id="ticket_queue_ahead" class="text-sky-700">-</b></div>
+              <div class="flex justify-between text-[11px] text-slate-600"><span>• Estimasi Waktu Tunggu:</span> <b id="ticket_estimated_wait" class="text-emerald-700">-</b></div>
+            </div>
           </div>
 
           <!-- Footer Instruction -->
@@ -440,28 +451,6 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
           </button>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Mobile Offcanvas Sidebar -->
-  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
-    <div class="offcanvas-header border-b border-slate-700">
-      <h5 class="offcanvas-title text-white font-bold brand-font">SPST BPS KOTA TEGAL</h5>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body p-6 space-y-3">
-      <a href="index.php" class="bps-nav-item"><span class="material-icons">home</span> Beranda Utama</a>
-      <a href="register.php" class="bps-nav-item"><span class="material-icons">how_to_reg</span> Daftar Akun Pengunjung</a>
-      <a href="antrian.php" class="bps-nav-item active"><span class="material-icons">confirmation_number</span> Reservasi Antrean & Layanan</a>
-      <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">receipt_long</span> Riwayat & Tiket Saya</a>
-      
-      <?php if ($isLoggedIn): ?>
-        <a href="logout.php" class="bps-nav-item text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 rounded-xl my-2">
-          <span class="material-icons text-rose-400">logout</span> Keluar / Logout Sesi
-        </a>
-      <?php else: ?>
-        <a href="login.php" class="bps-nav-item"><span class="material-icons">login</span> Masuk / Login</a>
-      <?php endif; ?>
     </div>
   </div>
 

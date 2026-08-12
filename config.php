@@ -1,6 +1,9 @@
 <?php
 // SPST BPS Kota Tegal - Sistem Pelayanan Statistik Terpadu
 
+// Setel Zona Waktu Resmi Indonesia Barat (WIB)
+date_default_timezone_set('Asia/Jakarta');
+
 // Konfigurasi Database
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root'); // Ubah ke user khusus di lingkungan produksi

@@ -14,9 +14,9 @@ $csrf_token = generateCsrfToken();
 
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Bootstrap 5.3.8 CSS & Bundle -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap 5.3.3 CSS & Bundle -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Icons & Fonts -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -608,41 +608,19 @@ $csrf_token = generateCsrfToken();
 
       </div>
 
-      <!-- Footer -->
-      <footer class="bg-slate-900 text-slate-400 py-4 px-6 text-center text-xs border-t border-slate-800">
-        Panel Admin SPST BPS Kota Tegal © 2026
+      <!-- Footer Status Bar Admin Modern -->
+      <footer class="bg-white/80 backdrop-blur border-t border-slate-200/80 py-2.5 px-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 mt-auto">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-semibold text-slate-700">SPST BPS Kota Tegal</span>
+          <span class="text-slate-400">• Portal Loket & Antrean Real-Time v2.4</span>
+        </div>
+        <div class="text-[11px] text-slate-400 font-medium">
+          © <?php echo date('Y'); ?> Badan Pusat Statistik Kota Tegal
+        </div>
       </footer>
 
     </main>
-  </div>
-
-  <!-- Mobile Offcanvas Sidebar Admin -->
-  <div class="offcanvas offcanvas-start bps-sidebar" tabindex="-1" id="mobileSidebar">
-    <div class="offcanvas-header border-b border-slate-700/60 p-4">
-      <div class="flex items-center gap-3">
-        <img src="../img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-10 h-10 object-contain filter drop-shadow">
-        <div>
-          <h5 class="offcanvas-title text-white font-extrabold brand-font text-base leading-tight">PANEL SPST</h5>
-          <p class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">BPS KOTA TEGAL</p>
-        </div>
-      </div>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body p-5 flex flex-col justify-between">
-      <nav class="space-y-1">
-        <a href="dashboard.php" class="bps-nav-item active"><span class="material-icons">dashboard</span> Executive Dashboard</a>
-        <a href="bukutamu.php" class="bps-nav-item"><span class="material-icons">groups</span> Kelola Buku Tamu</a>
-        <a href="antrian.php" class="bps-nav-item"><span class="material-icons">summarize</span> Kelola Loket Antrian</a>
-        <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
-        <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
-      </nav>
-
-      <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700/50 text-xs text-slate-300 space-y-2 mt-6">
-        <button onclick="logoutUser()" class="btn btn-outline-danger btn-sm w-full flex items-center justify-center gap-1">
-          <span class="material-icons text-sm">logout</span> Logout
-        </button>
-      </div>
-    </div>
   </div>
 
   <script src="../js/app.js"></script>

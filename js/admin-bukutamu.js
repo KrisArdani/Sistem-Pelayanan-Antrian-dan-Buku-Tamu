@@ -123,7 +123,7 @@ async function renderBukuTamuTable(isSilent = false) {
 
   let data = [];
   try {
-    const res = await fetch(`../api.php?action=get_bukutamu&search=${encodeURIComponent(filterQuery)}`);
+    const res = await fetch(`../api.php?action=get_bukutamu&search=${encodeURIComponent(filterQuery)}&_t=${Date.now()}`, { cache: 'no-store' });
     const json = await res.json();
     if (json.status === 'success') {
       data = json.data || [];
@@ -217,6 +217,8 @@ async function renderBukuTamuTable(isSilent = false) {
     let statusBadge = '';
     if (item.status === 'Selesai' || item.status === 'Terverifikasi') {
       statusBadge = `<span class="badge bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[11px]">✅ Selesai</span>`;
+    } else if (item.status === 'Dipanggil') {
+      statusBadge = `<span class="badge bg-amber-500 text-slate-950 border border-amber-400 font-extrabold px-2.5 py-1 rounded-full text-[11px] animate-pulse">📢 Dipanggil</span>`;
     } else if (item.status === 'Dilayani') {
       statusBadge = `<span class="badge bg-sky-100 text-sky-800 font-bold px-2.5 py-1 rounded-full text-[11px]">🗣️ Dilayani</span>`;
     } else if (item.status === 'Menunggu') {
@@ -347,6 +349,14 @@ function showVisitorDetail(id) {
     <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-1">
       <div class="font-bold text-amber-900">Rincian Data / Informasi yang Dicari:</div>
       <p class="text-slate-700">${escapeHtml(item.data_diinginkan || 'Tidak ada catatan rincian data khusus.')}</p>
+    </div>
+
+    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 space-y-2">
+      <div class="font-bold text-emerald-900 flex items-center gap-1.5">
+        <span class="material-icons text-sm text-emerald-600">assignment_turned_in</span>
+        <span>Catatan Petugas (Pelayanan & Data Diberikan):</span>
+      </div>
+      <p class="text-slate-800 font-medium leading-relaxed bg-white/80 p-3 rounded-lg border border-emerald-200">${escapeHtml(item.catatan_petugas || 'Belum ada catatan rincian pelayanan dari petugas.')}</p>
     </div>
 
     ${item.pendapat ? `
