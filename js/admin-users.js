@@ -39,6 +39,14 @@ function filterByRole(role) {
   loadUsersData();
 }
 
+let searchDebounceTimer = null;
+function handleSearchInput() {
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    loadUsersData();
+  }, 250);
+}
+
 function handleSearchKey(e) {
   if (e.key === 'Enter') {
     loadUsersData();
@@ -124,7 +132,12 @@ function renderUsersTable(users) {
 
     let actionButtons = '';
     if (u.role === 'pengunjung') {
-      actionButtons = `<span class="px-2.5 py-1 text-[11px] font-semibold text-slate-400 bg-slate-100 rounded-lg italic">Read-Only (Mandiri)</span>`;
+      actionButtons = `
+        <button onclick="viewVisitorHistory(${u.id}, '${escapeHtml(u.name)}', '${escapeHtml(u.nohp || '')}', '${escapeHtml(u.nik || '')}')" title="Lihat Rekam Jejak Kunjungan" class="btn btn-sm btn-primary bg-sky-600 hover:bg-sky-700 border-sky-600 text-white text-xs font-bold rounded-xl px-3 py-1.5 inline-flex items-center gap-1 shadow-sm">
+          <span class="material-icons text-sm">history</span>
+          <span>Rekam Jejak</span>
+        </button>
+      `;
     } else {
       actionButtons = `
         <div class="flex items-center justify-center gap-1">
@@ -404,4 +417,190 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+async function viewVisitorHistory(userId, name, nohp, nik) {
+  const modalEl = document.getElementById('modalVisitorHistory');
+  const container = document.getElementById('contentVisitorHistory');
+  if (!modalEl || !container) return;
+
+  container.innerHTML = `
+    <div class="text-center py-12 text-slate-400 space-y-2">
+      <span class="material-icons animate-spin text-4xl text-sky-600">sync</span>
+      <div class="font-bold text-slate-700">Mengambil data rekam jejak kunjungan...</div>
+    </div>
+  `;
+
+  const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  bsModal.show();
+
+  try {
+    const res = await fetch(`../api.php?action=get_visitor_history&user_id=${userId}&nohp=${encodeURIComponent(nohp)}&nik=${encodeURIComponent(nik)}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const json = await res.json();
+
+    if (json.status === 'success') {
+      const u = json.data.user || {};
+      const history = json.data.history || [];
+      const totalCount = json.data.total_kunjungan || 0;
+
+      const userName = u.name || name || 'Pengunjung';
+      const userNik = u.nik || nik || '-';
+      const userNohp = u.nohp || nohp || '-';
+      const userEmail = u.email || '-';
+      const userPekerjaan = u.pekerjaan || '-';
+      const userInstansi = u.instansi || '-';
+      const userKatInstansi = u.kategori_instansi || '';
+      const userUmur = u.umur || '-';
+
+      // Hitung statistik ulasan SKM
+      const ratedHistory = history.filter(h => h.pendapat);
+      let skmSummary = 'Belum Ada Ulasan';
+      if (ratedHistory.length > 0) {
+        const lastRating = ratedHistory[0].pendapat;
+        skmSummary = `${lastRating} (${ratedHistory.length} Ulasan)`;
+      }
+
+      let historyTimelineHtml = '';
+      if (history.length === 0) {
+        historyTimelineHtml = `
+          <div class="p-8 bg-white rounded-2xl border border-slate-200 text-center text-slate-400 space-y-2">
+            <span class="material-icons text-4xl text-slate-300">history_toggle_off</span>
+            <div class="font-bold text-slate-600">Belum Ada Riwayat Kunjungan Loket</div>
+            <div class="text-xs">Pengunjung ini belum memiliki data reservasi antrean di PST BPS Kota Tegal.</div>
+          </div>
+        `;
+      } else {
+        historyTimelineHtml = history.map((h, i) => {
+          let badgeStatus = '';
+          if (h.status === 'Selesai') badgeStatus = '<span class="badge bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-xs">✅ Selesai</span>';
+          else if (h.status === 'Dilayani') badgeStatus = '<span class="badge bg-sky-100 text-sky-800 font-bold px-2.5 py-1 rounded-full text-xs">🗣️ Dilayani</span>';
+          else if (h.status === 'Dipanggil') badgeStatus = '<span class="badge bg-amber-500 text-slate-950 font-bold px-2.5 py-1 rounded-full text-xs">📢 Dipanggil</span>';
+          else if (h.status === 'Menunggu') badgeStatus = '<span class="badge bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full text-xs">⏳ Menunggu</span>';
+          else badgeStatus = '<span class="badge bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full text-xs">❌ Dibatalkan</span>';
+
+          const formattedDate = typeof formatTanggalIndo === 'function' ? formatTanggalIndo(h.tanggal + ' ' + h.waktu) : (h.tanggal + ' ' + h.waktu);
+
+          return `
+            <div class="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3 relative overflow-hidden">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-sky-900 text-white font-black text-xs flex items-center justify-center shrink-0 shadow">
+                    #${history.length - i}
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-sky-800">No. Antrean: ${escapeHtml(h.nomor)} (${escapeHtml(h.kode_antrian)})</div>
+                    <div class="text-sm font-black text-slate-900">${escapeHtml(h.layanan)}</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="badge bg-blue-50 text-blue-800 border border-blue-200 text-[10px] uppercase font-bold px-2 py-0.5 rounded">${escapeHtml(h.tipe_pendaftaran || 'online')}</span>
+                  ${badgeStatus}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                <div><b>Jadwal Kunjungan:</b> ${formattedDate}</div>
+                <div><b>Fasilitas:</b> ${escapeHtml(h.fasilitas || 'Datang Langsung')}</div>
+                <div><b>Tujuan Pemanfaatan:</b> ${escapeHtml(h.pemanfaatan || '-')}</div>
+                <div><b>Monev Pembangunan:</b> ${escapeHtml(h.monev || 'Ya')}</div>
+              </div>
+
+              <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs space-y-1">
+                <div class="font-bold text-amber-900 flex items-center gap-1">
+                  <span class="material-icons text-sm text-amber-700">find_in_page</span> Rincian Data Yang Dicari:
+                </div>
+                <div class="text-slate-800">${escapeHtml(h.data_diinginkan || 'Tidak ada catatan rincian data.')}</div>
+              </div>
+
+              ${h.catatan_petugas ? `
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs space-y-1">
+                  <div class="font-bold text-emerald-900 flex items-center gap-1">
+                    <span class="material-icons text-sm text-emerald-700">assignment_turned_in</span> Catatan Pelayanan Petugas Loket:
+                  </div>
+                  <div class="text-slate-800 font-medium">${escapeHtml(h.catatan_petugas)}</div>
+                </div>
+              ` : ''}
+
+              ${h.pendapat ? `
+                <div class="p-3 bg-sky-50 rounded-xl border border-sky-200 text-xs space-y-1">
+                  <div class="font-bold text-sky-900 flex items-center gap-1">
+                    <span class="material-icons text-sm text-amber-500">star</span> Penilaian SKM Pengunjung: <span class="text-sky-800 font-extrabold">${escapeHtml(h.pendapat)}</span>
+                  </div>
+                  ${h.catatan ? `<div class="text-slate-700 italic">"${escapeHtml(h.catatan)}"</div>` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+
+      container.innerHTML = `
+        <!-- Profile Header Card -->
+        <div class="p-6 bg-gradient-to-r from-[#002B5B] via-[#003366] to-[#0284c7] rounded-2xl text-white shadow-xl space-y-4 border border-sky-400/30">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/20 text-white font-black text-xl flex items-center justify-center shadow-lg shrink-0">
+                <span class="material-icons text-3xl">person</span>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-sky-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>PROFIL PENGUNJUNG PST</span>
+                  <span class="bg-amber-400/20 text-amber-300 text-[10px] px-2 py-0.5 rounded border border-amber-300/30">Terverifikasi</span>
+                </div>
+                <h3 class="text-xl md:text-2xl font-black brand-font text-white mt-0.5">${escapeHtml(userName)}</h3>
+                <div class="text-xs text-sky-100/90 font-medium">${escapeHtml(userInstansi)} ${userKatInstansi ? `(${escapeHtml(userKatInstansi)})` : ''}</div>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="px-4 py-2 bg-white/10 backdrop-blur rounded-xl border border-white/15 text-center">
+                <div class="text-[10px] text-sky-200 uppercase font-semibold">Total Kunjungan</div>
+                <div class="text-lg font-black text-amber-300 brand-font">${totalCount} Kali</div>
+              </div>
+              <div class="px-4 py-2 bg-white/10 backdrop-blur rounded-xl border border-white/15 text-center">
+                <div class="text-[10px] text-sky-200 uppercase font-semibold">SKM Pengunjung</div>
+                <div class="text-xs font-extrabold text-emerald-300 mt-1">${skmSummary}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-white/10 p-3.5 rounded-xl border border-white/10 text-sky-100">
+            <div><span class="text-sky-300">NIK (KTP):</span> <b class="text-white font-mono">${escapeHtml(userNik)}</b></div>
+            <div><span class="text-sky-300">No. HP / WA:</span> <b class="text-white">${escapeHtml(userNohp)}</b></div>
+            <div><span class="text-sky-300">Email:</span> <b class="text-white">${escapeHtml(userEmail)}</b></div>
+            <div><span class="text-sky-300">Pekerjaan / Usia:</span> <b class="text-white">${escapeHtml(userPekerjaan)} (${escapeHtml(userUmur)})</b></div>
+          </div>
+        </div>
+
+        <!-- Section Title -->
+        <div class="flex items-center justify-between pt-2 border-b border-slate-200 pb-2">
+          <h4 class="text-sm font-extrabold text-slate-900 brand-font flex items-center gap-2">
+            <span class="material-icons text-sky-600">history</span>
+            <span>Rekam Jejak Kunjungan & Pelayanan Loket (${totalCount})</span>
+          </h4>
+          <span class="text-xs text-slate-500 font-medium">Urut dari kunjungan terbaru</span>
+        </div>
+
+        <!-- Timeline Cards List -->
+        <div class="space-y-4">
+          ${historyTimelineHtml}
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="p-6 bg-rose-50 text-rose-800 rounded-2xl border border-rose-200 text-center text-xs font-bold">
+          ${json.message || 'Gagal mengambil data rekam jejak.'}
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error("viewVisitorHistory failed:", err);
+    container.innerHTML = `
+      <div class="p-6 bg-rose-50 text-rose-800 rounded-2xl border border-rose-200 text-center text-xs font-bold">
+        Terjadi kesalahan sistem saat mengambil data rekam jejak.
+      </div>
+    `;
+  }
 }

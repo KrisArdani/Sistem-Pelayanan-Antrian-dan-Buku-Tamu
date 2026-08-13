@@ -55,6 +55,7 @@ $routes = [
     'panggil_antrian'          => 'antrian.api.php',
     'update_status_antrian'    => 'antrian.api.php',
     'get_waiting_count'        => 'antrian.api.php',
+    'get_visitor_history'      => 'antrian.api.php',
 
     // 4. Stepper Alur
     'get_stepper_status'       => 'stepper.api.php',

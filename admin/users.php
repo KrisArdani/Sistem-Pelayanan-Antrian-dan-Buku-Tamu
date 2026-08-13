@@ -225,10 +225,10 @@ $csrf_token = generateCsrfToken();
               <button onclick="filterByRole('pengunjung')" id="tab_role_pengunjung" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Pengunjung</button>
             </div>
 
-            <!-- Search Input -->
-            <div class="relative w-full md:w-72">
+            <!-- Search Input Real-Time -->
+            <div class="relative w-full md:w-80">
               <span class="material-icons absolute left-3 top-2.5 text-slate-400 text-base">search</span>
-              <input type="text" id="searchInput" onkeyup="handleSearchKey(event)" placeholder="Cari nama, username, email..." class="form-control pl-9 pr-4 py-2 text-xs rounded-xl border-slate-300">
+              <input type="text" id="searchInput" oninput="handleSearchInput()" onkeyup="handleSearchKey(event)" placeholder="Cari nama, NIK, No. HP, email..." class="form-control pl-9 pr-4 py-2 text-xs rounded-xl border-slate-300 shadow-sm focus:border-sky-500">
             </div>
 
           </div>
@@ -421,6 +421,28 @@ $csrf_token = generateCsrfToken();
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Profil & Rekam Jejak Kunjungan Pengunjung -->
+  <div class="modal fade" id="modalVisitorHistory" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content rounded-2xl border-none shadow-2xl overflow-hidden">
+        <div class="modal-header bg-[#003366] text-white p-4">
+          <h5 class="modal-title font-bold text-base brand-font flex items-center gap-2">
+            <span class="material-icons text-amber-400">history_edu</span>
+            <span>Profil & Rekam Jejak Kunjungan Pengunjung</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-6 space-y-5 bg-slate-50" id="contentVisitorHistory">
+          <!-- Rendered via JS -->
+        </div>
+        <div class="modal-footer bg-white p-3 flex justify-between border-t border-slate-200">
+          <div class="text-xs text-slate-500 italic">⭐ Rekam jejak resmi Pelayanan Statistik Terpadu (PST) BPS Kota Tegal</div>
+          <button type="button" class="btn btn-secondary text-xs font-bold rounded-xl" data-bs-dismiss="modal">Tutup</button>
+        </div>
       </div>
     </div>
   </div>

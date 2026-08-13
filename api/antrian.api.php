@@ -233,6 +233,84 @@ switch ($action) {
         }
         break;
 
+    case 'get_visitor_history':
+        requireAuth(['petugas', 'admin', 'kepala']);
+        $userId = intval($_GET['user_id'] ?? 0);
+        $nohp = sanitizeInput($_GET['nohp'] ?? '');
+        $nik = sanitizeInput($_GET['nik'] ?? '');
+        $search = sanitizeInput($_GET['search'] ?? '');
+
+        // Detail akun user (jika terdaftar di sistem)
+        $userInfo = null;
+        if ($userId > 0) {
+            $stmtUser = $conn->prepare("SELECT id, name, username, nik, nohp, email, jenis_kelamin, umur, pendidikan, pekerjaan, instansi, kategori_instansi, created_at FROM users WHERE id = ?");
+            $stmtUser->bind_param("i", $userId);
+            $stmtUser->execute();
+            $userInfo = $stmtUser->get_result()->fetch_assoc();
+            $stmtUser->close();
+        }
+
+        if (!$userInfo && !empty($nohp)) {
+            $stmtUser = $conn->prepare("SELECT id, name, username, nik, nohp, email, jenis_kelamin, umur, pendidikan, pekerjaan, instansi, kategori_instansi, created_at FROM users WHERE nohp = ? LIMIT 1");
+            $stmtUser->bind_param("s", $nohp);
+            $stmtUser->execute();
+            $userInfo = $stmtUser->get_result()->fetch_assoc();
+            $stmtUser->close();
+        }
+
+        // Ambil seluruh riwayat kunjungan antrean
+        $whereClauses = [];
+        $params = [];
+        $types = "";
+
+        if ($userId > 0) {
+            $whereClauses[] = "user_id = ?";
+            $params[] = $userId;
+            $types .= "i";
+        }
+        if (!empty($nohp)) {
+            $whereClauses[] = "nohp = ?";
+            $params[] = $nohp;
+            $types .= "s";
+        }
+        if (!empty($nik)) {
+            $whereClauses[] = "nik = ?";
+            $params[] = $nik;
+            $types .= "s";
+        }
+
+        $sql = "SELECT id, user_id, kode_antrian, nomor, nama, nik, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, monev, tanggal, waktu, pendapat, catatan, catatan_petugas, tipe_pendaftaran, status, created_at FROM antrian";
+
+        if (!empty($whereClauses)) {
+            $sql .= " WHERE " . implode(" OR ", $whereClauses);
+        } else if (!empty($search)) {
+            $searchLike = "%$search%";
+            $sql .= " WHERE nama LIKE ? OR nohp LIKE ? OR nik LIKE ? OR email LIKE ?";
+            $params = [$searchLike, $searchLike, $searchLike, $searchLike];
+            $types = "ssss";
+        }
+
+        $sql .= " ORDER BY id DESC";
+
+        $stmt = $conn->prepare($sql);
+        if (!empty($types)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        $history = [];
+        while ($row = $res->fetch_assoc()) {
+            $history[] = $row;
+        }
+
+        sendJsonResponse('success', 'Data rekam jejak pengunjung berhasil diambil.', [
+            'user' => $userInfo,
+            'total_kunjungan' => count($history),
+            'history' => $history
+        ]);
+        break;
+
     case 'get_antrian':
         requireAuth(['petugas', 'admin', 'kepala']);
 
