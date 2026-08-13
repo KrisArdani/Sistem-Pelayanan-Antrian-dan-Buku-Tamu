@@ -4,9 +4,9 @@
 switch ($action) {
     case 'save_antrian':
         // Ambil parameter dengan aman
-        $userId = getCurrentUserId();
         $isWalkin = isset($_POST['is_walkin']) && ($_POST['is_walkin'] == '1' || $_POST['is_walkin'] == 'true');
         $tipePendaftaran = $isWalkin ? 'walkin' : 'online';
+        $userId = $isWalkin ? 0 : getCurrentUserId();
 
         // Jika pendaftaran langsung (walkin), wajibkan autentikasi petugas
         if ($isWalkin) {
@@ -514,16 +514,32 @@ switch ($action) {
         break;
 
     case 'get_waiting_count':
+        $userRole = $_SESSION['user_role'] ?? 'guest';
+        $userId = $_SESSION['user_id'] ?? 0;
+        $userNoHp = $_SESSION['user_nohp'] ?? '';
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
-        $userRole = $_SESSION['user_role'] ?? '';
 
+        $visitorActiveCount = 0;
+        $totalWaitingCount = 0;
+
+        // 1. Hitung khusus tiket aktif milik pengunjung yang sedang login (hanya jika role pengunjung)
+        if ($userRole === 'pengunjung' && ($userId > 0 || !empty($userNoHp))) {
+            $stmtVis = $conn->prepare("SELECT COUNT(*) as vis_active FROM antrian WHERE tipe_pendaftaran = 'online' AND (user_id = ? OR (nohp = ? AND nohp != '')) AND status IN ('Menunggu', 'Dipanggil', 'Dilayani') AND DATE(tanggal) = CURDATE()");
+            $stmtVis->bind_param("is", $userId, $userNoHp);
+            $stmtVis->execute();
+            $visitorActiveCount = (int)($stmtVis->get_result()->fetch_assoc()['vis_active'] ?? 0);
+            $stmtVis->close();
+        }
+
+        // 2. Hitung total antrean MENUNGGU untuk loket/admin
         $sql = "SELECT COUNT(*) as total_menunggu FROM antrian WHERE status = 'Menunggu' AND DATE(tanggal) = CURDATE()";
         $params = [];
         $types = "";
 
         if ($userRole === 'petugas' && !empty($assignedLayanan)) {
-            $sql .= " AND layanan = ?";
-            $params[] = $assignedLayanan;
+            $sql .= " AND layanan LIKE ?";
+            $likeAssigned = '%' . $assignedLayanan . '%';
+            $params[] = $likeAssigned;
             $types .= "s";
         }
 
@@ -533,7 +549,8 @@ switch ($action) {
         }
         $stmt->execute();
         $res = $stmt->get_result()->fetch_assoc();
-        $count = (int)($res['total_menunggu'] ?? 0);
+        $totalWaitingCount = (int)($res['total_menunggu'] ?? 0);
+        $stmt->close();
 
         // Juga dapatkan statistik per-layanan
         $sqlServices = "SELECT layanan, COUNT(*) as count FROM antrian WHERE status = 'Menunggu' AND DATE(tanggal) = CURDATE() GROUP BY layanan";
@@ -545,8 +562,10 @@ switch ($action) {
             }
         }
 
-        sendJsonResponse('success', 'Jumlah antrean menunggu.', [
-            'total_menunggu' => $count,
+        sendJsonResponse('success', 'Jumlah antrean.', [
+            'visitor_active_count' => $visitorActiveCount,
+            'total_menunggu' => $totalWaitingCount,
+            'user_role' => $userRole,
             'services' => $servicesCount
         ]);
         break;

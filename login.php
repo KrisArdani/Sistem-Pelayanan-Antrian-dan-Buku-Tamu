@@ -171,7 +171,7 @@ $csrf_token = generateCsrfToken();
             <div>• <b>Loket Rekomendasi:</b> <button type="button" onclick="fillDemoLogin('petugas_rekomendasi','123')" class="text-purple-400 font-bold hover:underline">petugas_rekomendasi</button></div>
             <div>• <b>Loket Pengaduan:</b> <button type="button" onclick="fillDemoLogin('petugas_pengaduan','123')" class="text-purple-400 font-bold hover:underline">petugas_pengaduan</button></div>
             <div>• <b>Kepala BPS:</b> <button type="button" onclick="fillDemoLogin('kepala','123')" class="text-emerald-400 font-bold hover:underline">kepala</button></div>
-            <div>• <b>Pengunjung:</b> <button type="button" onclick="fillDemoLogin('kris','123')" class="text-emerald-400 font-bold hover:underline">kris</button></div>
+            <div>• <b>Pengunjung:</b> <button type="button" onclick="fillDemoLogin('kris','123456')" class="text-emerald-400 font-bold hover:underline">kris</button></div>
           </div>
         </details>
         <?php endif; ?>

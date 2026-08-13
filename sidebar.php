@@ -29,12 +29,9 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
         <span>Daftar Akun Pengunjung</span>
       </a>
 
-      <a href="antrian.php" class="bps-nav-item flex items-center justify-between <?php echo ($activeMenu == 'antrian') ? 'active' : ''; ?>">
-        <div class="flex items-center gap-3">
-          <span class="material-icons">confirmation_number</span>
-          <span>Reservasi Antrean & Layanan</span>
-        </div>
-        <span id="visitor_waiting_badge" class="hidden px-2 py-0.5 bg-amber-500 text-slate-950 font-extrabold text-[10px] rounded-full shadow-sm animate-pulse" title="Antrean Menunggu Hari Ini">0</span>
+      <a href="antrian.php" class="bps-nav-item <?php echo ($activeMenu == 'antrian') ? 'active' : ''; ?>">
+        <span class="material-icons">confirmation_number</span>
+        <span>Reservasi Antrean & Layanan</span>
       </a>
 
       <a href="bukutamu.php" class="bps-nav-item <?php echo ($activeMenu == 'bukutamu') ? 'active' : ''; ?>">
@@ -153,12 +150,9 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
           <span>Daftar Akun Pengunjung</span>
         </a>
 
-        <a href="antrian.php" class="bps-nav-item flex items-center justify-between <?php echo ($activeMenu == 'antrian') ? 'active' : ''; ?>">
-          <div class="flex items-center gap-3">
-            <span class="material-icons">confirmation_number</span>
-            <span>Reservasi Antrean & Layanan</span>
-          </div>
-          <span id="visitor_mobile_waiting_badge" class="hidden px-2 py-0.5 bg-amber-500 text-slate-950 font-extrabold text-[10px] rounded-full shadow-sm animate-pulse">0</span>
+        <a href="antrian.php" class="bps-nav-item <?php echo ($activeMenu == 'antrian') ? 'active' : ''; ?>">
+          <span class="material-icons">confirmation_number</span>
+          <span>Reservasi Antrean & Layanan</span>
         </a>
 
         <a href="bukutamu.php" class="bps-nav-item <?php echo ($activeMenu == 'bukutamu') ? 'active' : ''; ?>">

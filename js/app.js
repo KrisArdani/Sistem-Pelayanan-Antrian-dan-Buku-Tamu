@@ -113,12 +113,10 @@ async function checkAuth(requiredRoles = []) {
 
 // Pembantu: Polling Real-Time Jumlah Antrean Menunggu untuk Sidebar Badges
 async function updateWaitingBadgeCounter() {
-  const visitorBadge = document.getElementById('visitor_waiting_badge');
-  const visitorMobileBadge = document.getElementById('visitor_mobile_waiting_badge');
   const adminBadge = document.getElementById('admin_sidebar_waiting_badge');
   const adminMobileBadge = document.getElementById('admin_mobile_waiting_badge');
 
-  if (!visitorBadge && !visitorMobileBadge && !adminBadge && !adminMobileBadge) return;
+  if (!adminBadge && !adminMobileBadge) return;
 
   try {
     const apiPath = window.location.pathname.includes('/admin/') ? `../api.php?action=get_waiting_count&_t=${Date.now()}` : `api.php?action=get_waiting_count&_t=${Date.now()}`;
@@ -126,15 +124,16 @@ async function updateWaitingBadgeCounter() {
     const json = await res.json();
 
     if (json.status === 'success') {
-      const count = json.data.total_menunggu || 0;
-      
-      [visitorBadge, visitorMobileBadge, adminBadge, adminMobileBadge].forEach(badge => {
-        if (badge) {
-          if (count > 0) {
-            badge.textContent = count;
-            badge.classList.remove('hidden');
+      const adminCount = json.data.total_menunggu || 0;
+
+      // Update badge antrean untuk admin/petugas (tampil jika ada antrean berstatus Menunggu hari ini)
+      [adminBadge, adminMobileBadge].forEach(b => {
+        if (b) {
+          if (adminCount > 0) {
+            b.textContent = adminCount;
+            b.classList.remove('hidden');
           } else {
-            badge.classList.add('hidden');
+            b.classList.add('hidden');
           }
         }
       });
