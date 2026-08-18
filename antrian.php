@@ -330,6 +330,7 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
             <li>Antrian Online ini berlaku untuk seluruh layanan yang diselenggarakan oleh PST BPS Kota Tegal.</li>
             <li>Pemohon memastikan tidak salah memilih tanggal kunjungan dan datang sesuai jadwal yang dipilih.</li>
             <li>Antrian tidak dapat diwakilkan.</li>
+            <li>Dimohon pengunjung untuk tidak meninggalkan tempat layanan, jika meninggalkan dan nomor antrean terlewat, dimohon untuk mengambil ulang nomor antrian.</li>
             <li>Pastikan mengisi data pengisian dengan benar.</li>
             <li>Pemohon harus dalam keadaan SEHAT saat datang. Terima kasih.</li>
             <li><b>Setelah pelayanan selesai</b>, mohon luangkan waktu sejenak untuk mengisi <b>Ulasan Kepuasan Layanan (SKM)</b> di menu <b><a href="bukutamu.php" class="underline text-amber-900 font-bold">Riwayat & Tiket Saya</a></b>.</li>
