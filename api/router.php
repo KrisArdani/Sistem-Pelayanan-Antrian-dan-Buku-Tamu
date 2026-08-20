@@ -52,6 +52,7 @@ $routes = [
     'get_my_antrian'           => 'antrian.api.php',
     'cancel_antrian'           => 'antrian.api.php',
     'get_antrian'              => 'antrian.api.php',
+    'get_display_antrian'      => 'antrian.api.php',
     'panggil_antrian'          => 'antrian.api.php',
     'update_status_antrian'    => 'antrian.api.php',
     'get_waiting_count'        => 'antrian.api.php',

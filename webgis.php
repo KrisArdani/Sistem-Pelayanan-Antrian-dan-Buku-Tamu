@@ -204,12 +204,20 @@ $activeMenu = 'webgis';
                     <span>Kategori Utama</span>
                   </label>
                   <select id="mainCategorySelector" class="select-control">
-                    <option value="penduduk" selected>Data Penduduk (BPS 519)</option>
-                    <option value="geografi">Data Geografi</option>
-                    <option value="ekonomi">Data Ekonomi</option>
-                    <option value="lingkungan">Data Lingkungan</option>
-                    <option value="pendidikan">Data Pendidikan</option>
-                    <option value="sosial_budaya">Data Sosial Budaya</option>
+                    <optgroup label="--Data Spasial Mikro (Per Kecamatan)--">
+                      <option value="penduduk" selected>Data Penduduk (BPS 519)</option>
+                      <option value="geografi">Data Geografi</option>
+                      <option value="ekonomi">Sarana & Ekonomi Wilayah</option>
+                      <option value="lingkungan">Lingkungan & Sanitasi</option>
+                      <option value="pendidikan">Sarana Pendidikan</option>
+                      <option value="sosial_budaya">Sosial, Budaya & Faskes</option>
+                    </optgroup>
+                    <optgroup label="--Data Strategis Makro (Web API BPS Live)--">
+                      <option value="bps_kemiskinan">Kemiskinan & Kesejahteraan (BPS Live)</option>
+                      <option value="bps_ipm">Indeks Pembangunan Manusia (BPS Live)</option>
+                      <option value="bps_ketenagakerjaan">Ketenagakerjaan (BPS Live)</option>
+                      <option value="bps_ekonomi">PDRB & Pertumbuhan Ekonomi (BPS Live)</option>
+                    </optgroup>
                   </select>
                 </div>
 
@@ -307,10 +315,16 @@ $activeMenu = 'webgis';
             <div class="bg-white rounded-3xl border border-slate-200/80 shadow-md p-4 space-y-3">
               <div class="flex items-center justify-between px-2 pt-1">
                 <div class="flex items-center gap-2">
-                  <div class="w-3 h-3 rounded-full bg-sky-500 animate-pulse"></div>
-                  <h3 class="text-lg font-extrabold text-slate-900 brand-font">Peta Spasial Choropleth Kota Tegal</h3>
+                  <div id="mapStatusPulse" class="w-3 h-3 rounded-full bg-sky-500 animate-pulse"></div>
+                  <h3 id="mapCardTitle" class="text-lg font-extrabold text-slate-900 brand-font">Peta Spasial Choropleth Kota Tegal</h3>
                 </div>
-                <span class="text-xs text-slate-500 font-semibold">Gunakan mouse/touch untuk zoom & klik wilayah</span>
+                <div class="flex items-center gap-2">
+                  <span id="mapSourceBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 flex items-center gap-1">
+                    <span class="material-icons text-xs">tune</span>
+                    <span id="mapSourceText">Data Spasial Kecamatan</span>
+                  </span>
+                  <span class="text-xs text-slate-400 font-semibold hidden md:inline">| Zoom & klik wilayah</span>
+                </div>
               </div>
               <div id="webgisMap" class="w-full h-[480px] rounded-2xl border border-slate-200 overflow-hidden shadow-inner z-10"></div>
             </div>
@@ -318,28 +332,71 @@ $activeMenu = 'webgis';
             <!-- Analytics Cards Grid (Pie Chart + Trend Chart) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              <!-- Pie Chart Card -->
+              <!-- Pie Chart / Comparison Card -->
               <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col justify-between">
                 <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="material-icons text-amber-500 text-xl">pie_chart</span>
-                    <h4 class="text-base font-bold text-slate-900 brand-font">Pie Chart (persen)</h4>
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                      <span id="distributionIcon" class="material-icons text-amber-500 text-xl">pie_chart</span>
+                      <h4 id="distributionTitle" class="text-base font-bold text-slate-900 brand-font">Proporsi Data Wilayah</h4>
+                    </div>
+                    <span id="distributionBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase">Kecamatan</span>
                   </div>
-                  <p class="text-xs text-slate-500">Proporsi distribusi data antar kecamatan pada tahun terpilih.</p>
+                  <p id="distributionDesc" class="text-xs text-slate-500">Proporsi distribusi data antar kecamatan pada tahun terpilih.</p>
                 </div>
-                <div class="relative h-60 w-full flex items-center justify-center">
+                
+                <!-- Canvas Pie Chart Container -->
+                <div id="pieChartContainer" class="relative h-60 w-full flex items-center justify-center">
                   <canvas id="pieChartCanvas"></canvas>
+                </div>
+
+                <!-- BPS Comparison Cards Container (Hidden by default, shown for BPS Live) -->
+                <div id="bpsComparisonContainer" class="hidden space-y-3 py-2">
+                  <div class="p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                        TG
+                      </div>
+                      <div>
+                        <div class="text-[11px] font-bold text-sky-800 uppercase tracking-wider">Kota Tegal</div>
+                        <div class="text-xs text-slate-500">Capaian Kota</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div id="bpsValKota" class="text-lg font-black text-sky-900">0</div>
+                      <div id="bpsUnitKota" class="text-[10px] font-bold text-sky-700">-</div>
+                    </div>
+                  </div>
+
+                  <div id="bpsJatengCard" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-slate-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                        JT
+                      </div>
+                      <div>
+                        <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Provinsi Jawa Tengah</div>
+                        <div class="text-xs text-slate-500">Rata-rata Provinsi</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div id="bpsValJateng" class="text-lg font-black text-slate-800">0</div>
+                      <div id="bpsUnitJateng" class="text-[10px] font-bold text-slate-600">-</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <!-- Trend Chart Card -->
               <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col justify-between">
                 <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="material-icons text-sky-600 text-xl">show_chart</span>
-                    <h4 class="text-base font-bold text-slate-900 brand-font">Tren Data per Tahun</h4>
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="material-icons text-sky-600 text-xl">show_chart</span>
+                      <h4 class="text-base font-bold text-slate-900 brand-font">Tren Data per Tahun</h4>
+                    </div>
+                    <span id="trendBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 uppercase">Multi-Tahun</span>
                   </div>
-                  <p class="text-xs text-slate-500">Perkembangan indikator pada rentang tahun yang dipilih.</p>
+                  <p id="trendDesc" class="text-xs text-slate-500">Perkembangan indikator pada rentang tahun yang dipilih.</p>
                 </div>
                 <div class="relative h-60 w-full flex items-center justify-center">
                   <canvas id="trendChartCanvas"></canvas>

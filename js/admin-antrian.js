@@ -10,8 +10,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!user) return;
 
   const filterLayananSelect = document.getElementById('filter_layanan_antrian');
-  if (filterLayananSelect && !filterLayananSelect.value) {
-    filterLayananSelect.value = 'all';
+  if (filterLayananSelect) {
+    if (user.role === 'petugas' && user.layanan_tugas) {
+      filterLayananSelect.value = user.layanan_tugas;
+      filterLayananSelect.disabled = true;
+    } else if (!filterLayananSelect.value) {
+      filterLayananSelect.value = 'all';
+    }
   }
 
   const walkinLayananSelect = document.getElementById('walkin_layanan');
@@ -271,8 +276,15 @@ async function renderAntrianDashboard(isSilent = false) {
 let pendingAutoCallNext = false;
 
 async function panggilAntrianBerikutnya() {
-  // Jika sedang ada antrean aktif yang Dipanggil atau Dilayani, minta petugas mencatat pelayanan terlebih dahulu
-  const activeItem = fetchedAntrianData.find(i => i.status === 'Dipanggil' || i.status === 'Dilayani');
+  const filterLayananSelect = document.getElementById('filter_layanan_antrian');
+  const layananVal = filterLayananSelect ? filterLayananSelect.value : 'all';
+
+  // Jika sedang ada antrean aktif yang Dipanggil atau Dilayani pada loket/layanan ini, minta petugas mencatat pelayanan terlebih dahulu
+  const activeItem = fetchedAntrianData.find(i => {
+    const isServiceMatch = (layananVal === 'all' || (i.layanan && i.layanan.toLowerCase().includes(layananVal.toLowerCase())));
+    return isServiceMatch && (i.status === 'Dipanggil' || i.status === 'Dilayani');
+  });
+
   if (activeItem) {
     openModalSelesaiPelayanan(activeItem.id, true);
     return;
@@ -294,12 +306,21 @@ async function executePanggilBerikutnya() {
     const json = await res.json();
     if (json.status === 'success') {
       await renderAntrianDashboard();
-      const activeItem = fetchedAntrianData.find(i => i.status === 'Dipanggil');
-      if (activeItem) {
-        speakQueueAnnouncement(activeItem.nomor, activeItem.nama, activeItem.layanan);
-      } else {
-        playBellSound();
-      }
+      const activeItem = fetchedAntrianData.find(i => {
+        const isServiceMatch = (layananVal === 'all' || (i.layanan && i.layanan.toLowerCase().includes(layananVal.toLowerCase())));
+        return isServiceMatch && i.status === 'Dipanggil';
+      });
+      const calledNumber = activeItem ? activeItem.nomor : '';
+      
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `Nomor ${calledNumber} Dipanggil!`,
+        text: 'Suara bel & panggilan otomatis disiarkan di Layar TV.',
+        timer: 3000,
+        showConfirmButton: false
+      });
     } else {
       Swal.fire('Informasi', json.message || 'Gagal memanggil antrian.', 'info');
     }
@@ -310,11 +331,18 @@ async function executePanggilBerikutnya() {
 }
 
 async function panggilUlangAktif() {
-  const activeItem = fetchedAntrianData.find(i => i.status === 'Dipanggil');
+  const filterLayananSelect = document.getElementById('filter_layanan_antrian');
+  const layananVal = filterLayananSelect ? filterLayananSelect.value : 'all';
+
+  const activeItem = fetchedAntrianData.find(i => {
+    const isServiceMatch = (layananVal === 'all' || (i.layanan && i.layanan.toLowerCase().includes(layananVal.toLowerCase())));
+    return isServiceMatch && i.status === 'Dipanggil';
+  });
+
   if (activeItem) {
     await panggilSpesifik(activeItem.id, true);
   } else {
-    Swal.fire('Info', 'Tidak ada antrean aktif yang sedang dipanggil saat ini.', 'info');
+    Swal.fire('Info', 'Tidak ada antrean aktif yang sedang dipanggil pada loket ini.', 'info');
   }
 }
 
@@ -330,11 +358,17 @@ async function panggilSpesifik(id, isRepeat = false) {
     const json = await res.json();
     if (json.status === 'success') {
       await renderAntrianDashboard();
-      if (targetItem) {
-        speakQueueAnnouncement(targetItem.nomor, targetItem.nama, targetItem.layanan);
-      } else {
-        playBellSound();
-      }
+      const calledNumber = targetItem ? targetItem.nomor : '';
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: isRepeat ? `Panggilan Ulang: ${calledNumber}` : `Nomor ${calledNumber} Dipanggil!`,
+        text: 'Suara bel & panggilan otomatis disiarkan di Layar TV.',
+        timer: 3000,
+        showConfirmButton: false
+      });
     } else {
       Swal.fire('Gagal', json.message || 'Gagal memanggil antrian.', 'error');
     }

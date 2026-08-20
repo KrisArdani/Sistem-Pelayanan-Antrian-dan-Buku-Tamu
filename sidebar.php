@@ -73,6 +73,17 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
         <span>Webgis Kota Tegal</span>
       </a>
 
+      <?php if (in_array($sidebarUserRole, ['admin', 'kepala', 'petugas'])): ?>
+      <a href="admin/bps_data.php" class="bps-nav-item <?php echo ($activeMenu == 'bps_data') ? 'active' : ''; ?>">
+        <span class="material-icons text-amber-400">cloud_sync</span>
+        <span>Integrasi Web API BPS</span>
+      </a>
+      <a href="display.php" target="_blank" class="bps-nav-item">
+        <span class="material-icons text-amber-400">tv</span>
+        <span>Layar Display TV (Ruang Tunggu)</span>
+      </a>
+      <?php endif; ?>
+
       <a href="#" class="bps-nav-item opacity-75">
         <span class="material-icons">support_agent</span>
         <span>Hubungi Kami</span>
@@ -193,6 +204,17 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
           <span class="material-icons">map</span>
           <span>Webgis Kota Tegal</span>
         </a>
+
+        <?php if (in_array($sidebarUserRole, ['admin', 'kepala', 'petugas'])): ?>
+        <a href="admin/bps_data.php" class="bps-nav-item <?php echo ($activeMenu == 'bps_data') ? 'active' : ''; ?>">
+          <span class="material-icons text-amber-400">cloud_sync</span>
+          <span>Integrasi Web API BPS</span>
+        </a>
+        <a href="display.php" target="_blank" class="bps-nav-item">
+          <span class="material-icons text-amber-400">tv</span>
+          <span>Layar Display TV (Ruang Tunggu)</span>
+        </a>
+        <?php endif; ?>
 
         <a href="#" class="bps-nav-item opacity-75">
           <span class="material-icons">support_agent</span>

@@ -53,6 +53,7 @@ $csrf_token = generateCsrfToken();
           <a href="users.php" class="bps-nav-item"><span class="material-icons">manage_accounts</span> Kelola Pengguna</a>
           <?php endif; ?>
           <div class="pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Utama</div>
+          <a href="../display.php" target="_blank" class="bps-nav-item"><span class="material-icons text-amber-400">tv</span> Layar Display TV</a>
           <a href="../index.php" class="bps-nav-item"><span class="material-icons">open_in_new</span> Portal Publik</a>
         </nav>
       </div>
@@ -162,26 +163,35 @@ $csrf_token = generateCsrfToken();
             <p class="text-slate-500 text-xs">Panggil nomor antrian yang menunggu secara teratur.</p>
           </div>
 
-          <!-- Dropdown Export Laporan -->
-          <div class="dropdown shrink-0">
-            <button type="button" class="btn btn-primary bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md dropdown-toggle" data-bs-toggle="dropdown">
-              <span class="material-icons text-sm">download</span>
-              <span>Ekspor Laporan</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end text-xs shadow-xl rounded-xl border border-slate-200 p-2">
-              <li>
-                <button type="button" onclick="exportData('antrian', 'excel')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-emerald-700 hover:bg-emerald-50">
-                  <span class="material-icons text-sm">table_view</span>
-                  <span>Unduh Format Excel / CSV</span>
-                </button>
-              </li>
-              <li>
-                <button type="button" onclick="exportData('antrian', 'pdf')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-rose-700 hover:bg-rose-50">
-                  <span class="material-icons text-sm">picture_as_pdf</span>
-                  <span>Pratinjau / Cetak Laporan PDF</span>
-                </button>
-              </li>
-            </ul>
+          <!-- Action Bar: Buka Display TV & Export Laporan -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Tombol Buka Layar Display TV -->
+            <a href="../display.php" target="_blank" class="btn btn-warning bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md transition transform active:scale-95" title="Buka Papan Antrean Layar Penuh untuk TV Ruang Tunggu">
+              <span class="material-icons text-sm text-slate-950">tv</span>
+              <span>Buka Layar Display TV</span>
+            </a>
+
+            <!-- Dropdown Export Laporan -->
+            <div class="dropdown shrink-0">
+              <button type="button" class="btn btn-primary bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md dropdown-toggle" data-bs-toggle="dropdown">
+                <span class="material-icons text-sm">download</span>
+                <span>Ekspor Laporan</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end text-xs shadow-xl rounded-xl border border-slate-200 p-2">
+                <li>
+                  <button type="button" onclick="exportData('antrian', 'excel')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-emerald-700 hover:bg-emerald-50">
+                    <span class="material-icons text-sm">table_view</span>
+                    <span>Unduh Format Excel / CSV</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" onclick="exportData('antrian', 'pdf')" class="dropdown-item py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-rose-700 hover:bg-rose-50">
+                    <span class="material-icons text-sm">picture_as_pdf</span>
+                    <span>Pratinjau / Cetak Laporan PDF</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 

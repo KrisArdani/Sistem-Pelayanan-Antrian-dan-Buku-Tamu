@@ -1,14 +1,63 @@
-# Temporary files
-*.tmp
+# ==============================================================================
+# SPST BPS Kota Tegal - Git Ignore Configuration
+# ==============================================================================
+
+# 1. Environment & Sensitive Credentials (JANGAN PERNAH DI-PUSH KE GITHUB!)
+.env
+.env.local
+.env.*.local
+*.env
+
+# 2. Application Cache & Generated Data
+/cache/*
+!/cache/.gitkeep
+!/cache/**/.gitkeep
+!/cache/**/.htaccess
+*.cache
+
+# 3. User Uploads & Temporary Media (Perlindungan Data Pribadi Pengunjung / UU PDP)
+/uploads/*
+!/uploads/.gitkeep
+/tmp/
+/temp/
+
+# 4. Logs, Scratch, & Debugging Files
 *.log
+/logs/
+/scratch/
+error_log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS generated files
+# 5. Database Backups & Large Binary Dumps
+*.bak
+*.backup
+*.dump
+*.sqlite
+*.sql.gz
+*.sql.tar.gz
+
+# 6. Operating System Generated Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
 
-# IDE / Editor files
-.vscode/
+# 7. IDE, Code Editors, & Tools
 .idea/
+.vscode/*
+!.vscode/settings.json
+*.sublime-project
+*.sublime-workspace
 *.swp
+*.swo
+*~
 
-
+# 8. Dependency Directories (jika menggunakan npm/composer)
+/node_modules/
+/vendor/

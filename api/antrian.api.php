@@ -173,11 +173,12 @@ switch ($action) {
 
             if (in_array($rowStatus, ['Menunggu', 'Dipanggil', 'Dilayani']) && $rowTanggal === $todayStr) {
                 // Hitung berapa antrean berstatus Menunggu/Dipanggil/Dilayani yang ada sebelum ID antrean ini pada hari ini
-                $stmtAhead = $conn->prepare("SELECT COUNT(*) as total_ahead FROM antrian WHERE tanggal = ? AND status IN ('Menunggu', 'Dipanggil', 'Dilayani') AND id < ?");
-                $stmtAhead->bind_param("si", $todayStr, $rowId);
+                $stmtAhead = $conn->prepare("SELECT COUNT(*) as total_ahead FROM antrian WHERE tanggal = ? AND status IN ('Menunggu', 'Dipanggil', 'Dilayani') AND (waktu < (SELECT waktu FROM antrian WHERE id = ?) OR (waktu = (SELECT waktu FROM antrian WHERE id = ?) AND id < ?))");
+                $stmtAhead->bind_param("siii", $todayStr, $rowId, $rowId, $rowId);
                 $stmtAhead->execute();
                 $aheadRow = $stmtAhead->get_result()->fetch_assoc();
                 $stmtAhead->close();
+
 
                 $aheadCount = intval($aheadRow['total_ahead'] ?? 0);
                 $row['antrean_aktif_saat_ini'] = $activeNo;
@@ -318,9 +319,13 @@ switch ($action) {
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
         $userRole = $_SESSION['user_role'] ?? '';
 
-        $filterLayanan = sanitizeInput($_GET['layanan'] ?? 'all');
-        if (empty($filterLayanan)) {
-            $filterLayanan = 'all';
+        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+            $filterLayanan = $assignedLayanan;
+        } else {
+            $filterLayanan = sanitizeInput($_GET['layanan'] ?? 'all');
+            if (empty($filterLayanan)) {
+                $filterLayanan = 'all';
+            }
         }
 
         $todayStr = date('Y-m-d');
@@ -351,7 +356,7 @@ switch ($action) {
             $params[] = '%' . $filterLayanan . '%';
         }
 
-        $query .= " ORDER BY id DESC";
+        $query .= " ORDER BY waktu ASC, id ASC";
 
         $stmt = $conn->prepare($query);
         if (!empty($params)) {
@@ -365,6 +370,154 @@ switch ($action) {
             $data[] = $row;
         }
         sendJsonResponse('success', 'Data antrian berhasil diambil.', $data);
+        break;
+
+    case 'get_display_antrian':
+        // Endpoint publik untuk layar TV display antrean (tanpa perlu autentikasi login)
+        $todayStr = date('Y-m-d');
+
+        // 1. Ambil antrean yang sedang Dipanggil saat ini (paling baru dipanggil)
+        $stmtCall = $conn->prepare("SELECT id, nomor, kode_antrian, nama, instansi, layanan, fasilitas, status, waktu, called_at, panggil_count, created_at FROM antrian WHERE tanggal = ? AND status = 'Dipanggil' ORDER BY called_at DESC, id DESC LIMIT 1");
+        $stmtCall->bind_param("s", $todayStr);
+        $stmtCall->execute();
+        $activeCall = $stmtCall->get_result()->fetch_assoc();
+        $stmtCall->close();
+
+        // 2. Jika tidak ada yang Dipanggil, cari yang statusnya Dilayani (terakhir dilayani)
+        $activeServed = null;
+        if (!$activeCall) {
+            $stmtServed = $conn->prepare("SELECT id, nomor, kode_antrian, nama, instansi, layanan, fasilitas, status, waktu, called_at, panggil_count, created_at FROM antrian WHERE tanggal = ? AND status = 'Dilayani' ORDER BY id DESC LIMIT 1");
+            $stmtServed->bind_param("s", $todayStr);
+            $stmtServed->execute();
+            $activeServed = $stmtServed->get_result()->fetch_assoc();
+            $stmtServed->close();
+        }
+
+        // 3. Status Per Loket Pelayanan (4 Loket PST)
+        $counters = [
+            [
+                'id' => 1,
+                'code' => 'KS',
+                'name' => 'Loket 1 - Konsultasi Statistik',
+                'service' => 'Konsultasi Statistik',
+                'badge_color' => 'sky'
+            ],
+            [
+                'id' => 2,
+                'code' => 'PD',
+                'name' => 'Loket 2 - Perpustakaan',
+                'service' => 'Perpustakaan',
+                'badge_color' => 'emerald'
+            ],
+            [
+                'id' => 3,
+                'code' => 'RS',
+                'name' => 'Loket 3 - Rekomendasi Kegiatan Statistik',
+                'service' => 'Rekomendasi Kegiatan Statistik',
+                'badge_color' => 'amber'
+            ],
+            [
+                'id' => 4,
+                'code' => 'PG',
+                'name' => 'Loket 4 - Layanan Pengaduan',
+                'service' => 'Layanan Pengaduan',
+                'badge_color' => 'rose'
+            ]
+        ];
+
+        $counterStatuses = [];
+        foreach ($counters as $c) {
+            $likePrefix = $c['code'] . '-%';
+            $likeService = '%' . $c['service'] . '%';
+            
+            // Antrean aktif saat ini di loket ini (Dipanggil / Dilayani)
+            $stmtCurrent = $conn->prepare("SELECT id, nomor, kode_antrian, nama, instansi, status, waktu, called_at, panggil_count FROM antrian WHERE tanggal = ? AND (nomor LIKE ? OR layanan LIKE ?) AND status IN ('Dipanggil', 'Dilayani') ORDER BY id DESC LIMIT 1");
+            $stmtCurrent->bind_param("sss", $todayStr, $likePrefix, $likeService);
+            $stmtCurrent->execute();
+            $currentQueue = $stmtCurrent->get_result()->fetch_assoc();
+            $stmtCurrent->close();
+
+            // Hitung jumlah antrean yang masih menunggu di loket ini
+            $stmtWait = $conn->prepare("SELECT COUNT(*) as total_wait FROM antrian WHERE tanggal = ? AND (nomor LIKE ? OR layanan LIKE ?) AND status = 'Menunggu'");
+            $stmtWait->bind_param("sss", $todayStr, $likePrefix, $likeService);
+            $stmtWait->execute();
+            $waitRow = $stmtWait->get_result()->fetch_assoc();
+            $stmtWait->close();
+
+            // Ambil daftar antrean yang akan dipanggil berikutnya di loket ini (maksimal 4 antrean)
+            $stmtNextList = $conn->prepare("SELECT id, nomor, kode_antrian, nama, instansi, waktu, status FROM antrian WHERE tanggal = ? AND (nomor LIKE ? OR layanan LIKE ?) AND status = 'Menunggu' ORDER BY waktu ASC, id ASC LIMIT 4");
+            $stmtNextList->bind_param("sss", $todayStr, $likePrefix, $likeService);
+            $stmtNextList->execute();
+            $nextListRes = $stmtNextList->get_result();
+            $nextList = [];
+            while ($nRow = $nextListRes->fetch_assoc()) {
+                $nextList[] = $nRow;
+            }
+            $stmtNextList->close();
+
+            $counterStatuses[] = [
+                'loket_id' => $c['id'],
+                'loket_code' => $c['code'],
+                'loket_name' => $c['name'],
+                'service' => $c['service'],
+                'badge_color' => $c['badge_color'],
+                'active_queue' => $currentQueue,
+                'waiting_count' => intval($waitRow['total_wait'] ?? 0),
+                'next_list' => $nextList
+            ];
+        }
+
+        // 4. Antrean Berikutnya (Menunggu) terdekat
+        $stmtNext = $conn->prepare("SELECT id, nomor, kode_antrian, nama, instansi, layanan, waktu, tipe_pendaftaran FROM antrian WHERE tanggal = ? AND status = 'Menunggu' ORDER BY waktu ASC, id ASC LIMIT 1");
+        $stmtNext->bind_param("s", $todayStr);
+        $stmtNext->execute();
+        $nextQueue = $stmtNext->get_result()->fetch_assoc();
+        $stmtNext->close();
+
+        // 5. Total Statistik Hari Ini
+        $stmtStats = $conn->prepare("SELECT 
+            COUNT(*) as total_today,
+            SUM(CASE WHEN status = 'Menunggu' THEN 1 ELSE 0 END) as total_waiting,
+            SUM(CASE WHEN status IN ('Dipanggil', 'Dilayani') THEN 1 ELSE 0 END) as total_processing,
+            SUM(CASE WHEN status = 'Selesai' THEN 1 ELSE 0 END) as total_finished,
+            SUM(CASE WHEN status = 'Terlewat' THEN 1 ELSE 0 END) as total_skipped
+            FROM antrian WHERE tanggal = ?");
+        $stmtStats->bind_param("s", $todayStr);
+        $stmtStats->execute();
+        $statsRow = $stmtStats->get_result()->fetch_assoc();
+        $stmtStats->close();
+
+        // 6. Daftar Antrean Menunggu Hari Ini (max 10 untuk running preview)
+        $stmtList = $conn->prepare("SELECT id, nomor, nama, layanan, waktu, tipe_pendaftaran, status FROM antrian WHERE tanggal = ? AND status IN ('Menunggu', 'Dipanggil', 'Dilayani') ORDER BY waktu ASC, id ASC LIMIT 15");
+        $stmtList->bind_param("s", $todayStr);
+        $stmtList->execute();
+        $listRes = $stmtList->get_result();
+        $waitingList = [];
+        while ($lRow = $listRes->fetch_assoc()) {
+            $waitingList[] = $lRow;
+        }
+        $stmtList->close();
+
+        sendJsonResponse('success', 'Data display antrean berhasil diambil.', [
+            'active_call' => $activeCall,
+            'active_served' => $activeServed,
+            'next_queue' => $nextQueue,
+            'counters' => $counterStatuses,
+            'stats' => [
+                'total' => intval($statsRow['total_today'] ?? 0),
+                'waiting' => intval($statsRow['total_waiting'] ?? 0),
+                'processing' => intval($statsRow['total_processing'] ?? 0),
+                'finished' => intval($statsRow['total_finished'] ?? 0),
+                'skipped' => intval($statsRow['total_skipped'] ?? 0)
+            ],
+            'waiting_list' => $waitingList,
+            'server_time' => [
+                'timestamp' => time(),
+                'date' => date('Y-m-d'),
+                'time' => date('H:i:s'),
+                'formatted' => date('d F Y, H:i:s')
+            ]
+        ]);
         break;
 
     case 'panggil_antrian':
@@ -384,58 +537,54 @@ switch ($action) {
         $tanggal = date('Y-m-d');
 
         if ($id > 0) {
+            // Ambil layanan dari antrean yang akan dipanggil
+            $stmtTarget = $conn->prepare("SELECT id, layanan FROM antrian WHERE id = ?");
+            $stmtTarget->bind_param("i", $id);
+            $stmtTarget->execute();
+            $targetRow = $stmtTarget->get_result()->fetch_assoc();
+            $stmtTarget->close();
+
+            if (!$targetRow) {
+                sendJsonResponse('error', 'Data antrean tidak ditemukan.');
+            }
+            $targetLayanan = $targetRow['layanan'];
+
             // Verifikasi petugas hanya boleh memanggil antrean layanannya sendiri
             if ($userRole === 'petugas' && !empty($assignedLayanan)) {
-                $stmtCheck = $conn->prepare("SELECT id FROM antrian WHERE id = ? AND layanan LIKE ?");
                 $likeAssigned = '%' . $assignedLayanan . '%';
-                $stmtCheck->bind_param("is", $id, $likeAssigned);
-                $stmtCheck->execute();
-                if ($stmtCheck->get_result()->num_rows === 0) {
+                if (!str_contains($targetLayanan, $assignedLayanan)) {
                     sendJsonResponse('error', 'Anda tidak memiliki hak akses untuk memanggil antrean dari loket layanan lain.');
                 }
             }
 
             if ($isRepeat) {
-                // Pemanggilan ulang: cukup atur ulang status ke 'Dipanggil'
-                $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil' WHERE id = ? AND status = 'Dipanggil'");
+                // Pemanggilan ulang: perbarui status, called_at, dan panggil_count
+                $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil', called_at = NOW(), panggil_count = panggil_count + 1 WHERE id = ?");
                 $stmt->bind_param("i", $id);
                 $stmt->execute();
+                $stmt->close();
             } else {
-                // Selesaikan antrean LAIN yang sedang berstatus 'Dipanggil' (BUKAN 'Dilayani') kecuali ID yang diminta
-                if (!empty($filterLayanan) && $filterLayanan !== 'all') {
-                    $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ? AND layanan LIKE ?");
-                    $likeLayanan = '%' . $filterLayanan . '%';
-                    $stmtFinish->bind_param("sis", $tanggal, $id, $likeLayanan);
-                } else {
-                    $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ?");
-                    $stmtFinish->bind_param("si", $tanggal, $id);
-                }
+                // Tandai Terlewat antrean 'Dipanggil' sebelumnya HANYA pada loket/layanan yang SAMA PERSIS
+                // Loket layanan lain TIDAK BOLEH disentuh atau diselesaikan!
+                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Terlewat' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ? AND layanan = ?");
+                $stmtFinish->bind_param("sis", $tanggal, $id, $targetLayanan);
                 $stmtFinish->execute();
+                $stmtFinish->close();
 
-                // Hanya ubah ke Dipanggil jika saat ini berstatus Menunggu atau sudah Dipanggil
-                $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil' WHERE id = ? AND status IN ('Menunggu', 'Dipanggil')");
+                // Ubah ke Dipanggil serta perbarui called_at dan panggil_count
+                $stmt = $conn->prepare("UPDATE antrian SET status = 'Dipanggil', called_at = NOW(), panggil_count = panggil_count + 1 WHERE id = ?");
                 $stmt->bind_param("i", $id);
                 $stmt->execute();
+                $stmt->close();
             }
         } else {
-            // Selesaikan antrean yang sedang berstatus 'Dipanggil' secara aman sebelum mengambil antrean berikutnya
+            // Cari antrean berikutnya yang berstatus 'Menunggu'
             if (!empty($filterLayanan) && $filterLayanan !== 'all') {
-                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ? AND layanan LIKE ?");
-                $likeLayanan = '%' . $filterLayanan . '%';
-                $stmtFinish->bind_param("ss", $tanggal, $likeLayanan);
-            } else {
-                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Selesai' WHERE status = 'Dipanggil' AND tanggal = ?");
-                $stmtFinish->bind_param("s", $tanggal);
-            }
-            $stmtFinish->execute();
-
-            // Cari antrean berikutnya yang berstatus 'Menunggu' saja
-            if (!empty($filterLayanan) && $filterLayanan !== 'all') {
-                $stmtNext = $conn->prepare("SELECT id FROM antrian WHERE status = 'Menunggu' AND tanggal = ? AND layanan LIKE ? ORDER BY id ASC LIMIT 1");
+                $stmtNext = $conn->prepare("SELECT id, layanan FROM antrian WHERE status = 'Menunggu' AND tanggal = ? AND layanan LIKE ? ORDER BY waktu ASC, id ASC LIMIT 1");
                 $likeLayanan = '%' . $filterLayanan . '%';
                 $stmtNext->bind_param("ss", $tanggal, $likeLayanan);
             } else {
-                $stmtNext = $conn->prepare("SELECT id FROM antrian WHERE status = 'Menunggu' AND tanggal = ? ORDER BY id ASC LIMIT 1");
+                $stmtNext = $conn->prepare("SELECT id, layanan FROM antrian WHERE status = 'Menunggu' AND tanggal = ? ORDER BY waktu ASC, id ASC LIMIT 1");
                 $stmtNext->bind_param("s", $tanggal);
             }
             
@@ -443,10 +592,22 @@ switch ($action) {
             $res = $stmtNext->get_result();
             if ($next = $res->fetch_assoc()) {
                 $nextId = $next['id'];
-                $stmtCall = $conn->prepare("UPDATE antrian SET status = 'Dipanggil' WHERE id = ? AND status = 'Menunggu'");
+                $nextLayanan = $next['layanan'];
+                $stmtNext->close();
+
+                // Tandai Terlewat antrean 'Dipanggil' sebelumnya HANYA pada loket/layanan yang SAMA PERSIS
+                $stmtFinish = $conn->prepare("UPDATE antrian SET status = 'Terlewat' WHERE status = 'Dipanggil' AND tanggal = ? AND id != ? AND layanan = ?");
+                $stmtFinish->bind_param("sis", $tanggal, $nextId, $nextLayanan);
+                $stmtFinish->execute();
+                $stmtFinish->close();
+
+                $stmtCall = $conn->prepare("UPDATE antrian SET status = 'Dipanggil', called_at = NOW(), panggil_count = panggil_count + 1 WHERE id = ? AND status = 'Menunggu'");
                 $stmtCall->bind_param("i", $nextId);
                 $stmtCall->execute();
+                $stmtCall->close();
                 $id = $nextId;
+            } else {
+                $stmtNext->close();
             }
         }
         logSecurityEvent($conn, 'panggil_antrian', "Called queue ID: $id (Repeat: " . ($isRepeat ? '1' : '0') . ")");

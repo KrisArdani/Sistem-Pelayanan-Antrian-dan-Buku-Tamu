@@ -114,6 +114,11 @@ try {
     if ($checkResetToken && $checkResetToken->num_rows === 0) {
         $conn->query("ALTER TABLE users ADD COLUMN reset_token VARCHAR(64) DEFAULT NULL, ADD COLUMN reset_expires_at DATETIME DEFAULT NULL");
     }
+
+    $checkCalledAt = $conn->query("SHOW COLUMNS FROM antrian LIKE 'called_at'");
+    if ($checkCalledAt && $checkCalledAt->num_rows === 0) {
+        $conn->query("ALTER TABLE antrian ADD COLUMN called_at DATETIME DEFAULT NULL AFTER status, ADD COLUMN panggil_count INT DEFAULT 0 AFTER called_at");
+    }
 } catch (Throwable $e) {
     error_log("Auto Migration Note: " . $e->getMessage());
 }

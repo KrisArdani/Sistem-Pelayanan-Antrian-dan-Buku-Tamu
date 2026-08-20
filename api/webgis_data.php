@@ -1,14 +1,18 @@
 <?php
-// SPST BPS Kota Tegal - API Endpoint WebGIS Data
+// SPST BPS Kota Tegal - Unified API Endpoint WebGIS Data (Local Spatial + Live BPS Web API)
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, no-store, must-revalidate');
 require_once __DIR__ . '/../koneksi.php';
+require_once __DIR__ . '/../includes/bps_service.php';
 
-// Definition of categories & indicators
-$categoryMeta = [
+// 1. Definisi Kategori Spasial Mikro Lokal (Per Kecamatan)
+$localCategories = [
     'geografi' => [
         'name' => 'Data Geografi',
         'icon' => 'public',
         'color' => '#0284c7', // Sky Blue
+        'source' => 'local_spatial',
+        'badge' => 'Per Kecamatan',
         'indicators' => [
             'area_sqkm' => ['name' => 'Luas Wilayah', 'unit' => 'Km²'],
             'percentage_total_area' => ['name' => 'Persentase Luas Wilayah', 'unit' => '%'],
@@ -21,6 +25,8 @@ $categoryMeta = [
         'name' => 'Data Penduduk (BPS 519)',
         'icon' => 'groups',
         'color' => '#2563eb', // Blue
+        'source' => 'local_spatial',
+        'badge' => 'Per Kecamatan',
         'indicators' => [
             'penduduk_total' => ['name' => 'Jumlah Penduduk Total', 'unit' => 'Jiwa'],
             'penduduk_laki' => ['name' => 'Jumlah Penduduk Laki-laki', 'unit' => 'Jiwa'],
@@ -32,9 +38,11 @@ $categoryMeta = [
         ]
     ],
     'ekonomi' => [
-        'name' => 'Data Ekonomi',
-        'icon' => 'trending_up',
+        'name' => 'Sarana & Ekonomi Wilayah',
+        'icon' => 'storefront',
         'color' => '#16a34a', // Green
+        'source' => 'local_spatial',
+        'badge' => 'Per Kecamatan',
         'indicators' => [
             'pasar_tradisional' => ['name' => 'Jumlah Pasar Tradisional', 'unit' => 'Unit'],
             'toko_modern' => ['name' => 'Jumlah Toko Modern / Perbelanjaan', 'unit' => 'Unit'],
@@ -43,9 +51,11 @@ $categoryMeta = [
         ]
     ],
     'lingkungan' => [
-        'name' => 'Data Lingkungan',
+        'name' => 'Lingkungan & Sanitasi',
         'icon' => 'nature_people',
         'color' => '#059669', // Emerald
+        'source' => 'local_spatial',
+        'badge' => 'Per Kecamatan',
         'indicators' => [
             'air_minum_layak' => ['name' => 'Persentase Air Minum Layak', 'unit' => '%'],
             'sanitasi_layak' => ['name' => 'Persentase Sanitasi Layak', 'unit' => '%'],
@@ -54,9 +64,11 @@ $categoryMeta = [
         ]
     ],
     'pendidikan' => [
-        'name' => 'Data Pendidikan',
+        'name' => 'Sarana Pendidikan',
         'icon' => 'school',
         'color' => '#d97706', // Amber
+        'source' => 'local_spatial',
+        'badge' => 'Per Kecamatan',
         'indicators' => [
             'sd_mi' => ['name' => 'Jumlah Sekolah Dasar (SD/MI)', 'unit' => 'Sekolah'],
             'smp_mts' => ['name' => 'Jumlah SMP / MTs', 'unit' => 'Sekolah'],
@@ -66,9 +78,11 @@ $categoryMeta = [
         ]
     ],
     'sosial_budaya' => [
-        'name' => 'Data Sosial Budaya',
+        'name' => 'Sosial, Budaya & Faskes',
         'icon' => 'diversity_3',
         'color' => '#9333ea', // Purple
+        'source' => 'local_spatial',
+        'badge' => 'Per Kecamatan',
         'indicators' => [
             'tempat_ibadah' => ['name' => 'Jumlah Tempat Ibadah', 'unit' => 'Unit'],
             'faskes' => ['name' => 'Jumlah Sarana Kesehatan', 'unit' => 'Unit'],
@@ -78,23 +92,66 @@ $categoryMeta = [
     ],
 ];
 
-// Read Parameters
-$catParam = isset($_GET['category']) && array_key_exists($_GET['category'], $categoryMeta) ? $_GET['category'] : 'penduduk';
-$indList  = array_keys($categoryMeta[$catParam]['indicators']);
-$indParam = isset($_GET['indicator']) && array_key_exists($_GET['indicator'], $categoryMeta[$catParam]['indicators']) ? $_GET['indicator'] : $indList[0];
+// 2. Inisialisasi BpsService dan Kategori BPS
+$bpsService = new BpsService();
+$bpsCategories = $bpsService->getCategories();
+
+// Gabungkan semua kategori untuk dropdown sinkronisasi
+$allCategoriesMeta = array_merge($localCategories, $bpsCategories);
+
+// Format list categories untuk dikembalikan ke frontend
+$categoriesResponse = [];
+foreach ($allCategoriesMeta as $cKey => $cMeta) {
+    $indItems = [];
+    foreach ($cMeta['indicators'] as $iKey => $iMeta) {
+        $indItems[] = [
+            'code' => $iKey,
+            'name' => $iMeta['name'],
+            'unit' => $iMeta['unit'] ?? '',
+            'desc' => $iMeta['desc'] ?? ''
+        ];
+    }
+    $categoriesResponse[] = [
+        'code' => $cKey,
+        'name' => $cMeta['name'],
+        'icon' => $cMeta['icon'],
+        'color' => $cMeta['color'] ?? '#0284c7',
+        'source' => $cMeta['source'] ?? 'local_spatial',
+        'badge' => isset($cMeta['source']) && $cMeta['source'] === 'bps_api' ? 'BPS Live' : 'Per Kecamatan',
+        'indicators' => $indItems
+    ];
+}
+
+// 3. Baca Parameter Request
+$catParam = isset($_GET['category']) && array_key_exists($_GET['category'], $allCategoriesMeta) ? $_GET['category'] : 'penduduk';
+$catInfo  = $allCategoriesMeta[$catParam];
+$indList  = array_keys($catInfo['indicators']);
+$indParam = isset($_GET['indicator']) && array_key_exists($_GET['indicator'], $catInfo['indicators']) ? $_GET['indicator'] : $indList[0];
 $areaParam = isset($_GET['area']) ? trim($_GET['area']) : '';
 $yearParam = isset($_GET['year']) ? intval($_GET['year']) : 2024;
 $startYr   = isset($_GET['start_year']) ? intval($_GET['start_year']) : 2020;
-$endYr     = isset($_GET['end_year']) ? intval($_GET['end_year']) : 2026;
+$endYr     = isset($_GET['end_year']) ? intval($_GET['end_year']) : 2024;
 
-// Sanitize year range
+// Normalisasi rentang tahun
 if ($startYr > $endYr) {
     $temp = $startYr;
     $startYr = $endYr;
     $endYr = $temp;
 }
 
-// Fetch Current Data (for specified single year)
+// =========================================================================
+// 4. JIKA KATEGORI ADALAH DATA RESMI DARI BPS WEB API (LIVE BPS)
+// =========================================================================
+if (isset($catInfo['source']) && $catInfo['source'] === 'bps_api') {
+    $bpsResponse = $bpsService->getWebGisData($catParam, $indParam, $yearParam, $startYr, $endYr);
+    $bpsResponse['categories'] = $categoriesResponse;
+    echo json_encode($bpsResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+// =========================================================================
+// 5. JIKA KATEGORI ADALAH DATA SPASIAL MIKRO LOKAL (PER KECAMATAN DARI MYSQL)
+// =========================================================================
 $currentData = [];
 $totalValSum = 0;
 
@@ -106,8 +163,8 @@ $stmt->bind_param("ssi", $catParam, $indParam, $yearParam);
 $stmt->execute();
 $res = $stmt->get_result();
 
-$unitStr = $categoryMeta[$catParam]['indicators'][$indParam]['unit'];
-$indNameStr = $categoryMeta[$catParam]['indicators'][$indParam]['name'];
+$unitStr = $localCategories[$catParam]['indicators'][$indParam]['unit'] ?? '';
+$indNameStr = $localCategories[$catParam]['indicators'][$indParam]['name'] ?? '';
 
 while ($row = $res->fetch_assoc()) {
     $val = floatval($row['value']);
@@ -116,22 +173,20 @@ while ($row = $res->fetch_assoc()) {
         'code' => $row['kecamatan_code'],
         'name' => $row['kecamatan_name'],
         'value' => $val,
-        'unit' => $row['unit'],
+        'unit' => $row['unit'] ?: $unitStr,
         'formatted' => number_format($val, ($val == intval($val) ? 0 : 2), ',', '.')
     ];
 }
 $stmt->close();
 
-// Calculate percentage for each kecamatan
+// Hitung persentase kontribusi per kecamatan
 foreach ($currentData as $code => &$item) {
     $item['percentage'] = $totalValSum > 0 ? round(($item['value'] / $totalValSum) * 100, 2) : 0;
 }
 unset($item);
 
-// Fetch Multi-Year Trend Data
-$trendData = [];
+// Kueri Tren Multi-Tahun
 $yearsRange = range($startYr, $endYr);
-
 $sqlTrend = "SELECT year, kecamatan_code, kecamatan_name, value 
   FROM webgis_data 
   WHERE main_category = ? AND indicator_code = ? AND year BETWEEN ? AND ? ";
@@ -157,9 +212,8 @@ while ($r = $resTr->fetch_assoc()) {
 }
 $stmtTr->close();
 
-// Organize trend per kecamatan or total
+// Susun datasets tren
 $trendDatasets = [];
-
 if (!empty($areaParam) && isset($currentData[$areaParam])) {
     $kecName = $currentData[$areaParam]['name'];
     $dataPoints = [];
@@ -167,11 +221,12 @@ if (!empty($areaParam) && isset($currentData[$areaParam])) {
         $dataPoints[] = isset($rawTrend[$yr][$areaParam]) ? $rawTrend[$yr][$areaParam] : 0;
     }
     $trendDatasets[] = [
-        'label' => $kecName,
-        'data' => $dataPoints
+        'label' => 'Kec. ' . $kecName,
+        'data' => $dataPoints,
+        'borderColor' => $catInfo['color'] ?? '#0284c7',
+        'backgroundColor' => 'rgba(2, 132, 199, 0.1)'
     ];
 } else {
-    // Total for all kecamatan
     $totalPoints = [];
     foreach ($yearsRange as $yr) {
         $sumYr = 0;
@@ -184,11 +239,13 @@ if (!empty($areaParam) && isset($currentData[$areaParam])) {
     }
     $trendDatasets[] = [
         'label' => 'Total Kota Tegal',
-        'data' => $totalPoints
+        'data' => $totalPoints,
+        'borderColor' => $catInfo['color'] ?? '#0284c7',
+        'backgroundColor' => 'rgba(2, 132, 199, 0.1)'
     ];
 }
 
-// Generate Auto-Summary Narrative
+// Narasi Auto-Summary
 $highestKec = null;
 $lowestKec = null;
 $maxVal = -1;
@@ -205,7 +262,6 @@ foreach ($currentData as $item) {
     }
 }
 
-// Determine trend direction between start and end year
 $firstYrTotal = isset($trendDatasets[0]['data'][0]) ? $trendDatasets[0]['data'][0] : 0;
 $lastYrTotal  = isset($trendDatasets[0]['data'][count($trendDatasets[0]['data'])-1]) ? $trendDatasets[0]['data'][count($trendDatasets[0]['data'])-1] : 0;
 $diffPercent  = $firstYrTotal > 0 ? round((($lastYrTotal - $firstYrTotal) / $firstYrTotal) * 100, 2) : 0;
@@ -220,7 +276,7 @@ if ($diffPercent > 0.5) {
 
 $activeAreaLabel = !empty($areaParam) && isset($currentData[$areaParam]) ? "Kecamatan " . $currentData[$areaParam]['name'] : "seluruh Kota Tegal";
 
-$autoSummaryText = "Berdasarkan data statistik BPS Kota Tegal tahun {$yearParam}, indikator <b>{$indNameStr}</b> pada {$activeAreaLabel} mencatatkan total sebesar <b>" . number_format($totalValSum, ($totalValSum == intval($totalValSum) ? 0 : 2), ',', '.') . " {$unitStr}</b>. ";
+$autoSummaryText = "Berdasarkan data statistik kompilasi BPS Kota Tegal tahun {$yearParam}, indikator <b>{$indNameStr}</b> pada {$activeAreaLabel} mencatatkan total sebesar <b>" . number_format($totalValSum, ($totalValSum == intval($totalValSum) ? 0 : 2), ',', '.') . " {$unitStr}</b>. ";
 
 if ($highestKec && $lowestKec) {
     $autoSummaryText .= "Kecamatan dengan nilai tertinggi diraih oleh <b>Kecamatan {$highestKec['name']}</b> sebanyak <b>{$highestKec['formatted']} {$unitStr}</b> ({$highestKec['percentage']}% dari total kota), sedangkan nilai terendah berada di <b>Kecamatan {$lowestKec['name']}</b> sejumlah <b>{$lowestKec['formatted']} {$unitStr}</b> ({$lowestKec['percentage']}%). ";
@@ -228,14 +284,15 @@ if ($highestKec && $lowestKec) {
 
 $autoSummaryText .= "Dalam rentang tahun {$startYr} hingga {$endYr}, indikator ini {$trendDirectionStr} secara berkelanjutan.";
 
-// Prepare Response
 $response = [
     'status' => 'success',
+    'data_source' => 'local_spatial',
     'active_category' => [
         'code' => $catParam,
-        'name' => $categoryMeta[$catParam]['name'],
-        'icon' => $categoryMeta[$catParam]['icon'],
-        'color' => $categoryMeta[$catParam]['color'],
+        'name' => $catInfo['name'],
+        'icon' => $catInfo['icon'],
+        'color' => $catInfo['color'],
+        'source' => 'local_spatial'
     ],
     'active_indicator' => [
         'code' => $indParam,
@@ -252,16 +309,7 @@ $response = [
     'trend_years' => $yearsRange,
     'trend_datasets' => $trendDatasets,
     'auto_summary' => $autoSummaryText,
-    'categories' => array_map(function($key, $item) {
-        return [
-            'code' => $key,
-            'name' => $item['name'],
-            'icon' => $item['icon'],
-            'indicators' => array_map(function($iKey, $iVal) {
-                return ['code' => $iKey, 'name' => $iVal['name'], 'unit' => $iVal['unit']];
-            }, array_keys($item['indicators']), array_values($item['indicators']))
-        ];
-    }, array_keys($categoryMeta), array_values($categoryMeta))
+    'categories' => $categoriesResponse
 ];
 
 echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
