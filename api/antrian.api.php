@@ -29,6 +29,13 @@ switch ($action) {
 
         $fasilitas = sanitizeInput($_POST['fasilitas'] ?? 'Datang Langsung Ke PST BPS Kota Tegal');
         $layanan = str_replace('&amp;', '&', sanitizeInput($_POST['layanan'] ?? 'Konsultasi Statistik'));
+        
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        $userRole = $_SESSION['user_role'] ?? '';
+        if ($isWalkin && $userRole === 'petugas' && !empty($assignedLayanan)) {
+            $layanan = $assignedLayanan;
+        }
+
         $pemanfaatan = sanitizeInput($_POST['pemanfaatan'] ?? '');
         $data_diinginkan = sanitizeInput($_POST['data_diinginkan'] ?? '');
         $foto = $_POST['foto'] ?? '';

@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (filterLayananSelect) {
     if (user.role === 'petugas' && user.layanan_tugas) {
       filterLayananSelect.value = user.layanan_tugas;
-      filterLayananSelect.disabled = true;
     } else if (!filterLayananSelect.value) {
       filterLayananSelect.value = 'all';
     }
@@ -22,9 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const walkinLayananSelect = document.getElementById('walkin_layanan');
   if (walkinLayananSelect && user.layanan_tugas) {
     walkinLayananSelect.value = user.layanan_tugas;
-    if (user.role === 'petugas') {
-      walkinLayananSelect.disabled = true;
-    }
   }
 
   const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');

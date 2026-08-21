@@ -3,6 +3,10 @@
 $allowed_roles = ['petugas', 'admin', 'kepala'];
 require_once __DIR__ . '/../auth_check.php';
 $csrf_token = generateCsrfToken();
+
+$userRole = $_SESSION['user_role'] ?? '';
+$assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+$isPetugasLocked = ($userRole === 'petugas' && !empty($assignedLayanan));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -203,7 +207,7 @@ $csrf_token = generateCsrfToken();
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-sky-200 uppercase tracking-widest flex items-center gap-1.5">
                 <span class="material-icons text-amber-400 text-sm">volume_up</span>
-                <span>LOKET PST 1 (SEDANG DIPANGGIL)</span>
+                <span><?php echo $isPetugasLocked ? 'LOKET TUGAS: ' . strtoupper(htmlspecialchars($assignedLayanan)) : 'LOKET PELAYANAN (SEDANG DIPANGGIL)'; ?></span>
               </span>
               <span class="badge bg-amber-400 text-slate-900 font-extrabold text-xs uppercase px-3 py-1.5 rounded-full shadow-sm">
                 Panggilan Aktif
@@ -264,45 +268,45 @@ $csrf_token = generateCsrfToken();
 
         <!-- Antrian Table Header & Walk-In Button -->
         <div class="glass-card overflow-hidden">
-          <div class="p-6 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-            <div>
-              <h3 class="text-lg font-bold text-slate-900 brand-font">Daftar Seluruh Antrian</h3>
+          <div class="p-4 md:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div class="shrink-0">
+              <h3 class="text-base md:text-lg font-bold text-slate-900 brand-font leading-tight whitespace-nowrap">Daftar Seluruh Antrian</h3>
               <p class="text-xs text-slate-500">Antrian terintegrasi online dan pengunjung walk-in offline.</p>
             </div>
             
-            <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap shrink-0">
+            <div class="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
               <!-- Filter Tanggal Loket Antrian -->
-              <div class="flex items-center gap-2 shrink-0">
+              <div class="flex items-center gap-1.5 shrink-0">
                 <label for="filter_tanggal_antrian" class="text-xs font-bold text-slate-600 shrink-0">Tanggal:</label>
-                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-48">
+                <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 py-1.5 px-2.5 w-auto">
                   <option value="today" selected>☀️ Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
                   <option value="tomorrow">🗓️ Besok (<?php echo date('d/m/Y', strtotime('+1 day')); ?>)</option>
-                  <option value="all">🌐 Semua Tanggal (Mendatang)</option>
+                  <option value="all">🌐 Semua Tanggal</option>
                 </select>
               </div>
 
               <!-- Filter Layanan Loket Antrian -->
-              <?php
-              $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
-              $userRole = $_SESSION['user_role'] ?? '';
-              ?>
-              <div class="flex items-center gap-2 shrink-0">
-                <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">
-                  Loket Layanan:
-                  <?php if ($userRole === 'petugas' && !empty($assignedLayanan)): ?>
-                    <span class="text-[10px] text-purple-700 font-extrabold bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200">Tugas: <?php echo htmlspecialchars($assignedLayanan); ?></span>
-                  <?php endif; ?>
-                </label>
-                <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 w-48">
-                  <option value="all" selected>🏢 Semua Loket Layanan</option>
-                  <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
-                  <option value="Perpustakaan">📚 Loket Perpustakaan</option>
-                  <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
-                  <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
-                </select>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <label for="filter_layanan_antrian" class="text-xs font-bold text-slate-600 shrink-0">Loket Layanan:</label>
+                <?php if ($isPetugasLocked): ?>
+                  <div class="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-300 rounded-xl text-amber-950 text-xs font-black shadow-sm" title="Loket Khusus Tugas Anda Terkunci">
+                    <span class="material-icons text-amber-600 text-sm">lock</span>
+                    <span><?php echo htmlspecialchars($assignedLayanan); ?></span>
+                    <input type="hidden" id="filter_layanan_antrian" value="<?php echo htmlspecialchars($assignedLayanan); ?>">
+                  </div>
+                <?php else: ?>
+                  <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 py-1.5 px-2.5 w-auto">
+                    <option value="all" selected>🏢 Semua Loket Layanan</option>
+                    <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
+                    <option value="Perpustakaan">📚 Loket Perpustakaan</option>
+                    <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
+                    <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
+                  </select>
+                <?php endif; ?>
               </div>
 
-              <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shrink-0 whitespace-nowrap" data-bs-toggle="modal" data-bs-target="#modalWalkin">
+              <!-- Tombol Walk-In -->
+              <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm shrink-0 whitespace-nowrap" data-bs-toggle="modal" data-bs-target="#modalWalkin">
                 <span class="material-icons text-sm">person_add_alt_1</span>
                 <span>Input Pengunjung Walk-In (Offline)</span>
               </button>
@@ -326,6 +330,10 @@ $csrf_token = generateCsrfToken();
               </tbody>
             </table>
           </div>
+        </div>
+
+      </div>
+
       <!-- Footer Status Bar Admin Modern -->
       <footer class="bg-white/80 backdrop-blur border-t border-slate-200/80 py-2.5 px-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 mt-auto">
         <div class="flex items-center gap-2">
@@ -438,12 +446,23 @@ $csrf_token = generateCsrfToken();
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="form-label text-xs font-bold text-slate-700 uppercase">Jenis Layanan PST <span class="text-red-500">*</span></label>
-                <select id="walkin_layanan" class="form-select text-sm rounded-xl" required>
-                  <option value="Konsultasi Statistik">Konsultasi Statistik</option>
-                  <option value="Perpustakaan">Perpustakaan</option>
-                  <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
-                  <option value="Layanan Pengaduan">Layanan Pengaduan</option>
-                </select>
+                <?php if ($isPetugasLocked): ?>
+                  <div class="p-2.5 bg-slate-100 border border-slate-300 rounded-xl text-slate-900 font-extrabold text-sm flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                      <span class="material-icons text-xs text-amber-600">lock</span>
+                      <span><?php echo htmlspecialchars($assignedLayanan); ?></span>
+                    </span>
+                    <span class="text-[10px] text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">Loket Anda</span>
+                  </div>
+                  <input type="hidden" id="walkin_layanan" value="<?php echo htmlspecialchars($assignedLayanan); ?>">
+                <?php else: ?>
+                  <select id="walkin_layanan" class="form-select text-sm rounded-xl" required>
+                    <option value="Konsultasi Statistik">Konsultasi Statistik</option>
+                    <option value="Perpustakaan">Perpustakaan</option>
+                    <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
+                    <option value="Layanan Pengaduan">Layanan Pengaduan</option>
+                  </select>
+                <?php endif; ?>
               </div>
               <div>
                 <label class="form-label text-xs font-bold text-slate-700 uppercase">Tujuan Pemanfaatan Data</label>
