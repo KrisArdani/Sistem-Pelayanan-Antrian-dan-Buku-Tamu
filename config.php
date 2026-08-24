@@ -81,6 +81,18 @@ define('LOGIN_LOCKOUT_TIME', (int) env('LOGIN_LOCKOUT_TIME', 900));
 // 3. Konfigurasi Lingkungan ('development' atau 'production')
 define('APP_ENV', env('APP_ENV', 'development'));
 
+// Pengaturan Pelaporan Galat PHP Sesuai Lingkungan
+if (APP_ENV === 'production') {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+} else {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+}
+
+
 // 4. Konfigurasi Resmi Web API BPS
 define('BPS_API_KEY', env('BPS_API_KEY', ''));
 define('BPS_API_BASE', env('BPS_API_BASE', 'https://webapi.bps.go.id/v1/api'));
@@ -89,4 +101,15 @@ define('BPS_DOMAIN_PROV_JATENG', env('BPS_DOMAIN_PROV_JATENG', '3300'));
 define('BPS_DOMAIN_PUSAT', env('BPS_DOMAIN_PUSAT', '0000'));
 define('BPS_CACHE_DIR', __DIR__ . '/cache/bps');
 define('BPS_CACHE_TTL', (int) env('BPS_CACHE_TTL', 86400));
+
+// 5. Konfigurasi URL Aplikasi & Email SMTP
+define('APP_URL', rtrim(env('APP_URL', 'http://localhost/A/spst'), '/'));
+define('MAIL_DRIVER', env('MAIL_DRIVER', 'smtp'));
+define('MAIL_HOST', env('MAIL_HOST', 'smtp.gmail.com'));
+define('MAIL_PORT', (int) env('MAIL_PORT', 587));
+define('MAIL_USERNAME', env('MAIL_USERNAME', ''));
+define('MAIL_PASSWORD', env('MAIL_PASSWORD', ''));
+define('MAIL_ENCRYPTION', env('MAIL_ENCRYPTION', 'tls')); // 'tls' atau 'ssl'
+define('MAIL_FROM_ADDRESS', env('MAIL_FROM_ADDRESS', 'noreply@bps.go.id'));
+define('MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'SPST BPS Kota Tegal'));
 ?>

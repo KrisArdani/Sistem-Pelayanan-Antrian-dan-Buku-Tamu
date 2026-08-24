@@ -44,24 +44,36 @@ async function handleRequestPasswordReset(e) {
     if (data.status === 'success') {
       Swal.fire({
         icon: 'success',
-        title: 'Permintaan Terkirim!',
+        title: 'Email Terkirim!',
         text: data.message,
         confirmButtonColor: '#003366'
       });
 
-      if (data.data && data.data.reset_url) {
-        const notice = document.getElementById('resetDevNotice');
-        const link = document.getElementById('resetDevLink');
-        if (notice) notice.classList.remove('hidden');
-        if (link) link.href = data.data.reset_url;
+      const notice = document.getElementById('resetDevNotice');
+      const link = document.getElementById('resetDevLink');
+      if (data.data && data.data.reset_url && link && notice) {
+        notice.classList.remove('hidden');
+        link.href = data.data.reset_url;
+      } else {
+        if (modalForgotObj) {
+          modalForgotObj.hide();
+        }
       }
     } else {
+      const errorDetail = (data.data && data.data.debug_error) ? ` (${data.data.debug_error})` : '';
       Swal.fire({
         icon: 'error',
         title: 'Gagal Memproses',
-        text: data.message || 'Email tidak ditemukan.',
+        text: (data.message || 'Email tidak ditemukan.') + errorDetail,
         confirmButtonColor: '#003366'
       });
+
+      const notice = document.getElementById('resetDevNotice');
+      const link = document.getElementById('resetDevLink');
+      if (data.data && data.data.reset_url && link && notice) {
+        notice.classList.remove('hidden');
+        link.href = data.data.reset_url;
+      }
     }
   } catch (err) {
     console.error("Reset request error:", err);

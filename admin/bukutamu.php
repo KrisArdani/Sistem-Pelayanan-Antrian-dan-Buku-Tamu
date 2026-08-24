@@ -210,7 +210,7 @@ $csrf_token = generateCsrfToken();
               <select id="filter_kategori_layanan" class="form-select text-xs font-semibold rounded-xl">
                 <option value="">Semua Layanan PST</option>
                 <option value="Konsultasi Statistik">Konsultasi Statistik</option>
-                <option value="Perpustakaan">Perpustakaan & Diseminasi</option>
+                <option value="Perpustakaan">Perpustakaan</option>
                 <option value="Rekomendasi">Rekomendasi Kegiatan Statistik</option>
                 <option value="Pengaduan">Layanan Pengaduan</option>
               </select>

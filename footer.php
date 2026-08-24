@@ -137,24 +137,21 @@
       Hak Cipta © 2026 Badan Pusat Statistik Kota Tegal
     </div>
 
-    <!-- Social Media Icons (Identik dengan Web Asli) -->
+    <!-- Social Media Icons (Akun Resmi BPS Kota Tegal) -->
     <div class="flex items-center gap-3">
-      <a href="https://wa.me/628123456789" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition" title="WhatsApp Chat PST">
+      <a href="https://wa.me/628112620337" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition" title="WhatsApp Pelayanan PST BPS Kota Tegal">
         <i class="fa-brands fa-whatsapp"></i>
       </a>
-      <a href="https://facebook.com" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-blue-600 text-white flex items-center justify-center transition" title="Facebook BPS Kota Tegal">
+      <a href="https://www.facebook.com/bpskotategal" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-blue-600 text-white flex items-center justify-center transition" title="Facebook Resmi BPS Kota Tegal">
         <i class="fa-brands fa-facebook-f"></i>
       </a>
-      <a href="https://tiktok.com" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition" title="TikTok BPS Kota Tegal">
-        <i class="fa-brands fa-tiktok"></i>
-      </a>
-      <a href="https://instagram.com" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-pink-600 text-white flex items-center justify-center transition" title="Instagram BPS Kota Tegal">
+      <a href="https://www.instagram.com/bps_kotategal/" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-pink-600 text-white flex items-center justify-center transition" title="Instagram Resmi BPS Kota Tegal">
         <i class="fa-brands fa-instagram"></i>
       </a>
-      <a href="https://twitter.com" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-sky-500 text-white flex items-center justify-center transition" title="Twitter BPS Kota Tegal">
+      <a href="https://twitter.com/bps_kotategal" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-sky-500 text-white flex items-center justify-center transition" title="Twitter / X Resmi BPS Kota Tegal">
         <i class="fa-brands fa-x-twitter"></i>
       </a>
-      <a href="https://youtube.com" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-red-600 text-white flex items-center justify-center transition" title="YouTube BPS Kota Tegal">
+      <a href="https://www.youtube.com/@bpskotategal" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-red-600 text-white flex items-center justify-center transition" title="YouTube Resmi BPS Kota Tegal">
         <i class="fa-brands fa-youtube"></i>
       </a>
     </div>

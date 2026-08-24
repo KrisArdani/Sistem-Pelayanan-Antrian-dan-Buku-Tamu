@@ -119,7 +119,8 @@ function renderUsersTable(users) {
   users.forEach((u, idx) => {
     let roleBadge = '';
     if (u.role === 'petugas') {
-      roleBadge = '<span class="px-2.5 py-1 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full uppercase">Petugas PST</span>';
+      const loketName = u.layanan_tugas ? u.layanan_tugas : 'Pelayanan Terpadu';
+      roleBadge = `<span class="px-2.5 py-1 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full uppercase flex items-center gap-1 w-fit"><span class="material-icons text-xs">storefront</span> ${escapeHtml(loketName)}</span>`;
     } else if (u.role === 'admin') {
       roleBadge = '<span class="px-2.5 py-1 text-[10px] font-bold bg-purple-100 text-purple-800 rounded-full uppercase">Admin System</span>';
     } else if (u.role === 'kepala') {
@@ -183,6 +184,14 @@ function renderUsersTable(users) {
   tbody.innerHTML = html;
 }
 
+function toggleLayananTugasField() {
+  const roleEl = document.getElementById('user_role');
+  const container = document.getElementById('container_layanan_tugas');
+  if (roleEl && container) {
+    container.style.display = (roleEl.value === 'petugas') ? 'block' : 'none';
+  }
+}
+
 function openModalAddUser() {
   document.getElementById('formUser').reset();
   document.getElementById('user_id').value = "0";
@@ -193,6 +202,9 @@ function openModalAddUser() {
   document.getElementById('user_password').required = true;
   document.getElementById('lblPassword').innerHTML = 'Password <span class="text-red-500">*</span>';
   document.getElementById('hintPasswordEdit').classList.add('hidden');
+  const ltEl = document.getElementById('user_layanan_tugas');
+  if (ltEl) ltEl.value = 'Pelayanan Terpadu';
+  toggleLayananTugasField();
   if (modalUserObj) modalUserObj.show();
 }
 
@@ -214,6 +226,10 @@ function editUser(id) {
   document.getElementById('user_password').value = '';
   document.getElementById('user_name').value = u.name || '';
   document.getElementById('user_role').value = u.role || 'petugas';
+  const ltEl = document.getElementById('user_layanan_tugas');
+  if (ltEl) ltEl.value = u.layanan_tugas || 'Pelayanan Terpadu';
+  toggleLayananTugasField();
+
   document.getElementById('user_jenis_kelamin').value = u.jenis_kelamin || 'Laki Laki';
   document.getElementById('user_nohp').value = u.nohp || '';
   document.getElementById('user_email').value = u.email || '';
@@ -240,6 +256,9 @@ async function saveUser(e) {
 
   const id = document.getElementById('user_id').value;
   const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const roleVal = document.getElementById('user_role').value;
+  const ltEl = document.getElementById('user_layanan_tugas');
+  const layananTugasVal = (roleVal === 'petugas' && ltEl) ? ltEl.value : '';
 
   const payload = {
     action: 'save_user',
@@ -248,7 +267,8 @@ async function saveUser(e) {
     username: document.getElementById('user_username').value,
     password: document.getElementById('user_password').value,
     name: document.getElementById('user_name').value,
-    role: document.getElementById('user_role').value,
+    role: roleVal,
+    layanan_tugas: layananTugasVal,
     jenis_kelamin: document.getElementById('user_jenis_kelamin').value,
     nohp: document.getElementById('user_nohp').value,
     email: document.getElementById('user_email').value,

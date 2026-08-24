@@ -1,26 +1,39 @@
-# SPST BPS Kota Tegal - Kontrol Akses Server & Konfigurasi Keamanan
+# ==============================================================================
+# SPST BPS Kota Tegal - Server Access Control & Security Configuration (.htaccess)
+# ==============================================================================
 
 # Disable Directory Browsing
 Options -Indexes
 
-# Block direct public access to sensitive files
-<FilesMatch "\.(sql|env|log|md)$">
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Enforce HTTPS in Production (Active when SSL is enabled on server)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Block direct access to hidden files and directories (e.g. .git, .env)
+    RewriteRule (^|/)\.(?!well-known) - [F]
+
+    # Block direct public access to internal application directories
+    RewriteRule ^(includes|cache|sql|scratch|vendor)/ - [F,L]
+</IfModule>
+
+# Block direct public access to sensitive file extensions & package metadata
+<FilesMatch "\.(sql|env|log|md|lock|bak|dump|sqlite|ini|sh|dist)$">
     Require all denied
 </FilesMatch>
 
-<Files "config.php">
+<FilesMatch "^(composer\.json|package\.json)$">
     Require all denied
-</Files>
+</FilesMatch>
 
-<Files "security.php">
+# Block direct access to sensitive standalone PHP scripts
+<FilesMatch "^(config\.php|security\.php|auth_check\.php|seed_webgis\.php)$">
     Require all denied
-</Files>
+</FilesMatch>
 
-<Files "auth_check.php">
-    Require all denied
-</Files>
-
-# Set Security Headers via Apache if mod_headers is enabled
+# Set Security Headers via Apache mod_headers if enabled
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"

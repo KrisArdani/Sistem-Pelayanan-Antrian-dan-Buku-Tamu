@@ -189,7 +189,7 @@ $totalRows = count($data);
         <div>
           <h2 class="text-lg font-black text-slate-900 tracking-wider font-['Outfit'] leading-none">BADAN PUSAT STATISTIK KOTA TEGAL</h2>
           <p class="text-xs text-slate-600 font-bold tracking-wide mt-1">SISTEM PELAYANAN STATISTIK TERPADU (SPST)</p>
-          <p class="text-[11px] text-slate-500 mt-0.5">Jl. Yos Sudarso No. 1, Kota Tegal, Jawa Tengah • Telp: (0283) 351515</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">Jl. Nakula No. 36A, Kota Tegal, Jawa Tengah 52124 • Telp: (0283) 351593</p>
         </div>
       </div>
       <div class="text-right">

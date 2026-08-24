@@ -42,28 +42,12 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
       <!-- Kategori 2: Portal Layanan Data & Konsultasi -->
       <div class="pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3">Layanan & Portal Data</div>
 
-      <!-- Dropdown Ruang Konsultasi -->
-      <div class="space-y-1">
-        <button class="bps-nav-item w-full flex items-center justify-between" type="button" data-bs-toggle="collapse" data-bs-target="#menuKonsultasi">
-          <div class="flex items-center gap-3">
-            <span class="material-icons">person_pin</span>
-            <span>Ruang Konsultasi</span>
-          </div>
-          <span class="material-icons text-sm">expand_more</span>
-        </button>
-        <div class="collapse pl-9 space-y-1" id="menuKonsultasi">
-          <a href="#" class="block py-1.5 px-3 text-xs text-slate-400 hover:text-white rounded-lg transition">Layanan Konsultasi Statistik</a>
-          <a href="#" class="block py-1.5 px-3 text-xs text-slate-400 hover:text-white rounded-lg transition">Ruang Chat Admin</a>
-          <a href="#" class="block py-1.5 px-3 text-xs text-slate-400 hover:text-white rounded-lg transition">Halaman Chat Chatbot</a>
-        </div>
-      </div>
-
-      <a href="#" class="bps-nav-item opacity-75">
+      <a href="https://tegalkota.bps.go.id/id/publication" target="_blank" class="bps-nav-item">
         <span class="material-icons">dashboard</span>
-        <span>Ruang Data</span>
+        <span>Ruang Data & Publikasi</span>
       </a>
 
-      <a href="#" class="bps-nav-item opacity-75">
+      <a href="https://tegalkota.bps.go.id/id/infographic" target="_blank" class="bps-nav-item">
         <span class="material-icons">insert_chart</span>
         <span>Ruang Infografis</span>
       </a>
@@ -83,11 +67,6 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
         <span>Layar Display TV (Ruang Tunggu)</span>
       </a>
       <?php endif; ?>
-
-      <a href="#" class="bps-nav-item opacity-75">
-        <span class="material-icons">support_agent</span>
-        <span>Hubungi Kami</span>
-      </a>
 
       <!-- Kategori 3: Akses Internal & Sesi -->
       <?php if (!$isUserLoggedIn): ?>
@@ -174,28 +153,12 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
         <!-- Kategori 2: Portal Layanan Data & Konsultasi -->
         <div class="pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3">Layanan & Portal Data</div>
 
-        <!-- Dropdown Ruang Konsultasi -->
-        <div class="space-y-1">
-          <button class="bps-nav-item w-full flex items-center justify-between" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenuKonsultasi">
-            <div class="flex items-center gap-3">
-              <span class="material-icons">person_pin</span>
-              <span>Ruang Konsultasi</span>
-            </div>
-            <span class="material-icons text-sm">expand_more</span>
-          </button>
-          <div class="collapse pl-9 space-y-1" id="mobileMenuKonsultasi">
-            <a href="#" class="block py-1.5 px-3 text-xs text-slate-400 hover:text-white rounded-lg transition">Layanan Konsultasi Statistik</a>
-            <a href="#" class="block py-1.5 px-3 text-xs text-slate-400 hover:text-white rounded-lg transition">Ruang Chat Admin</a>
-            <a href="#" class="block py-1.5 px-3 text-xs text-slate-400 hover:text-white rounded-lg transition">Halaman Chat Chatbot</a>
-          </div>
-        </div>
-
-        <a href="#" class="bps-nav-item opacity-75">
+        <a href="https://tegalkota.bps.go.id/id/publication" target="_blank" class="bps-nav-item">
           <span class="material-icons">dashboard</span>
-          <span>Ruang Data</span>
+          <span>Ruang Data & Publikasi</span>
         </a>
 
-        <a href="#" class="bps-nav-item opacity-75">
+        <a href="https://tegalkota.bps.go.id/id/infographic" target="_blank" class="bps-nav-item">
           <span class="material-icons">insert_chart</span>
           <span>Ruang Infografis</span>
         </a>
@@ -215,11 +178,6 @@ $sidebarUserRole = $_SESSION['user_role'] ?? 'guest';
           <span>Layar Display TV (Ruang Tunggu)</span>
         </a>
         <?php endif; ?>
-
-        <a href="#" class="bps-nav-item opacity-75">
-          <span class="material-icons">support_agent</span>
-          <span>Hubungi Kami</span>
-        </a>
 
         <!-- Kategori 3: Akses Internal & Sesi -->
         <?php if (!$isUserLoggedIn): ?>

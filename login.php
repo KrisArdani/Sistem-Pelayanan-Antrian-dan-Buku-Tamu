@@ -76,7 +76,7 @@ $csrf_token = generateCsrfToken();
 
         <!-- Clean Illustration Showcase -->
         <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/60">
-          <img src="img/login_hero_illustration.jpg" alt="Ilustrasi SPST BPS Kota Tegal" class="w-full h-64 object-cover">
+          <img src="img/login_hero_illustration.webp" alt="Ilustrasi SPST BPS Kota Tegal" class="w-full h-64 object-cover">
         </div>
       </div>
 

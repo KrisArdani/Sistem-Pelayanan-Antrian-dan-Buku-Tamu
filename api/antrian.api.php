@@ -32,7 +32,8 @@ switch ($action) {
         
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
         $userRole = $_SESSION['user_role'] ?? '';
-        if ($isWalkin && $userRole === 'petugas' && !empty($assignedLayanan)) {
+        $isLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
+        if ($isWalkin && $isLocked) {
             $layanan = $assignedLayanan;
         }
 
@@ -111,7 +112,7 @@ switch ($action) {
             if (!$stmt) {
                 $conn->rollback();
                 error_log("DB Prepare Error save_antrian: " . $conn->error);
-                sendJsonResponse('error', 'Gagal memproses antrean (DB Prepare Error): ' . $conn->error);
+                sendJsonResponse('error', 'Gagal memproses pendaftaran antrean. Terjadi kesalahan pada basis data server.');
             }
 
             $stmt->bind_param(
@@ -148,7 +149,7 @@ switch ($action) {
                 @$conn->rollback();
             }
             error_log("DB Error save_antrian: " . $e->getMessage());
-            sendJsonResponse('error', 'Gagal memproses tiket antrian: ' . $e->getMessage());
+            sendJsonResponse('error', 'Gagal memproses tiket antrian. Silakan coba beberapa saat lagi.');
         }
         break;
 
@@ -325,8 +326,9 @@ switch ($action) {
         $filterTanggal = sanitizeInput($_GET['tanggal'] ?? 'today');
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
         $userRole = $_SESSION['user_role'] ?? '';
+        $isLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
 
-        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+        if ($isLocked) {
             $filterLayanan = $assignedLayanan;
         } else {
             $filterLayanan = sanitizeInput($_GET['layanan'] ?? 'all');
@@ -534,11 +536,12 @@ switch ($action) {
         $isRepeat = isset($_POST['repeat']) && ($_POST['repeat'] == '1' || $_POST['repeat'] == 'true');
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
         $userRole = $_SESSION['user_role'] ?? '';
+        $isLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
 
-        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+        if ($isLocked) {
             $filterLayanan = $assignedLayanan;
         } else {
-            $filterLayanan = sanitizeInput($_POST['layanan'] ?? $assignedLayanan);
+            $filterLayanan = sanitizeInput($_POST['layanan'] ?? '');
         }
 
         $tanggal = date('Y-m-d');
@@ -557,8 +560,7 @@ switch ($action) {
             $targetLayanan = $targetRow['layanan'];
 
             // Verifikasi petugas hanya boleh memanggil antrean layanannya sendiri
-            if ($userRole === 'petugas' && !empty($assignedLayanan)) {
-                $likeAssigned = '%' . $assignedLayanan . '%';
+            if ($isLocked) {
                 if (!str_contains($targetLayanan, $assignedLayanan)) {
                     sendJsonResponse('error', 'Anda tidak memiliki hak akses untuk memanggil antrean dari loket layanan lain.');
                 }
@@ -629,11 +631,12 @@ switch ($action) {
         $catatanPetugas = isset($_POST['catatan_petugas']) ? sanitizeInput($_POST['catatan_petugas']) : null;
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
         $userRole = $_SESSION['user_role'] ?? '';
+        $isLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
 
         if ($id <= 0) sendJsonResponse('error', 'ID antrian tidak valid.');
 
         // Verifikasi petugas hanya boleh mengubah status antrean layanannya sendiri
-        if ($userRole === 'petugas' && !empty($assignedLayanan)) {
+        if ($isLocked) {
             $stmtCheck = $conn->prepare("SELECT id FROM antrian WHERE id = ? AND layanan LIKE ?");
             $likeAssigned = '%' . $assignedLayanan . '%';
             $stmtCheck->bind_param("is", $id, $likeAssigned);
@@ -648,20 +651,68 @@ switch ($action) {
             sendJsonResponse('error', 'Status antrian tidak valid: ' . $status);
         }
 
-        if ($catatanPetugas !== null) {
+        try {
             $stmt = $conn->prepare("UPDATE antrian SET status = ?, catatan_petugas = ? WHERE id = ?");
+            if (!$stmt) {
+                error_log("DB Prepare Error update_status_antrian: " . $conn->error);
+                sendJsonResponse('error', 'Gagal memproses pembaruan status antrean.');
+            }
             $stmt->bind_param("ssi", $status, $catatanPetugas, $id);
-        } else {
-            $stmt = $conn->prepare("UPDATE antrian SET status = ? WHERE id = ?");
-            $stmt->bind_param("si", $status, $id);
+
+            if ($stmt->execute()) {
+                logSecurityEvent($conn, 'update_status', "Updated queue ID $id to status '$status'");
+                sendJsonResponse('success', 'Status antrian berhasil diperbarui menjadi ' . $status, ['catatan_petugas' => $catatanPetugas]);
+            } else {
+                error_log("DB Execute Error update_status: " . $stmt->error);
+                sendJsonResponse('error', 'Gagal memperbarui status antrian.');
+            }
+        } catch (Throwable $e) {
+            error_log("Exception update_status: " . $e->getMessage());
+            sendJsonResponse('error', 'Terjadi kesalahan sistem saat memperbarui status antrean.');
+        }
+        break;
+
+    case 'get_summary':
+        requireAuth(['petugas', 'admin', 'kepala']);
+
+        $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
+        $userRole = $_SESSION['user_role'] ?? '';
+        $isLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
+
+        // 1. Dapatkan antrean AKTIF yang sedang DILAYANI atau DIPANGGIL
+        $queryActive = "SELECT * FROM antrian WHERE status IN ('Dipanggil', 'Dilayani') AND DATE(tanggal) = CURDATE()";
+        if ($isLocked) {
+            $queryActive .= " AND layanan LIKE '%" . $conn->real_escape_string($assignedLayanan) . "%'";
+        }
+        $queryActive .= " ORDER BY FIELD(status, 'Dilayani', 'Dipanggil'), called_at DESC, id DESC LIMIT 1";
+        $resActive = $conn->query($queryActive);
+        $activeQueue = $resActive ? $resActive->fetch_assoc() : null;
+
+        // 2. Hitung total antrean MENUNGGU untuk loket/admin
+        $sql = "SELECT COUNT(*) as total_menunggu FROM antrian WHERE status = 'Menunggu' AND DATE(tanggal) = CURDATE()";
+        $params = [];
+        $types = "";
+
+        if ($isLocked) {
+            $sql .= " AND layanan LIKE ?";
+            $likeAssigned = '%' . $assignedLayanan . '%';
+            $params[] = $likeAssigned;
+            $types .= "s";
         }
 
-        if ($stmt->execute()) {
-            logSecurityEvent($conn, 'update_status_antrian', "ID: $id, New status: $status, Catatan: " . ($catatanPetugas ?? '-'));
-            sendJsonResponse('success', "Status antrian diubah menjadi $status", ['catatan_petugas' => $catatanPetugas]);
-        } else {
-            sendJsonResponse('error', 'Gagal mengubah status antrian.');
+        $stmt = $conn->prepare($sql);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
         }
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_assoc();
+        $totalWaitingCount = (int)($res['total_menunggu'] ?? 0);
+        $stmt->close();
+
+        sendJsonResponse('success', 'Data summary berhasil diambil.', [
+            'active_queue' => $activeQueue,
+            'total_waiting' => $totalWaitingCount
+        ]);
         break;
 
     case 'save_catatan_petugas':

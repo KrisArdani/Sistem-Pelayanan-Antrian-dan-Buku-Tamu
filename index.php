@@ -64,7 +64,6 @@ $activeMenu = 'home';
             <span class="hidden sm:inline text-xs font-semibold">Suara</span>
           </button>
 
-          <?php if (isset($_SESSION['user_id'])): ?>
             <div class="flex items-center gap-2 px-3 py-1.5 bg-sky-50 border border-sky-200 rounded-full text-xs font-semibold text-slate-700 shadow-sm">
               <span class="material-icons text-sky-600 text-sm">account_circle</span>
               <span class="hidden sm:inline">Pengunjung: <b class="text-sky-900"><?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?></b></span>
@@ -74,12 +73,6 @@ $activeMenu = 'home';
               <span class="material-icons text-sm">logout</span>
               <span class="hidden sm:inline">Keluar</span>
             </a>
-          <?php else: ?>
-            <a href="login.php" class="btn btn-primary btn-sm flex items-center gap-1 bg-[#003366] border-[#003366]">
-              <span class="material-icons text-base">login</span>
-              <span class="text-xs font-semibold">Masuk / Login</span>
-            </a>
-          <?php endif; ?>
         </div>
       </header>
 
@@ -115,19 +108,19 @@ $activeMenu = 'home';
         <!-- 2 Main Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           
-          <!-- Card 1: Registrasi Pengunjung -->
+          <!-- Card 1: Buku Tamu & Riwayat Kunjungan -->
           <div class="glass-card p-8 flex flex-col justify-between space-y-6">
             <div class="space-y-4">
               <div class="w-14 h-14 bg-sky-100 text-sky-700 rounded-2xl flex items-center justify-center font-bold">
-                <span class="material-icons text-3xl">how_to_reg</span>
+                <span class="material-icons text-3xl">menu_book</span>
               </div>
-              <h2 class="text-2xl font-bold text-slate-900 brand-font">Registrasi Akun Pengunjung</h2>
+              <h2 class="text-2xl font-bold text-slate-900 brand-font">Buku Tamu & Riwayat Tiket</h2>
               <p class="text-slate-600 text-sm leading-relaxed">
-                Daftarkan NIK KTP & identitas Anda <b>cukup 1x</b>. Dapatkan akses cepat untuk memesan antrean dan konsultasi statistik tanpa mengulang pengisian profil.
+                Pantau status tiket antrean Anda secara *real-time*, unduh QRCode tiket digital, serta sampaikan ulasan indeks kepuasan masyarakat (SKM).
               </p>
             </div>
-            <a href="register.php" class="btn btn-primary w-full py-3 bg-[#003366] border-[#003366] font-semibold flex items-center justify-center gap-2">
-              <span>Daftar Akun Sekarang</span>
+            <a href="bukutamu.php" class="btn btn-primary w-full py-3 bg-[#003366] border-[#003366] font-semibold flex items-center justify-center gap-2">
+              <span>Buka Buku Tamu & Tiket</span>
               <span class="material-icons text-sm">arrow_forward</span>
             </a>
           </div>

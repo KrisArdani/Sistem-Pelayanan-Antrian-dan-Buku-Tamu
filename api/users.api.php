@@ -8,7 +8,7 @@ switch ($action) {
         $search = sanitizeInput($_GET['search'] ?? '');
         $roleFilter = sanitizeInput($_GET['role'] ?? 'all');
 
-        $query = "SELECT id, username, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, created_at FROM users WHERE 1=1";
+        $query = "SELECT id, username, name, nik, role, layanan_tugas, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, created_at FROM users WHERE 1=1";
         $types = "";
         $params = [];
 
@@ -48,20 +48,19 @@ switch ($action) {
         ];
 
         // Hitung total ringkasan pengguna
-        $resCount = $conn->query("SELECT role, COUNT(*) as count FROM users GROUP BY role");
-        while ($c = $resCount->fetch_assoc()) {
-            $rName = $c['role'];
-            if (isset($counts[$rName])) {
-                $counts[$rName] = (int)$c['count'];
+        $resCount = $conn->query("SELECT role, COUNT(*) as cnt FROM users GROUP BY role");
+        while ($row = $resCount->fetch_assoc()) {
+            if (isset($counts[$row['role']])) {
+                $counts[$row['role']] = (int)$row['cnt'];
             }
-            $counts['total'] += (int)$c['count'];
+            $counts['total'] += (int)$row['cnt'];
         }
 
         while ($row = $result->fetch_assoc()) {
             $users[] = $row;
         }
 
-        sendJsonResponse('success', 'Data daftar pengguna berhasil diambil.', [
+        sendJsonResponse('success', 'Data pengguna berhasil diambil.', [
             'users' => $users,
             'summary' => $counts
         ]);
@@ -76,6 +75,7 @@ switch ($action) {
         $name = trim($_POST['name'] ?? '');
         $nik = trim($_POST['nik'] ?? '');
         $role = trim($_POST['role'] ?? 'petugas');
+        $layanan_tugas = ($role === 'petugas') ? trim($_POST['layanan_tugas'] ?? 'Pelayanan Terpadu') : NULL;
         $jenis_kelamin = trim($_POST['jenis_kelamin'] ?? 'Laki Laki');
         $umur = trim($_POST['umur'] ?? '17-25 tahun');
         $nohp = trim($_POST['nohp'] ?? '');
@@ -129,18 +129,19 @@ switch ($action) {
                 // Update User Internal
                 if (!empty($password)) {
                     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-                    $stmt = $conn->prepare("UPDATE users SET username = ?, password = ?, name = ?, nik = ?, role = ?, jenis_kelamin = ?, umur = ?, nohp = ?, email = ?, pendidikan = ?, pekerjaan = ?, instansi = ?, kategori_instansi = ? WHERE id = ?");
-                    $stmt->bind_param("sssssssssssssi", $username, $hashedPassword, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi, $id);
+                    $stmt = $conn->prepare("UPDATE users SET username = ?, password = ?, name = ?, nik = ?, role = ?, layanan_tugas = ?, jenis_kelamin = ?, umur = ?, nohp = ?, email = ?, pendidikan = ?, pekerjaan = ?, instansi = ?, kategori_instansi = ? WHERE id = ?");
+                    $stmt->bind_param("ssssssssssssssi", $username, $hashedPassword, $name, $nik, $role, $layanan_tugas, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi, $id);
                 } else {
-                    $stmt = $conn->prepare("UPDATE users SET username = ?, name = ?, nik = ?, role = ?, jenis_kelamin = ?, umur = ?, nohp = ?, email = ?, pendidikan = ?, pekerjaan = ?, instansi = ?, kategori_instansi = ? WHERE id = ?");
-                    $stmt->bind_param("ssssssssssssi", $username, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi, $id);
+                    $stmt = $conn->prepare("UPDATE users SET username = ?, name = ?, nik = ?, role = ?, layanan_tugas = ?, jenis_kelamin = ?, umur = ?, nohp = ?, email = ?, pendidikan = ?, pekerjaan = ?, instansi = ?, kategori_instansi = ? WHERE id = ?");
+                    $stmt->bind_param("sssssssssssssi", $username, $name, $nik, $role, $layanan_tugas, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi, $id);
                 }
 
                 if ($stmt->execute()) {
-                    logSecurityEvent($conn, 'update_user', "Updated internal user ID: $id ($username)");
+                    logSecurityEvent($conn, 'update_user', "Updated internal user ID: $id ($username - $layanan_tugas)");
                     sendJsonResponse('success', 'Data akun staf internal berhasil diperbarui!');
                 } else {
-                    sendJsonResponse('error', 'Gagal memperbarui data pengguna: ' . $stmt->error);
+                    error_log("DB Update Error save_user: " . $stmt->error);
+                    sendJsonResponse('error', 'Gagal memperbarui data pengguna. Terjadi kesalahan pada basis data.');
                 }
             } else {
                 // Insert New Internal User
@@ -149,19 +150,20 @@ switch ($action) {
                 }
 
                 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-                $stmt = $conn->prepare("INSERT INTO users (username, password, name, nik, role, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssssssssssss", $username, $hashedPassword, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi);
+                $stmt = $conn->prepare("INSERT INTO users (username, password, name, nik, role, layanan_tugas, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssssssssssss", $username, $hashedPassword, $name, $nik, $role, $layanan_tugas, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi);
 
                 if ($stmt->execute()) {
-                    logSecurityEvent($conn, 'create_user', "Created new internal user username: $username ($role)");
+                    logSecurityEvent($conn, 'create_user', "Created new internal user username: $username ($role - $layanan_tugas)");
                     sendJsonResponse('success', 'Akun staf internal baru berhasil dibuat!');
                 } else {
-                    sendJsonResponse('error', 'Gagal membuat akun pengguna baru: ' . $stmt->error);
+                    error_log("DB Insert Error save_user: " . $stmt->error);
+                    sendJsonResponse('error', 'Gagal membuat akun pengguna baru. Silakan periksa kembali data isian.');
                 }
             }
         } catch (Throwable $e) {
             error_log("Exception save_user: " . $e->getMessage());
-            sendJsonResponse('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            sendJsonResponse('error', 'Terjadi kesalahan sistem saat menyimpan data pengguna.');
         }
         break;
 

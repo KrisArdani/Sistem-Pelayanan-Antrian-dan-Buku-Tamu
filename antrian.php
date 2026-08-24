@@ -145,25 +145,6 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
              ---------------------------------------------------- -->
         <?php include __DIR__ . '/stepper.php'; ?>
 
-        <?php if (!$isLoggedIn): ?>
-        <!-- Login Prompt Notice for Visitors -->
-        <div class="p-6 bg-sky-50 rounded-2xl border border-sky-200 text-sky-900 space-y-3 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div class="space-y-1">
-            <div class="font-bold text-base text-sky-950 flex items-center gap-2">
-              <span class="material-icons text-sky-600">account_circle</span>
-              <span>Silakan Login / Registrasi Akun Dahulu</span>
-            </div>
-            <p class="text-xs text-sky-800 leading-relaxed">
-              Registrasi akun cukup dilakukan <b>1x saja</b>. Setelah terdaftar, Anda tidak perlu lagi mengisi ulang data profil setiap kali memesan antrean.
-            </p>
-          </div>
-          <div class="flex gap-2 shrink-0">
-            <a href="login.php" class="btn btn-primary bg-[#003366] border-[#003366] btn-sm text-xs font-bold px-4 py-2.5 rounded-xl">Masuk</a>
-            <a href="register.php" class="btn btn-outline-sky border-sky-600 text-sky-700 btn-sm text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-sky-100">Daftar Akun</a>
-          </div>
-        </div>
-        <?php else: ?>
-
         <!-- Form Pemesanan Antrian & Keperluan Layanan -->
         <div class="glass-card p-6 md:p-8 space-y-6">
           <form id="formAntrian" class="space-y-6">
@@ -318,7 +299,6 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
 
           </form>
         </div>
-        <?php endif; ?>
 
         <!-- Warning Card / Ketentuan Layanan (Identik dengan Web Asli) -->
         <div class="p-6 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 space-y-3 text-sm">

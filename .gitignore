@@ -30,13 +30,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# 5. Database Backups & Large Binary Dumps
+# 5. Database Backups, Raw SQL Dumps & Sensitive Data (Perlindungan Data Pribadi / UU PDP)
 *.bak
 *.backup
 *.dump
 *.sqlite
 *.sql.gz
 *.sql.tar.gz
+*.dump.sql
+*backup*.sql
+*dump*.sql
+export*.sql
+local*.sql
+
 
 # 6. Operating System Generated Files
 .DS_Store

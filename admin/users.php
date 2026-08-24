@@ -314,13 +314,29 @@ $csrf_token = generateCsrfToken();
 
               <div>
                 <label class="form-label text-xs font-bold text-slate-600 uppercase">Role / Hak Akses <span class="text-red-500">*</span></label>
-                <select id="user_role" class="form-select rounded-xl text-xs" required>
+                <select id="user_role" class="form-select rounded-xl text-xs" onchange="toggleLayananTugasField()" required>
                   <option value="petugas">Petugas PST (Loket)</option>
                   <option value="admin">Admin System</option>
                   <option value="kepala">Kepala BPS</option>
                   <option value="pengunjung">Pengunjung (Pemohon)</option>
                 </select>
               </div>
+            </div>
+
+            <!-- Penugasan Loket Layanan (Khusus Role Petugas) -->
+            <div id="container_layanan_tugas" class="p-3 bg-sky-50 rounded-xl border border-sky-200">
+              <label class="form-label text-xs font-bold text-sky-900 uppercase flex items-center gap-1.5 mb-1.5">
+                <span class="material-icons text-sky-600 text-sm">storefront</span>
+                <span>Penugasan Loket Layanan (Khusus Petugas)</span>
+              </label>
+              <select id="user_layanan_tugas" class="form-select rounded-xl text-xs font-semibold text-slate-800">
+                <option value="Pelayanan Terpadu">Pelayanan Terpadu</option>
+                <option value="Konsultasi Statistik">Konsultasi Statistik</option>
+                <option value="Perpustakaan">Perpustakaan</option>
+                <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
+                <option value="Layanan Pengaduan">Layanan Pengaduan</option>
+              </select>
+              <span class="text-[10px] text-sky-700 mt-1 block">Jika memilih loket khusus, petugas hanya akan memproses antrean dari loket tersebut.</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

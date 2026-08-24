@@ -101,8 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
           let msg = 'Silakan izinkan akses kamera pada browser Anda (klik ikon gembok/setelan di bilah URL), atau gunakan opsi upload file.';
           
           if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-            title = 'Koneksi HTTP Dibatasi';
-            msg = 'Browser membatasi akses webcam pada jaringan HTTP IP. Silakan buka web via http://localhost/A/spst/antrian.php atau upload foto dari file.';
+            title = 'Koneksi HTTPS Diperlukan';
+            msg = 'Browser membatasi akses webcam pada jaringan non-HTTPS. Pastikan situs diakses melalui protokol aman (HTTPS) atau gunakan opsi unggah file foto.';
           }
 
           Swal.fire({

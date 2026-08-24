@@ -3,20 +3,52 @@
 require_once __DIR__ . '/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
-    // Pengaturan parameter keamanan cookie sesi
+    // Pengaturan parameter keamanan cookie sesi mutakhir
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
+    ini_set('session.use_strict_mode', 1);
+
+    $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+    session_set_cookie_params([
+        'lifetime' => defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 3600,
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
     session_start();
 }
 
 /**
- * Pengaturan Header Keamanan HTTP
+ * Pengaturan Header Keamanan HTTP Standar & Modern
  */
 function setSecurityHeaders() {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('X-XSS-Protection: 1; mode=block');
     header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(self), microphone=(), geolocation=()');
+
+    // Content-Security-Policy (CSP) terstandarisasi untuk aset SPST & CDN resmi
+    $csp = "default-src 'self'; "
+        . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; "
+        . "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; "
+        . "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
+        . "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com https://tegalkota.bps.go.id; "
+        . "connect-src 'self' https://webapi.bps.go.id; "
+        . "frame-ancestors 'self';";
+    header("Content-Security-Policy: " . $csp);
+
+    // Aktifkan HSTS (HTTP Strict Transport Security) jika berjalan di protokol HTTPS
+    $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    if ($isSecure) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
 }
 
 /**

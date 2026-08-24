@@ -123,5 +123,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Toggle Password Visibility
+  function setupToggle(buttonId, inputId, iconId) {
+    const btn = document.getElementById(buttonId);
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (btn && input && icon) {
+      btn.addEventListener('click', () => {
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.textContent = 'visibility';
+        } else {
+          input.type = 'password';
+          icon.textContent = 'visibility_off';
+        }
+      });
+    }
+  }
+
+  setupToggle('toggleNewPassword', 'new_password', 'iconNewPassword');
+  setupToggle('toggleConfirmPassword', 'confirm_password', 'iconConfirmPassword');
+
   verifyToken();
 });
+

@@ -25,9 +25,10 @@ Aplikasi web portal **SPST** (Sistem Pelayanan Statistik Terpadu) yang digunakan
 
 ## 📋 Persyaratan Sistem
 
-- **Web Server**: Apache (XAMPP / Laragon / Nginx)
-- **PHP**: versi 7.4 / 8.0 ke atas
-- **Database**: MySQL / MariaDB
+- **Web Server**: Apache (dengan `mod_rewrite` aktif) / LiteSpeed / Nginx
+- **PHP**: versi **8.0 / 8.1 / 8.2 / 8.3** (Wajib PHP >= 8.0)
+- **Ekstensi PHP**: `mysqli`, `mbstring`, `json`, `session`, `curl`, `fileinfo`
+- **Database**: MySQL 5.7+ / MariaDB 10.3+
 
 ---
 
@@ -37,22 +38,24 @@ Aplikasi web portal **SPST** (Sistem Pelayanan Statistik Terpadu) yang digunakan
    ```bash
    git clone https://github.com/KrisArdani/spst.git
    ```
-   Atau ekstrak folder proyek ini ke dalam direktori web server Anda (misalnya `C:/xampp/htdocs/A/spst` atau `C:/xampp/htdocs/spst`).
+   Ekstrak folder proyek ini ke dalam direktori web server Anda (misalnya `htdocs/spst` atau `public_html/`).
 
-2. **Database Auto-Setup / Import Manual**
-   - **Otomatis**: Sistem dilengkapi *Auto-Setup Database*. Cukup pastikan MySQL pada XAMPP sudah berjalan, lalu buka aplikasi di browser. Sistem akan otomatis membuat database `db_spst` dan mengimpor struktur/tabel awal jika belum ada.
-   - **Manual**: Jika ingin mengimpor manual, buka **phpMyAdmin** (`http://localhost/phpmyadmin`), buat database `db_spst`, lalu import file `db_spst.sql`.
+2. **Konfigurasi Lingkungan (`.env`)**
+   Salin template konfigurasi:
+   ```bash
+   cp .env.example .env
+   ```
+   Sesuaikan kredensial basis data (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`), `APP_ENV`, dan konfigurasi email SMTP.
 
-3. **Konfigurasi Koneksi**
-   - Buka file `config.php` untuk mengkonfigurasi kredensial MySQL (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`) jika tidak menggunakan `root` tanpa password.
+3. **Inisialisasi Database**
+   - **Via CLI (Rekomendasi)**:
+     ```bash
+     php sql/migrate.php
+     ```
+   - **Via phpMyAdmin**: Buat database baru (misal `db_spst`), lalu impor file `db_spst.sql` atau `sql/schema.sql`.
 
 4. **Jalankan Aplikasi**
-   - Pastikan Apache dan MySQL pada XAMPP sudah aktif.
-   - Buka browser dan akses:
-     ```text
-     http://localhost/A/spst/
-     ```
-     *(atau sesuaikan dengan folder htdocs Anda)*
+   Buka peramban dan akses alamat domain / URL lokal proyek Anda.
 
 ---
 

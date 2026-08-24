@@ -6,7 +6,7 @@ $csrf_token = generateCsrfToken();
 
 $userRole = $_SESSION['user_role'] ?? '';
 $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
-$isPetugasLocked = ($userRole === 'petugas' && !empty($assignedLayanan));
+$isPetugasLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -296,11 +296,11 @@ $isPetugasLocked = ($userRole === 'petugas' && !empty($assignedLayanan));
                   </div>
                 <?php else: ?>
                   <select id="filter_layanan_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-purple-900 border-purple-300 bg-purple-50 py-1.5 px-2.5 w-auto">
-                    <option value="all" selected>🏢 Semua Loket Layanan</option>
-                    <option value="Konsultasi Statistik">💬 Loket Konsultasi</option>
-                    <option value="Perpustakaan">📚 Loket Perpustakaan</option>
-                    <option value="Rekomendasi Kegiatan Statistik">📑 Loket Rekomendasi</option>
-                    <option value="Layanan Pengaduan">📣 Loket Pengaduan</option>
+                    <option value="all" selected>Semua Loket Layanan</option>
+                    <option value="Konsultasi Statistik">Konsultasi Statistik</option>
+                    <option value="Perpustakaan">Perpustakaan</option>
+                    <option value="Rekomendasi Kegiatan Statistik">Rekomendasi Kegiatan Statistik</option>
+                    <option value="Layanan Pengaduan">Layanan Pengaduan</option>
                   </select>
                 <?php endif; ?>
               </div>

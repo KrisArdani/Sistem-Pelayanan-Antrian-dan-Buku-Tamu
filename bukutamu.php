@@ -108,25 +108,6 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
         <!-- DYNAMIC PROGRESS TIMELINE STEPPER BAR -->
         <?php include __DIR__ . '/stepper.php'; ?>
 
-        <?php if (!$isLoggedIn): ?>
-        <!-- Banner Jika Pengunjung Belum Login -->
-        <div class="p-8 bg-white rounded-2xl shadow-sm border border-slate-200 text-center space-y-4">
-          <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto">
-            <span class="material-icons text-3xl">lock</span>
-          </div>
-          <div class="space-y-1">
-            <h3 class="text-lg font-bold text-slate-800">Silakan Login atau Daftar Akun</h3>
-            <p class="text-xs text-slate-500 max-w-md mx-auto">
-              Masuk dengan akun pengunjung Anda untuk melihat riwayat kunjungan, mencetak QRCode tiket digital, dan menyampaikan indeks kepuasan (SKM).
-            </p>
-          </div>
-          <div class="flex items-center justify-center gap-3 pt-2">
-            <a href="login.php" class="btn btn-primary bg-sky-600 border-sky-600 font-bold text-xs px-5 py-2.5 rounded-xl">Login Pengunjung</a>
-            <a href="register.php" class="btn btn-outline-secondary font-bold text-xs px-5 py-2.5 rounded-xl">Daftar Akun Pengunjung</a>
-          </div>
-        </div>
-        <?php else: ?>
-
         <!-- Petunjuk Pengisian SKM (Guidance Alert Banner) -->
         <div class="p-4 bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-emerald-500/10 border-2 border-amber-300/80 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm">
           <div class="flex items-center gap-3">
@@ -197,8 +178,6 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
             <p class="text-xs">Memuat data riwayat kunjungan...</p>
           </div>
         </div>
-
-        <?php endif; ?>
 
       </div>
 

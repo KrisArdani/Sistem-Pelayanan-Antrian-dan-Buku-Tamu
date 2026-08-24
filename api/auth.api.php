@@ -3,6 +3,11 @@
 
 switch ($action) {
     case 'register_pengunjung':
+        // Rate limit: Maksimal 5 pendaftaran per jam per IP
+        if (!checkRateLimit($conn, 'register_pengunjung', 5, 3600)) {
+            sendJsonResponse('error', 'Terlalu banyak percobaan pendaftaran akun. Silakan coba lagi setelah beberapa saat.', null, 429);
+        }
+
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
         $name = trim($_POST['name'] ?? '');
@@ -18,6 +23,10 @@ switch ($action) {
 
         if (!empty(validateRequiredFields(['username', 'password', 'name', 'nik', 'nohp', 'instansi'], $_POST))) {
             sendJsonResponse('error', 'Harap lengkapi semua kolom pendaftaran yang wajib diisi.');
+        }
+
+        if (!validatePasswordLength($password, 6)) {
+            sendJsonResponse('error', 'Kata sandi (password) minimal harus 6 karakter.');
         }
 
         if (!validateNIK($nik)) {
@@ -60,7 +69,7 @@ switch ($action) {
             
             if (!$stmt) {
                 error_log("DB Prepare Error register_pengunjung: " . $conn->error);
-                sendJsonResponse('error', 'Gagal memproses registrasi (Kesalahan struktur DB): ' . $conn->error);
+                sendJsonResponse('error', 'Gagal memproses pendaftaran akun. Terjadi gangguan pada sistem basis data.');
             }
 
             $stmt->bind_param("sssssssssssss", $username, $hashedPassword, $name, $nik, $role, $jenis_kelamin, $umur, $nohp, $email, $pendidikan, $pekerjaan, $instansi, $kategori_instansi);
@@ -69,11 +78,12 @@ switch ($action) {
                 logSecurityEvent($conn, 'register_pengunjung', "Registered visitor username: $username (NIK: $nik)");
                 sendJsonResponse('success', 'Registrasi akun pengunjung berhasil! Silakan login.');
             } else {
-                sendJsonResponse('error', 'Gagal mendaftarkan akun pengunjung: ' . $stmt->error);
+                error_log("DB Execute Error register_pengunjung: " . $stmt->error);
+                sendJsonResponse('error', 'Gagal mendaftarkan akun pengunjung. Silakan coba kembali.');
             }
         } catch (Throwable $e) {
             error_log("Exception register_pengunjung: " . $e->getMessage());
-            sendJsonResponse('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            sendJsonResponse('error', 'Terjadi kesalahan sistem saat memproses registrasi.');
         }
         break;
 
@@ -173,6 +183,20 @@ switch ($action) {
 
     case 'check_session':
         if (isset($_SESSION['user_id'])) {
+            // Sinkronkan data pengguna terbaru dari basis data
+            $stmtUser = $conn->prepare("SELECT role, layanan_tugas, name, nik FROM users WHERE id = ?");
+            if ($stmtUser) {
+                $stmtUser->bind_param("i", $_SESSION['user_id']);
+                $stmtUser->execute();
+                if ($uData = $stmtUser->get_result()->fetch_assoc()) {
+                    $_SESSION['user_role'] = $uData['role'];
+                    $_SESSION['user_layanan_tugas'] = $uData['layanan_tugas'] ?? '';
+                    $_SESSION['user_name'] = $uData['name'];
+                    $_SESSION['user_nik'] = $uData['nik'];
+                }
+                $stmtUser->close();
+            }
+
             sendJsonResponse('success', 'Session aktif.', [
                 'user_id' => $_SESSION['user_id'],
                 'name' => $_SESSION['user_name'],

@@ -1,5 +1,12 @@
 <?php
 // SPST BPS Kota Tegal - WebGIS Data Seeder
+// Skrip ini hanya dapat dieksekusi via CLI untuk mencegah eksekusi tanpa izin dari browser publik
+
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    die("Akses ditolak: Skrip seeding basis data WebGIS hanya dapat dijalankan melalui antarmuka baris perintah (CLI).\n");
+}
+
 require_once __DIR__ . '/koneksi.php';
 
 echo "Memulai seeding database WebGIS Kota Tegal...\n";

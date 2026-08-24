@@ -85,7 +85,10 @@ $csrf_token = generateCsrfToken();
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <span class="material-icons text-base">lock</span>
             </span>
-            <input type="password" id="new_password" class="form-control rounded-xl pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-xs focus:border-sky-500" placeholder="Minimal 6 karakter..." required minlength="6">
+            <input type="password" id="new_password" class="form-control rounded-xl pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-xs focus:border-sky-500" placeholder="Minimal 6 karakter..." required minlength="6" autocomplete="new-password">
+            <button type="button" id="toggleNewPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white" tabindex="-1">
+              <span class="material-icons text-base" id="iconNewPassword">visibility_off</span>
+            </button>
           </div>
         </div>
 
@@ -95,7 +98,10 @@ $csrf_token = generateCsrfToken();
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <span class="material-icons text-base">lock_reset</span>
             </span>
-            <input type="password" id="confirm_password" class="form-control rounded-xl pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-xs focus:border-sky-500" placeholder="Ketik ulang password baru..." required minlength="6">
+            <input type="password" id="confirm_password" class="form-control rounded-xl pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-xs focus:border-sky-500" placeholder="Ketik ulang password baru..." required minlength="6" autocomplete="new-password">
+            <button type="button" id="toggleConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white" tabindex="-1">
+              <span class="material-icons text-base" id="iconConfirmPassword">visibility_off</span>
+            </button>
           </div>
         </div>
 
