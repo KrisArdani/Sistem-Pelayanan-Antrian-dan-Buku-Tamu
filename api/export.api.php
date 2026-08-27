@@ -7,6 +7,8 @@ switch ($action) {
         $filterTanggal = sanitizeInput($_GET['tanggal'] ?? $_POST['tanggal'] ?? 'today');
         $filterLayanan = sanitizeInput($_GET['layanan'] ?? $_POST['layanan'] ?? 'all');
         $filterStatus = sanitizeInput($_GET['status'] ?? $_POST['status'] ?? 'all');
+        $tglMulai = sanitizeInput($_GET['tanggal_mulai'] ?? $_POST['tanggal_mulai'] ?? '');
+        $tglSelesai = sanitizeInput($_GET['tanggal_selesai'] ?? $_POST['tanggal_selesai'] ?? '');
         $format = strtolower(trim($_GET['format'] ?? $_POST['format'] ?? 'excel'));
 
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
@@ -15,8 +17,16 @@ switch ($action) {
         }
 
         if ($format === 'pdf') {
+            $queryStr = http_build_query([
+                'type' => 'antrian',
+                'tanggal' => $filterTanggal,
+                'layanan' => $filterLayanan,
+                'status' => $filterStatus,
+                'tanggal_mulai' => $tglMulai,
+                'tanggal_selesai' => $tglSelesai
+            ]);
             sendJsonResponse('success', 'URL Cetak PDF', [
-                'redirect_url' => "admin/cetak_laporan.php?type=antrian&tanggal=" . urlencode($filterTanggal) . "&layanan=" . urlencode($filterLayanan) . "&status=" . urlencode($filterStatus)
+                'redirect_url' => "admin/cetak_laporan.php?" . $queryStr
             ]);
         }
 
@@ -29,6 +39,15 @@ switch ($action) {
             $whereClause[] = "DATE(tanggal) = CURDATE()";
         } else if ($filterTanggal === 'tomorrow') {
             $whereClause[] = "DATE(tanggal) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+        } else if ($filterTanggal === 'this_week') {
+            $whereClause[] = "YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+        } else if ($filterTanggal === 'this_month') {
+            $whereClause[] = "YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+        } else if ($filterTanggal === 'custom' && !empty($tglMulai) && !empty($tglSelesai)) {
+            $whereClause[] = "tanggal BETWEEN ? AND ?";
+            $params[] = $tglMulai;
+            $params[] = $tglSelesai;
+            $types .= "ss";
         } else if ($filterTanggal !== 'all' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterTanggal)) {
             $whereClause[] = "DATE(tanggal) = ?";
             $params[] = $filterTanggal;

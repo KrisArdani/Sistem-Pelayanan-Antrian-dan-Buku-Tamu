@@ -281,6 +281,9 @@ $isPetugasLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_a
                 <select id="filter_tanggal_antrian" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 py-1.5 px-2.5 w-auto">
                   <option value="today" selected>☀️ Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
                   <option value="tomorrow">🗓️ Besok (<?php echo date('d/m/Y', strtotime('+1 day')); ?>)</option>
+                  <option value="this_week">📅 Minggu Ini</option>
+                  <option value="this_month">🗓️ Bulan Ini (<?php echo date('F Y'); ?>)</option>
+                  <option value="custom">📆 Rentang Tanggal...</option>
                   <option value="all">🌐 Semua Tanggal</option>
                 </select>
               </div>
@@ -309,6 +312,30 @@ $isPetugasLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_a
               <button type="button" class="btn btn-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm shrink-0 whitespace-nowrap" data-bs-toggle="modal" data-bs-target="#modalWalkin">
                 <span class="material-icons text-sm">person_add_alt_1</span>
                 <span>Input Pengunjung Walk-In (Offline)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Date Range Inputs Antrian (Tampil jika Rentang Tanggal dipilih) -->
+          <div id="antrian_custom_date_box" style="display: none;" class="flex-wrap items-center gap-3 bg-sky-50/90 p-3.5 px-5 border-b border-sky-200 shadow-inner">
+            <div class="flex items-center gap-1.5 text-xs font-extrabold text-sky-900">
+              <span class="material-icons text-sm text-sky-600">date_range</span>
+              <span>Filter Rentang Tanggal Antrean:</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="antrian_date_mulai" class="text-xs font-bold text-slate-600">Dari:</label>
+              <input type="date" id="antrian_date_mulai" value="<?php echo date('Y-m-01'); ?>" class="form-control form-control-sm text-xs rounded-xl border-sky-300 bg-white shadow-sm w-40">
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="antrian_date_selesai" class="text-xs font-bold text-slate-600">Sampai:</label>
+              <input type="date" id="antrian_date_selesai" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm text-xs rounded-xl border-sky-300 bg-white shadow-sm w-40">
+            </div>
+            <div class="flex items-center gap-2 ml-auto">
+              <button type="button" id="btn_apply_antrian_date" class="btn btn-primary btn-sm text-xs font-bold px-3.5 py-1.5 rounded-xl bg-sky-600 border-sky-600 shadow-sm flex items-center gap-1.5">
+                <span class="material-icons text-xs">filter_alt</span> Terapkan Filter
+              </button>
+              <button type="button" id="btn_reset_antrian_date" class="btn btn-light btn-sm text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1">
+                <span class="material-icons text-xs">restart_alt</span> Reset
               </button>
             </div>
           </div>

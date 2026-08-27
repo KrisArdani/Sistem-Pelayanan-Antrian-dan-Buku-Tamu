@@ -155,12 +155,12 @@ switch ($action) {
 
     case 'get_my_antrian':
         requireAuth(['pengunjung', 'petugas', 'admin', 'kepala']);
-        $userId = $_SESSION['user_id'] ?? 0;
-        $userNoHp = $_SESSION['user_nohp'] ?? '';
+        $userId = (int)($_SESSION['user_id'] ?? 0);
+        $userNik = trim($_SESSION['user_nik'] ?? '');
         $todayStr = date('Y-m-d');
 
-        $stmt = $conn->prepare("SELECT id, user_id, kode_antrian, nomor, nama, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, monev, tanggal, waktu, pendapat, catatan, tipe_pendaftaran, status, created_at FROM antrian WHERE user_id = ? OR (nohp = ? AND nohp != '') ORDER BY id DESC");
-        $stmt->bind_param("is", $userId, $userNoHp);
+        $stmt = $conn->prepare("SELECT id, user_id, kode_antrian, nomor, nama, jenis_kelamin, umur, nohp, email, pendidikan, pekerjaan, instansi, kategori_instansi, fasilitas, layanan, pemanfaatan, data_diinginkan, foto, monev, tanggal, waktu, pendapat, catatan, tipe_pendaftaran, status, created_at FROM antrian WHERE (? > 0 AND user_id = ?) OR (? != '' AND LENGTH(?) = 16 AND nik = ?) ORDER BY id DESC");
+        $stmt->bind_param("iisss", $userId, $userId, $userNik, $userNik, $userNik);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -323,7 +323,9 @@ switch ($action) {
     case 'get_antrian':
         requireAuth(['petugas', 'admin', 'kepala']);
 
-        $filterTanggal = sanitizeInput($_GET['tanggal'] ?? 'today');
+        $filterTanggal = sanitizeInput($_GET['tanggal'] ?? $_GET['waktu'] ?? 'today');
+        $tglMulai = sanitizeInput($_GET['tanggal_mulai'] ?? '');
+        $tglSelesai = sanitizeInput($_GET['tanggal_selesai'] ?? '');
         $assignedLayanan = trim($_SESSION['user_layanan_tugas'] ?? '');
         $userRole = $_SESSION['user_role'] ?? '';
         $isLocked = ($userRole === 'petugas' && !empty($assignedLayanan) && !in_array($assignedLayanan, ['Pelayanan Terpadu', 'Semua Layanan', 'all']));
@@ -345,27 +347,33 @@ switch ($action) {
         $params = [];
 
         if ($filterTanggal === 'today') {
-            $query .= " AND tanggal = ?";
-            $types .= "s";
-            $params[] = $todayStr;
+            $query .= " AND DATE(tanggal) = CURDATE()";
         } else if ($filterTanggal === 'tomorrow') {
-            $query .= " AND tanggal = ?";
-            $types .= "s";
-            $params[] = $tomorrowStr;
-        } else if ($filterTanggal !== 'all' && !empty($filterTanggal)) {
-            $query .= " AND tanggal = ?";
+            $query .= " AND DATE(tanggal) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+        } else if ($filterTanggal === 'this_week') {
+            $query .= " AND YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+        } else if ($filterTanggal === 'this_month') {
+            $query .= " AND YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+        } else if ($filterTanggal === 'custom' && !empty($tglMulai) && !empty($tglSelesai)) {
+            $query .= " AND tanggal BETWEEN ? AND ?";
+            $types .= "ss";
+            $params[] = $tglMulai;
+            $params[] = $tglSelesai;
+        } else if ($filterTanggal !== 'all' && !empty($filterTanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterTanggal)) {
+            $query .= " AND DATE(tanggal) = ?";
             $types .= "s";
             $params[] = $filterTanggal;
         }
 
         // Filter khusus berdasarkan layanan loket tugas
         if (!empty($filterLayanan) && $filterLayanan !== 'all') {
-            $query .= " AND layanan LIKE ?";
-            $types .= "s";
+            $query .= " AND (layanan LIKE ? OR nomor LIKE ?)";
+            $types .= "ss";
             $params[] = '%' . $filterLayanan . '%';
+            $params[] = substr($filterLayanan, 0, 2) . '-%';
         }
 
-        $query .= " ORDER BY waktu ASC, id ASC";
+        $query .= " ORDER BY tanggal DESC, waktu ASC, id DESC";
 
         $stmt = $conn->prepare($query);
         if (!empty($params)) {

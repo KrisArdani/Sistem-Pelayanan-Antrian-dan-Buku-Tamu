@@ -135,11 +135,12 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
 
             <div class="flex flex-wrap items-center gap-2">
               <!-- Filter Waktu -->
-              <select id="user_filter_waktu" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-36">
+              <select id="user_filter_waktu" class="form-select form-select-sm text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50 w-44">
                 <option value="all">🕒 Semua Waktu</option>
                 <option value="today">☀️ Hari Ini</option>
+                <option value="this_week">📅 Minggu Ini</option>
                 <option value="this_month">🗓️ Bulan Ini</option>
-                <option value="custom">📆 Tanggal...</option>
+                <option value="custom">📆 Rentang Tanggal...</option>
               </select>
 
               <!-- Search Bar -->
@@ -151,18 +152,18 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
           </div>
 
           <!-- Custom Date Input Box -->
-          <div id="user_custom_date_box" class="hidden flex-wrap items-center gap-3 bg-sky-50/80 p-3 rounded-xl border border-sky-200">
+          <div id="user_custom_date_box" style="display: none;" class="flex-wrap items-center gap-3 bg-sky-50/80 p-3 rounded-xl border border-sky-200">
             <div class="flex items-center gap-1.5 text-xs font-bold text-sky-900">
               <span class="material-icons text-sm text-sky-600">event</span>
               <span>Rentang Tanggal:</span>
             </div>
             <div class="flex items-center gap-2">
               <label for="user_date_mulai" class="text-[11px] font-bold text-slate-600">Dari:</label>
-              <input type="date" id="user_date_mulai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+              <input type="date" id="user_date_mulai" value="<?php echo date('Y-m-01'); ?>" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
             </div>
             <div class="flex items-center gap-2">
               <label for="user_date_selesai" class="text-[11px] font-bold text-slate-600">Sampai:</label>
-              <input type="date" id="user_date_selesai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+              <input type="date" id="user_date_selesai" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
             </div>
             <div class="flex items-center gap-2 ml-auto">
               <button type="button" id="btn_apply_user_date" class="btn btn-primary btn-sm text-xs font-bold px-3 py-1 rounded-lg bg-sky-600 border-sky-600 shadow-sm">Terapkan</button>
@@ -296,7 +297,7 @@ $userInstansi = $_SESSION['user_instansi'] ?? '';
     </div>
   </div>
 
-  <script src="js/app.js"></script>
-  <script src="js/bukutamu.js"></script>
+  <script src="js/app.js?v=<?php echo time(); ?>"></script>
+  <script src="js/bukutamu.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

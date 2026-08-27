@@ -43,9 +43,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (filterWaktu) {
     filterWaktu.addEventListener('change', () => {
       if (filterWaktu.value === 'custom') {
-        if (customDateBox) customDateBox.classList.remove('hidden'), customDateBox.classList.add('flex');
+        if (customDateBox) {
+          customDateBox.style.display = 'flex';
+          customDateBox.classList.remove('hidden');
+          customDateBox.classList.add('flex');
+        }
       } else {
-        if (customDateBox) customDateBox.classList.add('hidden'), customDateBox.classList.remove('flex');
+        if (customDateBox) {
+          customDateBox.style.display = 'none';
+          customDateBox.classList.add('hidden');
+          customDateBox.classList.remove('flex');
+        }
         renderBukuTamuTable();
       }
     });
@@ -60,7 +68,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (filterWaktu) filterWaktu.value = 'all';
       if (inputDateMulai) inputDateMulai.value = '';
       if (inputDateSelesai) inputDateSelesai.value = '';
-      if (customDateBox) customDateBox.classList.add('hidden'), customDateBox.classList.remove('flex');
+      if (customDateBox) {
+        customDateBox.style.display = 'none';
+        customDateBox.classList.add('hidden');
+        customDateBox.classList.remove('flex');
+      }
       renderBukuTamuTable();
     });
   }
@@ -169,6 +181,20 @@ async function renderBukuTamuTable(isSilent = false) {
     data = data.filter(item => {
       const itemDate = item.tanggal || (item.timestamp ? item.timestamp.substring(0, 10) : '') || (item.created_at ? item.created_at.substring(0, 10) : '');
       return itemDate === todayStr;
+    });
+  } else if (waktuVal === 'this_week') {
+    const dayOfWeek = now.getDay();
+    const diffToMon = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    const monDate = new Date(now.getFullYear(), now.getMonth(), diffToMon);
+    const sunDate = new Date(monDate);
+    sunDate.setDate(monDate.getDate() + 6);
+    
+    const monStr = `${monDate.getFullYear()}-${String(monDate.getMonth() + 1).padStart(2, '0')}-${String(monDate.getDate()).padStart(2, '0')}`;
+    const sunStr = `${sunDate.getFullYear()}-${String(sunDate.getMonth() + 1).padStart(2, '0')}-${String(sunDate.getDate()).padStart(2, '0')}`;
+    
+    data = data.filter(item => {
+      const itemDate = item.tanggal || (item.timestamp ? item.timestamp.substring(0, 10) : '') || (item.created_at ? item.created_at.substring(0, 10) : '');
+      return itemDate >= monStr && itemDate <= sunStr;
     });
   } else if (waktuVal === 'this_month') {
     data = data.filter(item => {

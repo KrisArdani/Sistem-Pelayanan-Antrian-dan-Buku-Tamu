@@ -167,6 +167,16 @@ let pollingInterval = null;
 async function checkRealtimeStepperStatus() {
   if (sessionStorage.getItem('stepper_user_reset_new') === '1') return;
 
+  // 1. JANGAN PERNAH reload jika ada modal yang sedang terbuka (misal modal QR tiket, modal SKM, webcam, dll.)
+  if (document.querySelector('.modal.show') || document.querySelector('.modal[style*="display: block"]')) {
+    return;
+  }
+
+  // 2. JANGAN PERNAH reload jika pengguna sedang aktif mengetik di form
+  if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
+    return;
+  }
+
   try {
     const res = await fetch('api.php?action=get_stepper_status');
     const json = await res.json();
@@ -180,12 +190,35 @@ async function checkRealtimeStepperStatus() {
 
     // Detect status change
     const currentTicket = active || completed;
-    const currentId = currentTicket ? currentTicket.id : 0;
+    const currentId = currentTicket ? parseInt(currentTicket.id) : 0;
     const currentStatus = currentTicket ? currentTicket.status : '';
 
-    if (currentId !== lastStepperTicketId || currentStatus !== lastStepperTicketStatus) {
+    // Jika sebelumnya ID tiket adalah 0 (belum ada tiket) dan kini ada tiket baru dibuat (misal dari form antrian),
+    // cukup sinkronisasi variabel internal tanpa mereload halaman agar tidak menutup popup tiket QR.
+    if (lastStepperTicketId === 0 && currentId > 0) {
       lastStepperTicketId = currentId;
       lastStepperTicketStatus = currentStatus;
+      if (window.stepperConfig) {
+        window.stepperConfig.lastTicketId = currentId;
+        window.stepperConfig.lastTicketStatus = currentStatus;
+        window.stepperConfig.hasActiveTicket = !!active;
+      }
+      return;
+    }
+
+    if (currentId !== lastStepperTicketId || currentStatus !== lastStepperTicketStatus) {
+      const prevStatus = lastStepperTicketStatus;
+      lastStepperTicketId = currentId;
+      lastStepperTicketStatus = currentStatus;
+
+      if (window.stepperConfig) {
+        window.stepperConfig.lastTicketId = currentId;
+        window.stepperConfig.lastTicketStatus = currentStatus;
+        window.stepperConfig.hasActiveTicket = !!active;
+      }
+
+      // Jangan reload jika status tidak benar-benar berubah
+      if (!currentStatus || currentStatus === prevStatus) return;
 
       // Status updated! Show toast notification and update UI in real-time
       if (typeof Swal !== 'undefined' && currentStatus) {
@@ -199,13 +232,17 @@ async function checkRealtimeStepperStatus() {
           icon: currentStatus === 'Selesai' ? 'success' : 'info',
           title: msg,
           showConfirmButton: false,
-          timer: 5000,
+          timer: 4000,
           timerProgressBar: true
         });
       }
 
-      // Reload stepper component dynamically or refresh smooth
-      window.location.reload();
+      // Reload stepper component dynamically only when modal is closed
+      setTimeout(() => {
+        if (!document.querySelector('.modal.show')) {
+          window.location.reload();
+        }
+      }, 1000);
     }
   } catch (err) {
     // Silent fail for polling network hiccups

@@ -157,21 +157,24 @@ $csrf_token = generateCsrfToken();
         </div>
 
         <?php if (defined('APP_ENV') && APP_ENV === 'development'): ?>
-        <!-- Collapsible Demo Account Box (Clean & Minimalist) -->
+        <!-- Collapsible Demo Account Box (Khusus Mode Development / Testing Lokal) -->
         <details class="text-xs text-slate-400 bg-slate-800/60 rounded-xl border border-slate-700/60 p-3">
           <summary class="font-semibold cursor-pointer text-slate-300 hover:text-white flex items-center justify-between select-none">
-            <span>Akun Simulasi Demo (Password: 123)</span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-icons text-amber-400 text-sm">developer_mode</span>
+              <span>Akun Simulasi (Mode Pengembangan)</span>
+            </span>
             <span class="material-icons text-sm">expand_more</span>
           </summary>
           <div class="pt-2.5 space-y-1.5 font-mono text-[11px] border-t border-slate-700/60 mt-2 text-slate-300">
-            <div>• <b>Admin Sentral:</b> <button type="button" onclick="fillDemoLogin('admin','123')" class="text-sky-400 font-bold hover:underline">admin</button></div>
-            <div>• <b>Petugas Utama:</b> <button type="button" onclick="fillDemoLogin('petugas','123')" class="text-sky-400 font-bold hover:underline">petugas</button></div>
-            <div>• <b>Loket Konsultasi:</b> <button type="button" onclick="fillDemoLogin('petugas_konsultasi','123')" class="text-purple-400 font-bold hover:underline">petugas_konsultasi</button></div>
-            <div>• <b>Loket Perpustakaan:</b> <button type="button" onclick="fillDemoLogin('petugas_perpustakaan','123')" class="text-purple-400 font-bold hover:underline">petugas_perpustakaan</button></div>
-            <div>• <b>Loket Rekomendasi:</b> <button type="button" onclick="fillDemoLogin('petugas_rekomendasi','123')" class="text-purple-400 font-bold hover:underline">petugas_rekomendasi</button></div>
-            <div>• <b>Loket Pengaduan:</b> <button type="button" onclick="fillDemoLogin('petugas_pengaduan','123')" class="text-purple-400 font-bold hover:underline">petugas_pengaduan</button></div>
-            <div>• <b>Kepala BPS:</b> <button type="button" onclick="fillDemoLogin('kepala','123')" class="text-emerald-400 font-bold hover:underline">kepala</button></div>
-            <div>• <b>Pengunjung:</b> <button type="button" onclick="fillDemoLogin('kris','123456')" class="text-emerald-400 font-bold hover:underline">kris</button></div>
+            <div>• <b>Admin Sentral:</b> <button type="button" onclick="fillDemoLogin('admin','AdminBPS@Tegal2026!')" class="text-sky-400 font-bold hover:underline">admin</button></div>
+            <div>• <b>Petugas Utama:</b> <button type="button" onclick="fillDemoLogin('petugas','PetugasPST@Tegal2026!')" class="text-sky-400 font-bold hover:underline">petugas</button></div>
+            <div>• <b>Loket Konsultasi:</b> <button type="button" onclick="fillDemoLogin('petugas_konsultasi','PetugasKS@Tegal2026!')" class="text-purple-400 font-bold hover:underline">petugas_konsultasi</button></div>
+            <div>• <b>Loket Perpustakaan:</b> <button type="button" onclick="fillDemoLogin('petugas_perpustakaan','PetugasPD@Tegal2026!')" class="text-purple-400 font-bold hover:underline">petugas_perpustakaan</button></div>
+            <div>• <b>Loket Rekomendasi:</b> <button type="button" onclick="fillDemoLogin('petugas_rekomendasi','PetugasRS@Tegal2026!')" class="text-purple-400 font-bold hover:underline">petugas_rekomendasi</button></div>
+            <div>• <b>Loket Pengaduan:</b> <button type="button" onclick="fillDemoLogin('petugas_pengaduan','PetugasPG@Tegal2026!')" class="text-purple-400 font-bold hover:underline">petugas_pengaduan</button></div>
+            <div>• <b>Kepala BPS:</b> <button type="button" onclick="fillDemoLogin('kepala','KepalaBPS@Tegal2026!')" class="text-emerald-400 font-bold hover:underline">kepala</button></div>
+            <div>• <b>Pengunjung:</b> <button type="button" onclick="fillDemoLogin('kris','Pengunjung@Tegal2026!')" class="text-emerald-400 font-bold hover:underline">kris</button></div>
           </div>
         </details>
         <?php endif; ?>

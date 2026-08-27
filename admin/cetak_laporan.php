@@ -154,12 +154,22 @@ $totalRows = count($data);
       <!-- Select Filter Tanggal / Waktu -->
       <div class="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
         <span class="material-icons text-slate-400 text-sm pl-1.5">date_range</span>
-        <select name="tanggal" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold text-slate-800 focus:ring-0 cursor-pointer py-1 pr-6">
+        <select name="tanggal" id="cetak_filter_tanggal" onchange="toggleCetakCustomDate(this.value)" class="bg-transparent border-none text-xs font-bold text-slate-800 focus:ring-0 cursor-pointer py-1 pr-6">
           <option value="all" <?php echo ($filterTanggal == 'all') ? 'selected' : ''; ?>>Semua Periode</option>
           <option value="today" <?php echo ($filterTanggal == 'today') ? 'selected' : ''; ?>>Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
           <option value="this_week" <?php echo ($filterTanggal == 'this_week') ? 'selected' : ''; ?>>Minggu Ini</option>
           <option value="this_month" <?php echo ($filterTanggal == 'this_month') ? 'selected' : ''; ?>>Bulan Ini (<?php echo date('F Y'); ?>)</option>
+          <option value="custom" <?php echo ($filterTanggal == 'custom') ? 'selected' : ''; ?>>📆 Rentang Tanggal...</option>
         </select>
+      </div>
+
+      <!-- Custom Date Inputs (Dari & Sampai) -->
+      <div id="cetak_custom_date_inputs" class="<?php echo ($filterTanggal == 'custom') ? 'flex' : 'hidden'; ?> items-center gap-1.5 bg-sky-50 p-1 px-2 rounded-xl border border-sky-200">
+        <label class="text-[11px] font-bold text-slate-600">Dari:</label>
+        <input type="date" name="tanggal_mulai" value="<?php echo htmlspecialchars($tglMulai); ?>" class="text-xs font-semibold rounded-lg border border-sky-300 py-0.5 px-1.5 bg-white">
+        <label class="text-[11px] font-bold text-slate-600">Sampai:</label>
+        <input type="date" name="tanggal_selesai" value="<?php echo htmlspecialchars($tglSelesai); ?>" class="text-xs font-semibold rounded-lg border border-sky-300 py-0.5 px-1.5 bg-white">
+        <button type="submit" class="btn btn-primary btn-sm text-[11px] font-bold py-0.5 px-2 rounded-lg bg-sky-600 border-sky-600">Terapkan</button>
       </div>
 
       <!-- Select Filter Loket Layanan -->
@@ -177,6 +187,19 @@ $totalRows = count($data);
         <span class="material-icons text-sm">print</span> Cetak PDF
       </button>
     </form>
+    <script>
+      function toggleCetakCustomDate(val) {
+        const box = document.getElementById('cetak_custom_date_inputs');
+        if (val === 'custom') {
+          box.classList.remove('hidden');
+          box.classList.add('flex');
+        } else {
+          box.classList.add('hidden');
+          box.classList.remove('flex');
+          document.querySelector('form').submit();
+        }
+      }
+    </script>
   </div>
 
   <!-- Printable Report Container -->

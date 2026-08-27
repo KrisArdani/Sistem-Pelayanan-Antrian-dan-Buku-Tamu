@@ -216,11 +216,12 @@ $csrf_token = generateCsrfToken();
               </select>
             </div>
 
-            <!-- Filter Berdasarkan Waktu / Tanggal (Baru) -->
-            <div class="w-full md:w-44 shrink-0">
+            <!-- Filter Berdasarkan Waktu / Tanggal -->
+            <div class="w-full md:w-48 shrink-0">
               <select id="filter_waktu" class="form-select text-xs font-bold rounded-xl text-sky-900 border-sky-300 bg-sky-50">
                 <option value="all">🕒 Semua Waktu</option>
                 <option value="today">☀️ Hari Ini</option>
+                <option value="this_week">📅 Minggu Ini</option>
                 <option value="this_month">🗓️ Bulan Ini</option>
                 <option value="custom">📆 Rentang Tanggal...</option>
               </select>
@@ -228,18 +229,18 @@ $csrf_token = generateCsrfToken();
           </div>
 
           <!-- Custom Date Range Inputs (Tampil jika Rentang Tanggal dipilih) -->
-          <div id="custom_date_range_box" class="hidden flex-wrap items-center gap-3 bg-sky-50/80 p-3 rounded-xl border border-sky-200">
+          <div id="custom_date_range_box" style="display: none;" class="flex-wrap items-center gap-3 bg-sky-50/80 p-3 rounded-xl border border-sky-200">
             <div class="flex items-center gap-1.5 text-xs font-extrabold text-sky-900">
               <span class="material-icons text-sm text-sky-600">date_range</span>
               <span>Filter Rentang Tanggal:</span>
             </div>
             <div class="flex items-center gap-2">
               <label for="filter_tanggal_mulai" class="text-[11px] font-bold text-slate-600">Dari:</label>
-              <input type="date" id="filter_tanggal_mulai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+              <input type="date" id="filter_tanggal_mulai" value="<?php echo date('Y-m-01'); ?>" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
             </div>
             <div class="flex items-center gap-2">
               <label for="filter_tanggal_selesai" class="text-[11px] font-bold text-slate-600">Sampai:</label>
-              <input type="date" id="filter_tanggal_selesai" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
+              <input type="date" id="filter_tanggal_selesai" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm text-xs rounded-lg w-36 border-sky-200">
             </div>
             <div class="flex items-center gap-2 ml-auto">
               <button type="button" id="btn_apply_date_filter" class="btn btn-primary btn-sm text-xs font-bold px-3 py-1 rounded-lg bg-sky-600 border-sky-600 shadow-sm flex items-center gap-1">

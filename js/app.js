@@ -173,10 +173,14 @@ function exportData(type, format) {
     waktu = document.getElementById('filter_tanggal_skm')?.value || document.getElementById('filter_tanggal_antrian')?.value || 'all';
     layanan = document.getElementById('filter_layanan_antrian')?.value || 'all';
     status = document.getElementById('filter_status_antrian')?.value || 'all';
+    tglMulai = document.getElementById('dashboard_date_mulai')?.value || '';
+    tglSelesai = document.getElementById('dashboard_date_selesai')?.value || '';
   } else {
     waktu = document.getElementById('filter_tanggal_antrian')?.value || 'today';
     layanan = document.getElementById('filter_layanan_antrian')?.value || 'all';
     status = document.getElementById('filter_status_antrian')?.value || 'all';
+    tglMulai = document.getElementById('antrian_date_mulai')?.value || '';
+    tglSelesai = document.getElementById('antrian_date_selesai')?.value || '';
   }
 
   const actionName = type === 'antrian' ? 'export_antrian' : (type === 'bukutamu' ? 'export_bukutamu' : 'export_skm');

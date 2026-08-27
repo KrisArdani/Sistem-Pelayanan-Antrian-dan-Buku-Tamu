@@ -36,16 +36,17 @@ CREATE TABLE `users` (
   KEY `idx_user_role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Data Awal Akun Sistem (Password default: '123' ter-hash Bcrypt, wajib diganti saat production)
+-- Data Awal Akun Sistem (Password produksi ter-hash Bcrypt)
 LOCK TABLES `users` WRITE;
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `nik`, `role`, `layanan_tugas`, `jenis_kelamin`, `umur`, `nohp`, `email`, `pendidikan`, `pekerjaan`, `instansi`, `kategori_instansi`) VALUES
-(1, 'petugas', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Petugas PST Loket Utama', NULL, 'petugas', 'Pelayanan Terpadu', 'Laki Laki', '26-34 tahun', '081200000001', 'petugas@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-(2, 'admin', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Admin Back Office', NULL, 'admin', NULL, 'Laki Laki', '26-34 tahun', '081200000002', 'admin@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-(3, 'kepala', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Kepala BPS Kota Tegal', NULL, 'kepala', NULL, 'Laki Laki', '45+ tahun', '081200000003', 'kepala@bps.go.id', 'S2-S3', 'Kepala BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-(4, 'petugas_konsultasi', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Petugas Loket Konsultasi', NULL, 'petugas', 'Konsultasi Statistik', 'Laki Laki', '26-34 tahun', '081200000004', 'petugas.konsultasi@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-(5, 'petugas_perpustakaan', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Petugas Loket Perpustakaan', NULL, 'petugas', 'Perpustakaan', 'Laki Laki', '26-34 tahun', '081200000005', 'petugas.perpustakaan@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-(6, 'petugas_rekomendasi', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Petugas Loket Rekomendasi', NULL, 'petugas', 'Rekomendasi Kegiatan Statistik', 'Laki Laki', '26-34 tahun', '081200000006', 'petugas.rekomendasi@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
-(7, 'petugas_pengaduan', '$2y$10$dtdv3272CPRJTSjfjAHV1eDjspGUElgqfCdTZr9PTyI3J0KZcWq.K', 'Petugas Loket Pengaduan', NULL, 'petugas', 'Layanan Pengaduan', 'Laki Laki', '26-34 tahun', '081200000007', 'petugas.pengaduan@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah');
+(1, 'petugas', '$2y$10$nLJhf2.9FtrWyiBZ0YDBEONo96/LIUo2qhG2lI9BJh.r9JqqALLj2', 'Petugas PST Loket Utama', NULL, 'petugas', 'Pelayanan Terpadu', 'Laki Laki', '26-34 tahun', '081200000001', 'petugas@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(2, 'admin', '$2y$10$6gCk63rNl/q6q7sCDxeZieeF4LZXRhxnfa94DYehzNz5oFE5xgYeG', 'Admin Back Office', NULL, 'admin', NULL, 'Laki Laki', '26-34 tahun', '081200000002', 'admin@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(3, 'kepala', '$2y$10$sLi6mt6BvED7js.iyjBw/edmYxfrBia5oUTQP7L0ItMSlapj.2vI6', 'Kepala BPS Kota Tegal', NULL, 'kepala', NULL, 'Laki Laki', '45+ tahun', '081200000003', 'kepala@bps.go.id', 'S2-S3', 'Kepala BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(4, 'petugas_konsultasi', '$2y$10$IPUqxF4BwIM2VPkkZt93/OthXu/4VqwMMsv6lJxHkkEXVsnWGLvva', 'Petugas Loket Konsultasi', NULL, 'petugas', 'Konsultasi Statistik', 'Laki Laki', '26-34 tahun', '081200000004', 'petugas.konsultasi@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(5, 'petugas_perpustakaan', '$2y$10$VXzkugaB42KYjf3gAxQO9uExVOzd0OgGNrTmUffAuveTksaOQ0mLu', 'Petugas Loket Perpustakaan', NULL, 'petugas', 'Perpustakaan', 'Laki Laki', '26-34 tahun', '081200000005', 'petugas.perpustakaan@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(6, 'petugas_rekomendasi', '$2y$10$KMcuhcOmJgAaiXEBSL/MIeqHYnXufmN1RUjxspa2gDlMnO1rqSt3e', 'Petugas Loket Rekomendasi', NULL, 'petugas', 'Rekomendasi Kegiatan Statistik', 'Laki Laki', '26-34 tahun', '081200000006', 'petugas.rekomendasi@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(7, 'petugas_pengaduan', '$2y$10$JEWLNp8bF5sLzVqIDv/cZebZQOW.Jd/taIDrcPuQrKzgCj6LXV9gO', 'Petugas Loket Pengaduan', NULL, 'petugas', 'Layanan Pengaduan', 'Laki Laki', '26-34 tahun', '081200000007', 'petugas.pengaduan@bps.go.id', 'D4-S1', 'Pegawai BPS', 'BPS Kota Tegal', 'Instansi Pemerintah'),
+(8, 'kris', '$2y$10$mYyrEm1O8yhBa7Ef7jXiMu4nuFOHym9mTHYsPU/CAkzsvFAC0uM0K', 'Kris Ardani', NULL, 'pengunjung', NULL, 'Laki Laki', '17-25 tahun', '0882828282', 'krispro195@gmail.com', 'D4-S1', 'Mahasiswa', 'Politeknik Purbaya', 'Sekolah/Universitas');
 UNLOCK TABLES;
 
 -- ------------------------------------------------------------------------------

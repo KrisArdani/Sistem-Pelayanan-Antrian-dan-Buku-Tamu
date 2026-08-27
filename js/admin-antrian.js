@@ -24,8 +24,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const filterTanggalSelect = document.getElementById('filter_tanggal_antrian');
+  const antrianCustomDateBox = document.getElementById('antrian_custom_date_box');
+  const btnApplyAntrianDate = document.getElementById('btn_apply_antrian_date');
+  const btnResetAntrianDate = document.getElementById('btn_reset_antrian_date');
+  const inputAntrianDateMulai = document.getElementById('antrian_date_mulai');
+  const inputAntrianDateSelesai = document.getElementById('antrian_date_selesai');
+
   if (filterTanggalSelect) {
-    filterTanggalSelect.addEventListener('change', () => renderAntrianDashboard());
+    filterTanggalSelect.addEventListener('change', () => {
+      if (filterTanggalSelect.value === 'custom') {
+        if (antrianCustomDateBox) {
+          antrianCustomDateBox.style.display = 'flex';
+          antrianCustomDateBox.classList.remove('hidden');
+          antrianCustomDateBox.classList.add('flex');
+        }
+      } else {
+        if (antrianCustomDateBox) {
+          antrianCustomDateBox.style.display = 'none';
+          antrianCustomDateBox.classList.add('hidden');
+          antrianCustomDateBox.classList.remove('flex');
+        }
+        renderAntrianDashboard();
+      }
+    });
+  }
+
+  if (btnApplyAntrianDate) {
+    btnApplyAntrianDate.addEventListener('click', () => renderAntrianDashboard());
+  }
+
+  if (btnResetAntrianDate) {
+    btnResetAntrianDate.addEventListener('click', () => {
+      if (filterTanggalSelect) filterTanggalSelect.value = 'today';
+      if (inputAntrianDateMulai) inputAntrianDateMulai.value = '';
+      if (inputAntrianDateSelesai) inputAntrianDateSelesai.value = '';
+      if (antrianCustomDateBox) {
+        antrianCustomDateBox.style.display = 'none';
+        antrianCustomDateBox.classList.add('hidden');
+        antrianCustomDateBox.classList.remove('flex');
+      }
+      renderAntrianDashboard();
+    });
   }
 
   if (filterLayananSelect) {
@@ -112,10 +151,16 @@ async function renderAntrianDashboard(isSilent = false) {
   const filterLayananSelect = document.getElementById('filter_layanan_antrian');
   const dateVal = filterTanggalSelect ? filterTanggalSelect.value : 'today';
   const layananVal = filterLayananSelect ? filterLayananSelect.value : 'all';
+  const tglMulaiVal = document.getElementById('antrian_date_mulai')?.value || '';
+  const tglSelesaiVal = document.getElementById('antrian_date_selesai')?.value || '';
 
   let data = [];
   try {
-    const res = await fetch(`../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}&layanan=${encodeURIComponent(layananVal)}&_t=${Date.now()}`, { cache: 'no-store' });
+    let url = `../api.php?action=get_antrian&tanggal=${encodeURIComponent(dateVal)}&layanan=${encodeURIComponent(layananVal)}&_t=${Date.now()}`;
+    if (dateVal === 'custom' && tglMulaiVal && tglSelesaiVal) {
+      url += `&tanggal_mulai=${encodeURIComponent(tglMulaiVal)}&tanggal_selesai=${encodeURIComponent(tglSelesaiVal)}`;
+    }
+    const res = await fetch(url, { cache: 'no-store' });
     const json = await res.json();
     if (json.status === 'success') {
       data = json.data || [];

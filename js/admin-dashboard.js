@@ -16,8 +16,49 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const filterSelect = document.getElementById('filter_tanggal_skm');
+  const customDateBox = document.getElementById('dashboard_custom_date_box');
+  const btnApplyDate = document.getElementById('btn_apply_dashboard_date');
+  const btnResetDate = document.getElementById('btn_reset_dashboard_date');
+  const inputDateMulai = document.getElementById('dashboard_date_mulai');
+  const inputDateSelesai = document.getElementById('dashboard_date_selesai');
+
   if (filterSelect) {
     filterSelect.addEventListener('change', async () => {
+      if (filterSelect.value === 'custom') {
+        if (customDateBox) {
+          customDateBox.style.display = 'flex';
+          customDateBox.classList.remove('hidden');
+          customDateBox.classList.add('flex');
+        }
+      } else {
+        if (customDateBox) {
+          customDateBox.style.display = 'none';
+          customDateBox.classList.add('hidden');
+          customDateBox.classList.remove('flex');
+        }
+        const kpiData = await calculateKPIs();
+        if (kpiData) initCharts(kpiData);
+      }
+    });
+  }
+
+  if (btnApplyDate) {
+    btnApplyDate.addEventListener('click', async () => {
+      const kpiData = await calculateKPIs();
+      if (kpiData) initCharts(kpiData);
+    });
+  }
+
+  if (btnResetDate) {
+    btnResetDate.addEventListener('click', async () => {
+      if (filterSelect) filterSelect.value = 'all';
+      if (inputDateMulai) inputDateMulai.value = '';
+      if (inputDateSelesai) inputDateSelesai.value = '';
+      if (customDateBox) {
+        customDateBox.style.display = 'none';
+        customDateBox.classList.add('hidden');
+        customDateBox.classList.remove('flex');
+      }
       const kpiData = await calculateKPIs();
       if (kpiData) initCharts(kpiData);
     });
@@ -43,7 +84,15 @@ async function calculateKPIs() {
 
   try {
     const filterVal = document.getElementById('filter_tanggal_skm')?.value || 'all';
-    const res = await fetch(`../api.php?action=get_dashboard_kpi&tanggal=${encodeURIComponent(filterVal)}`);
+    const dateMulai = document.getElementById('dashboard_date_mulai')?.value || '';
+    const dateSelesai = document.getElementById('dashboard_date_selesai')?.value || '';
+
+    let url = `../api.php?action=get_dashboard_kpi&tanggal=${encodeURIComponent(filterVal)}`;
+    if (filterVal === 'custom' && dateMulai && dateSelesai) {
+      url += `&tanggal_mulai=${encodeURIComponent(dateMulai)}&tanggal_selesai=${encodeURIComponent(dateSelesai)}`;
+    }
+
+    const res = await fetch(url);
     const json = await res.json();
     if (json.status === 'success') {
       if (kpiTotalPengunjung) kpiTotalPengunjung.textContent = json.data.total_pengunjung || 0;

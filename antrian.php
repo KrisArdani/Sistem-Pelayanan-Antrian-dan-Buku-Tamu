@@ -591,8 +591,8 @@ $userKategoriInstansi = $_SESSION['user_kategori_instansi'] ?? '';
   </div>
 
   <!-- Script Helpers -->
-  <script src="js/app.js"></script>
-  <script src="js/tts.js"></script>
-  <script src="js/antrian.js"></script>
+  <script src="js/app.js?v=<?php echo time(); ?>"></script>
+  <script src="js/tts.js?v=<?php echo time(); ?>"></script>
+  <script src="js/antrian.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

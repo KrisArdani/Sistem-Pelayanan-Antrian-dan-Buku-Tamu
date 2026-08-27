@@ -20,20 +20,17 @@ $hasCompletedTicket = false;
 $completedTicket = null;
 
 if ($isUserLoggedIn && isset($conn) && $conn instanceof mysqli) {
-    // 1. Check for active ticket (Menunggu, Dipanggil, Dilayani)
+    // 1. Check for active ticket (Menunggu, Dipanggil, Dilayani) strictly for this account
     $sqlActive = "SELECT id, nomor, kode_antrian, status, tanggal, waktu, layanan, pendapat, catatan FROM antrian 
                   WHERE status IN ('Menunggu', 'Dipanggil', 'Dilayani') 
                     AND (
                       (? > 0 AND user_id = ?) 
-                      OR (? != '' AND nik = ?) 
-                      OR (? != '' AND nohp = ?) 
-                      OR (? != '' AND email = ?) 
-                      OR (? != '' AND nama = ?)
+                      OR (? != '' AND LENGTH(?) = 16 AND nik = ?) 
                     ) 
                   ORDER BY id DESC LIMIT 1";
     $stmt = $conn->prepare($sqlActive);
     if ($stmt) {
-        $stmt->bind_param("iissssssss", $userId, $userId, $userNik, $userNik, $userNohp, $userNohp, $userEmail, $userEmail, $userName, $userName);
+        $stmt->bind_param("iisss", $userId, $userId, $userNik, $userNik, $userNik);
         $stmt->execute();
         $res = $stmt->get_result();
         if ($row = $res->fetch_assoc()) {
@@ -43,20 +40,18 @@ if ($isUserLoggedIn && isset($conn) && $conn instanceof mysqli) {
         $stmt->close();
     }
 
-    // 2. Check for latest completed ticket for history / review reference
+    // 2. Check for completed ticket TODAY for current visit SKM review prompt
     $sqlCompleted = "SELECT id, nomor, kode_antrian, status, tanggal, waktu, layanan, pendapat, catatan FROM antrian 
                      WHERE status = 'Selesai' 
+                       AND DATE(tanggal) = CURDATE()
                        AND (
                          (? > 0 AND user_id = ?) 
-                         OR (? != '' AND nik = ?) 
-                         OR (? != '' AND nohp = ?) 
-                         OR (? != '' AND email = ?) 
-                         OR (? != '' AND nama = ?)
+                         OR (? != '' AND LENGTH(?) = 16 AND nik = ?) 
                        ) 
                      ORDER BY id DESC LIMIT 1";
     $stmt = $conn->prepare($sqlCompleted);
     if ($stmt) {
-        $stmt->bind_param("iissssssss", $userId, $userId, $userNik, $userNik, $userNohp, $userNohp, $userEmail, $userEmail, $userName, $userName);
+        $stmt->bind_param("iisss", $userId, $userId, $userNik, $userNik, $userNik);
         $stmt->execute();
         $res = $stmt->get_result();
         if ($row = $res->fetch_assoc()) {
@@ -565,4 +560,4 @@ window.stepperConfig = {
   hasActiveTicket: <?php echo $hasActiveTicket ? 'true' : 'false'; ?>
 };
 </script>
-<script src="js/stepper.js"></script>
+<script src="js/stepper.js?v=<?php echo time(); ?>"></script>

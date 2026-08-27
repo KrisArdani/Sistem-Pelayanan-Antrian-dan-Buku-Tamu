@@ -180,6 +180,7 @@ $csrf_token = generateCsrfToken();
                 <option value="today">Periode: Hari Ini (<?php echo date('d/m/Y'); ?>)</option>
                 <option value="this_week">Periode: Minggu Ini</option>
                 <option value="this_month">Periode: Bulan Ini (<?php echo date('F Y'); ?>)</option>
+                <option value="custom">Periode: 📆 Rentang Tanggal...</option>
               </select>
             </div>
 
@@ -204,6 +205,30 @@ $csrf_token = generateCsrfToken();
                 </li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        <!-- Custom Date Range Box Dashboard (Tampil jika Rentang Tanggal dipilih) -->
+        <div id="dashboard_custom_date_box" style="display: none;" class="flex-wrap items-center gap-3 bg-sky-50/90 p-3.5 rounded-2xl border border-sky-200 shadow-sm transition-all">
+          <div class="flex items-center gap-1.5 text-xs font-extrabold text-sky-900">
+            <span class="material-icons text-sm text-sky-600">date_range</span>
+            <span>Filter Rentang Waktu Dashboard:</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="dashboard_date_mulai" class="text-xs font-bold text-slate-600">Dari:</label>
+            <input type="date" id="dashboard_date_mulai" value="<?php echo date('Y-m-01'); ?>" class="form-control form-control-sm text-xs rounded-xl border-sky-300 bg-white shadow-sm w-40">
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="dashboard_date_selesai" class="text-xs font-bold text-slate-600">Sampai:</label>
+            <input type="date" id="dashboard_date_selesai" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm text-xs rounded-xl border-sky-300 bg-white shadow-sm w-40">
+          </div>
+          <div class="flex items-center gap-2 ml-auto">
+            <button type="button" id="btn_apply_dashboard_date" class="btn btn-primary btn-sm text-xs font-bold px-3.5 py-1.5 rounded-xl bg-sky-600 border-sky-600 shadow-sm flex items-center gap-1.5">
+              <span class="material-icons text-xs">filter_alt</span> Terapkan Filter
+            </button>
+            <button type="button" id="btn_reset_dashboard_date" class="btn btn-light btn-sm text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1">
+              <span class="material-icons text-xs">restart_alt</span> Reset
+            </button>
           </div>
         </div>
 
@@ -623,7 +648,7 @@ $csrf_token = generateCsrfToken();
     </main>
   </div>
 
-  <script src="../js/app.js"></script>
-  <script src="../js/admin-dashboard.js"></script>
+  <script src="../js/app.js?v=<?php echo time(); ?>"></script>
+  <script src="../js/admin-dashboard.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

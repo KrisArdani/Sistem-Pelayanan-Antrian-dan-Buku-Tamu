@@ -307,7 +307,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (json.status === 'success') {
           newTicket = json.data;
+
+          // Sinkronisasi state stepper global agar tidak memicu reload otomatis saat modal terbuka
+          if (typeof lastStepperTicketId !== 'undefined') {
+            lastStepperTicketId = parseInt(newTicket.id || 0);
+            lastStepperTicketStatus = newTicket.status || 'Menunggu';
+          }
+          if (window.stepperConfig) {
+            window.stepperConfig.lastTicketId = parseInt(newTicket.id || 0);
+            window.stepperConfig.lastTicketStatus = newTicket.status || 'Menunggu';
+            window.stepperConfig.hasActiveTicket = true;
+          }
+
+          // Reset form input agar bersih
+          formAntrian.reset();
+          const capturedBox = document.getElementById('captured_box');
+          const videoContainer = document.getElementById('video_container');
+          if (capturedBox) capturedBox.classList.add('hidden');
+          if (videoContainer) videoContainer.classList.remove('hidden');
+
           renderDigitalTicket(newTicket);
+
+          // Tambahkan listener saat user benar-benar menutup modal tiket secara manual
+          const modalTicketElem = document.getElementById('modalTicket');
+          if (modalTicketElem) {
+            const onModalDismiss = () => {
+              modalTicketElem.removeEventListener('hidden.bs.modal', onModalDismiss);
+              // Muat ulang halaman secara halus agar stepper dan UI utama terupdate
+              window.location.reload();
+            };
+            modalTicketElem.addEventListener('hidden.bs.modal', onModalDismiss);
+          }
         } else {
           if (json.data && json.data.active_queue) {
             Swal.fire({

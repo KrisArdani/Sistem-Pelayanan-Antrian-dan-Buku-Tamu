@@ -52,6 +52,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (waktuVal === 'today') {
       filtered = filtered.filter(t => t.tanggal && t.tanggal === todayStr);
+    } else if (waktuVal === 'this_week') {
+      const dayOfWeek = now.getDay();
+      const diffToMon = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      const monDate = new Date(now.getFullYear(), now.getMonth(), diffToMon);
+      const sunDate = new Date(monDate);
+      sunDate.setDate(monDate.getDate() + 6);
+      
+      const monStr = `${monDate.getFullYear()}-${String(monDate.getMonth() + 1).padStart(2, '0')}-${String(monDate.getDate()).padStart(2, '0')}`;
+      const sunStr = `${sunDate.getFullYear()}-${String(sunDate.getMonth() + 1).padStart(2, '0')}-${String(sunDate.getDate()).padStart(2, '0')}`;
+      
+      filtered = filtered.filter(t => t.tanggal && t.tanggal >= monStr && t.tanggal <= sunStr);
     } else if (waktuVal === 'this_month') {
       filtered = filtered.filter(t => t.tanggal && t.tanggal.startsWith(thisMonthStr));
     } else if (waktuVal === 'custom') {
@@ -239,9 +250,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (userWaktuSelect) {
     userWaktuSelect.addEventListener('change', () => {
       if (userWaktuSelect.value === 'custom') {
-        if (userCustomBox) userCustomBox.classList.remove('hidden'), userCustomBox.classList.add('flex');
+        if (userCustomBox) {
+          userCustomBox.style.display = 'flex';
+          userCustomBox.classList.remove('hidden');
+          userCustomBox.classList.add('flex');
+        }
       } else {
-        if (userCustomBox) userCustomBox.classList.add('hidden'), userCustomBox.classList.remove('flex');
+        if (userCustomBox) {
+          userCustomBox.style.display = 'none';
+          userCustomBox.classList.add('hidden');
+          userCustomBox.classList.remove('flex');
+        }
         renderTickets();
       }
     });
@@ -256,7 +275,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userWaktuSelect) userWaktuSelect.value = 'all';
       if (userDateMulai) userDateMulai.value = '';
       if (userDateSelesai) userDateSelesai.value = '';
-      if (userCustomBox) userCustomBox.classList.add('hidden'), userCustomBox.classList.remove('flex');
+      if (userCustomBox) {
+        userCustomBox.style.display = 'none';
+        userCustomBox.classList.add('hidden');
+        userCustomBox.classList.remove('flex');
+      }
       renderTickets();
     });
   }
