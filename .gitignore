@@ -67,3 +67,8 @@ ehthumbs.db
 # 8. Dependency Directories (jika menggunakan npm/composer)
 /node_modules/
 /vendor/
+
+# 9. Internal Documentation & Guides
+/docs/
+docs/
+
