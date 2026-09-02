@@ -26,9 +26,12 @@ $csrf_token = generateCsrfToken();
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/custom.css">
 </head>
-<body class="bg-slate-900 font-['Inter'] text-slate-100 min-h-screen flex items-center justify-center p-4 md:p-8">
+<body class="font-['Inter'] text-slate-100 min-h-screen flex items-center justify-center p-4 md:p-8 relative"
+  style="background-image: url('img/halaman bps.png'); background-size: cover; background-position: center 60%; background-attachment: fixed;">
+  <!-- Dark overlay agar form tetap terbaca -->
+  <div class="fixed inset-0 bg-slate-950/55 z-0 pointer-events-none"></div>
 
-  <div class="w-full max-w-2xl space-y-6">
+  <div class="relative z-10 w-full max-w-2xl space-y-6">
     
     <!-- Top Nav Back Link -->
     <div class="flex items-center justify-between">

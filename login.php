@@ -48,43 +48,47 @@ $csrf_token = generateCsrfToken();
   <!-- Main Split Screen -->
   <div class="min-h-screen grid grid-cols-1 lg:grid-cols-12">
     
-    <!-- LEFT COLUMN: Minimalist Brand Showcase -->
-    <div class="lg:col-span-6 bg-gradient-to-b from-[#002B5B] to-[#0B132B] p-8 lg:p-14 flex flex-col justify-between hidden lg:flex relative overflow-hidden">
-      
-      <!-- Subtle Ambient Glow -->
-      <div class="absolute top-0 left-0 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- LEFT COLUMN: Foto Gedung BPS sebagai Background -->
+    <div class="lg:col-span-6 hidden lg:flex flex-col justify-between relative overflow-hidden"
+      style="background-image: url('img/halaman bps.png'); background-size: cover; background-position: center center;">
 
-      <!-- Header Logo -->
-      <div class="flex items-center gap-3">
-        <img src="img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-11 h-11 object-contain filter drop-shadow">
-        <div>
-          <h2 class="text-white font-extrabold text-lg brand-font leading-none tracking-wide">SPST</h2>
-          <p class="text-[11px] text-sky-300 font-semibold uppercase tracking-wider mt-0.5">BPS Kota Tegal</p>
-        </div>
-      </div>
+      <!-- Overlay lebih terang agar foto gedung lebih terlihat -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#002B5B]/65 via-[#003366]/45 to-[#0B132B]/70 pointer-events-none"></div>
 
-      <!-- Center Hero Content -->
-      <div class="my-auto space-y-6 max-w-md">
-        <div class="space-y-3">
-          <h1 class="text-3xl lg:text-4xl font-extrabold text-white brand-font leading-tight">
-            Sistem Pelayanan Statistik Terpadu
-          </h1>
-          <p class="text-slate-300 text-sm leading-relaxed">
-            Portal layanan data, konsultasi statistik, dan reservasi antrean online BPS Kota Tegal.
-          </p>
+      <!-- Konten di atas overlay -->
+      <div class="relative z-10 p-8 lg:p-14 flex flex-col justify-between h-full">
+
+        <!-- Header Logo -->
+        <div class="flex items-center gap-3">
+          <img src="img/Logo_BPS.png" alt="Logo BPS Kota Tegal" class="w-11 h-11 object-contain filter drop-shadow">
+          <div>
+            <h2 class="text-white font-extrabold text-lg brand-font leading-none tracking-wide">SPST</h2>
+            <p class="text-[11px] text-sky-300 font-semibold uppercase tracking-wider mt-0.5">BPS Kota Tegal</p>
+          </div>
         </div>
 
-        <!-- Clean Illustration Showcase -->
-        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/60">
-          <img src="img/login_hero_illustration.webp" alt="Ilustrasi SPST BPS Kota Tegal" class="w-full h-64 object-cover">
+        <!-- Center Hero Content -->
+        <div class="space-y-6 max-w-md">
+          <div class="space-y-3">
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-white brand-font leading-tight drop-shadow-lg">
+              Sistem Pelayanan Statistik Terpadu
+            </h1>
+            <p class="text-slate-200 text-sm leading-relaxed drop-shadow">
+              Portal layanan data, konsultasi statistik, dan reservasi antrean online BPS Kota Tegal.
+            </p>
+          </div>
+          <!-- Label foto -->
+          <div class="inline-flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20">
+            <span class="text-xs text-white/80 font-semibold tracking-wider">📍 Kantor BPS Kota Tegal</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Footer Info -->
-      <div class="text-xs text-slate-400">
-        © 2026 Badan Pusat Statistik Kota Tegal. Seluruh Hak Cipta Dilindungi.
-      </div>
+        <!-- Footer Info -->
+        <div class="text-xs text-slate-300/70">
+          © 2026 Badan Pusat Statistik Kota Tegal. Seluruh Hak Cipta Dilindungi.
+        </div>
 
+      </div>
     </div>
 
     <!-- RIGHT COLUMN: Clean Login Form -->

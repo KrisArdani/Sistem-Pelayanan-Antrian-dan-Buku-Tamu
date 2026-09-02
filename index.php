@@ -80,11 +80,16 @@ $activeMenu = 'home';
       <div class="p-6 md:p-10 space-y-8 max-w-6xl mx-auto w-full">
         
         <!-- Welcome Hero Banner -->
-        <div class="bg-gradient-to-r from-[#003366] via-[#004080] to-[#00A3E0] rounded-3xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden">
+        <div class="rounded-3xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden"
+          style="background-image: url('img/halaman bps.png'); background-size: cover; background-position: center 30%;">
+          <!-- Overlay gradient BPS -->
+          <div class="absolute inset-0 bg-gradient-to-r from-[#003366]/88 via-[#004080]/75 to-[#003366]/55 rounded-3xl"></div>
+          <!-- Overlay gelap tipis merata -->
+          <div class="absolute inset-0 bg-[#001f44]/30 rounded-3xl"></div>
           <div class="relative z-10 space-y-4 max-w-2xl">
             <span class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-sky-100 uppercase tracking-widest">PST BPS KOTA TEGAL</span>
-            <h1 class="text-3xl md:text-5xl font-extrabold leading-tight brand-font">Sistem Pelayanan Statistik Terpadu</h1>
-            <p class="text-sky-100 text-sm md:text-base leading-relaxed">
+            <h1 class="text-3xl md:text-5xl font-extrabold leading-tight brand-font drop-shadow-lg" style="text-shadow: 0 2px 12px rgba(0,0,0,0.5);">Sistem Pelayanan Statistik Terpadu</h1>
+            <p class="text-sky-100 text-sm md:text-base leading-relaxed drop-shadow" style="text-shadow: 0 1px 6px rgba(0,0,0,0.6);">
               Selamat datang di portal resmi pelayanan statistik BPS Kota Tegal. Dapatkan layanan konsultasi statistik, data publikasi, serta reservasi antrian secara cepat, transparan, dan nyaman.
             </p>
 
@@ -94,9 +99,6 @@ $activeMenu = 'home';
                 <span class="text-base">Reservasi Sekarang</span>
               </a>
             </div>
-          </div>
-          <div class="absolute -right-10 -bottom-10 opacity-10 text-white pointer-events-none">
-            <span class="material-icons" style="font-size: 260px;">analytics</span>
           </div>
         </div>
 
